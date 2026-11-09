@@ -13,17 +13,23 @@ Una aplicación web interactiva de alto impacto visual orientada a transmisiones
 
 2. **Lobby Principal con 5 Minijuegos**:
    - **Minijuego 1 (Adivina la Canción Navideña)**: Totalmente funcional, interactivo, con reproductor sintetizado, barra de progreso con cuenta regresiva y 4 botones cómic de respuesta.
-   - **Minijuegos 2 al 5 (Placeholders de Bóveda)**:
-     - *Bóveda Vice City* (Estilo caja fuerte GTA).
+   - **Minijuego 2 (Karaoke Navideño de Leonida - 20 Rondas Anti-Delay)**:
+     - Panel estilo letrero de neón de karaoke con letras y palabra censurada parpadeante.
+     - Temporizador circular SVG de **15 segundos** para responder + **3 segundos** de descanso y revelación.
+     - **Sistema Anti-Delay / Cero Latencia**: No premia al más rápido por ping; otorga +1 punto a **todos los usuarios del chat** que escriban la palabra correcta dentro de la ventana de 15 segundos.
+     - **Clasificación (Leaderboard Top 5)** en tiempo real con medallas (👑, 🥈, 🥉).
+     - **Desempate aleatorio automático** en la ronda 20 en caso de empate en la primera posición.
+     - Simulador integrado de chat (`🤖 Simular Chat`) para pruebas locales o en directo.
+   - **Minijuegos 3 al 5 (Placeholders de Bóveda)**:
      - *Fortnite Winterfest Drop* (Estilo suministro Llama).
      - *Atraco del Grinch*.
-     - *Twitch Karaoke Showdown*.
+     - *Twitch Showdown*.
      - Con animación de sacudida metálica al hacer clic, aviso en toast interactivo y sonido de bloqueo.
 
 3. **Condición de Victoria & Control de Tirada Única**:
-   - Cada jugador que supera el Minijuego 1 desbloquea **exactamente 1 tirada única** en la Ruleta Navideña.
+   - Tanto el ganador del Minijuego 1 como el ganador del Minijuego 2 desbloquean **exactamente 1 tirada única** en la Ruleta Navideña.
    - El botón para reclamar la tirada y acceder a la ruleta solo se habilita tras alcanzar la victoria.
-   - La ruleta bloquea cualquier intento de giro no autorizado o doble tirada.
+   - La ruleta bloquea cualquier intento de giro no autorizado o doble tirada. Incluye además un **Modo Prueba (Giro de Demostración)** para testing.
 
 4. **Ruleta Navideña VIP & Drop Rates Matemáticos Exactos**:
    - **Decoración Navideña x Neón**: Borde exterior con franjas de bastón de caramelo, 18 bombillas LED navideñas con animación cíclica multicolor, gorro de Papá Noel, estrella dorada central y aguja superior con rebote mecánico (*tick flapper*).
@@ -64,8 +70,23 @@ Ari-Navidad/
 │       ├── confetti.js          # Cañón de confeti para celebraciones
 │       ├── router.js            # Router de vistas SPA sin recarga
 │       ├── minigame1.js         # Lógica del Quiz musical, temporizador y victoria
+│       ├── minigame2.js         # Karaoke 20 rondas con Anti-Delay para Twitch y Leaderboard
 │       └── roulette.js          # Ruleta canvas 24 gajos y cálculo matemático exacto
 └── README.md
+```
+
+### 💬 Integración Directa con Twitch Chat (Opcional)
+
+Si utilizas una biblioteca como **ComfyJS** o **tmi.js** en tu stream, puedes conectar el chat en una sola línea de código:
+
+```javascript
+// Ejemplo con ComfyJS:
+ComfyJS.onChat = (user, message, flags, self, extra) => {
+  if (window.ariKaraokeSubmitAnswer) {
+    window.ariKaraokeSubmitAnswer(user, message);
+  }
+};
+ComfyJS.Init("TU_CANAL_DE_TWITCH");
 ```
 
 ---

@@ -1,25 +1,28 @@
 /**
  * Ari-Navidad Application Entry Point
  * Coordinates global state, SPA views, Web Audio synthesizer, falling snow,
- * Minigame 1 validation and Christmas Roulette single-spin mechanics.
+ * Minigames 1 & 2 validation and Christmas Roulette mechanics.
  */
 
 import { router } from './modules/router.js';
 import { audio } from './modules/audio.js';
 import { SnowSystem } from './modules/snow.js';
 import { MinigameSongGuesser } from './modules/minigame1.js';
+import { MinigameKaraoke } from './modules/minigame2.js';
 import { ChristmasRoulette } from './modules/roulette.js';
 
 // Central Application State
 const appState = {
   spinsAvailable: 0,
   hasWonMinigame: false,
+  minigame2Winner: null,
   prizesWon: []
 };
 
 // UI Elements
 let audioToggleBtn, audioIcon, audioText, toastNotice, toastMessage, toastIcon;
 let modalVictory, btnModalGoRoulette, btnModalVictoryLobby;
+let modalKaraokeVictory, karaokeWinnerName, karaokeWinnerDetails, karaokeVictorySub, btnKaraokeGoRoulette, btnKaraokeVictoryLobby;
 let modalPrizeWon, wonPrizeIcon, wonPrizeName, wonPrizeDesc, btnClaimChat, btnPrizeDone;
 let modalPassedSubtitle;
 let toastTimeout = null;
@@ -38,7 +41,7 @@ function showToast(message, icon = '🔒') {
 }
 
 function initApp() {
-  console.log('🎄 Ari-Navidad: Initializing App...');
+  console.log('🎄 Ari-Navidad: Initializing App & Minigames...');
 
   // Initialize router
   router.init();
@@ -51,10 +54,20 @@ function initApp() {
   toastMessage = document.getElementById('toast-message');
   toastIcon = document.getElementById('toast-icon');
 
+  // Minigame 1 Modal
   modalVictory = document.getElementById('modal-victory');
   btnModalGoRoulette = document.getElementById('btn-modal-go-roulette');
   btnModalVictoryLobby = document.getElementById('btn-modal-victory-lobby');
 
+  // Minigame 2 Modal
+  modalKaraokeVictory = document.getElementById('modal-karaoke-victory');
+  karaokeWinnerName = document.getElementById('karaoke-winner-name');
+  karaokeWinnerDetails = document.getElementById('karaoke-winner-details');
+  karaokeVictorySub = document.getElementById('karaoke-victory-sub');
+  btnKaraokeGoRoulette = document.getElementById('btn-karaoke-go-roulette');
+  btnKaraokeVictoryLobby = document.getElementById('btn-karaoke-victory-lobby');
+
+  // Roulette Prize Modal
   modalPrizeWon = document.getElementById('modal-prize-won');
   wonPrizeIcon = document.getElementById('won-prize-icon');
   wonPrizeName = document.getElementById('won-prize-name');
@@ -80,15 +93,35 @@ function initApp() {
     if (modalPrizeWon) modalPrizeWon.classList.add('modal-show');
   });
 
-  // 3. Initialize Minigame 1 with App State & Victory Handler
+  // 3. Initialize Minigame 1 (Adivina la Canción)
   const minigame1 = new MinigameSongGuesser(appState, () => {
-    // When Minigame is won:
     roulette.updateControlsState();
-    // Open Victory Royale Modal
-    if (modalVictory) {
-      modalVictory.classList.add('modal-show');
+    if (modalVictory) modalVictory.classList.add('modal-show');
+  });
+
+  // 4. Initialize Minigame 2 (Karaoke Navideño Vice City - 20 Rondas Anti-Delay)
+  const minigame2 = new MinigameKaraoke(appState, (winData) => {
+    roulette.updateControlsState();
+    if (karaokeWinnerName) {
+      karaokeWinnerName.textContent = winData.winner.toUpperCase();
+    }
+    if (karaokeVictorySub) {
+      karaokeVictorySub.textContent = winData.isTied
+        ? 'FIN DE LAS 20 RONDAS • ¡DESEMPATE AL AZAR!'
+        : 'FIN DE LAS 20 RONDAS • ¡CAMPEÓN GENERAL!';
+    }
+    if (karaokeWinnerDetails) {
+      karaokeWinnerDetails.textContent = winData.isTied
+        ? `¡Hubo un empate en la cima y la ruleta del destino ha elegido a ${winData.winner}! Con ${winData.score} aciertos en 20 rondas. ¡1 tirada exclusiva lista en la Ruleta!`
+        : `¡Líder indiscutible con ${winData.score} aciertos en 20 rondas! Ha ganado 1 tirada exclusiva en la Ruleta Navideña.`;
+    }
+    if (modalKaraokeVictory) {
+      modalKaraokeVictory.classList.add('modal-show');
     }
   });
+
+  // Expose minigame2 instance for testing / stream control
+  window.ariKaraokeInstance = minigame2;
 
   // Always redraw wheel when switching to roulette view
   router.onViewChange((viewKey) => {
@@ -98,7 +131,7 @@ function initApp() {
     }
   });
 
-  // 4. Audio Control Button Setup
+  // 5. Audio Control Button Setup
   if (audioToggleBtn) {
     audioToggleBtn.onclick = (e) => {
       e.preventDefault();
@@ -117,7 +150,7 @@ function initApp() {
     };
   }
 
-  // 5. Lobby Card 1: Adivina la Canción Navideña (Play Now)
+  // 6. Lobby Card 1: Adivina la Canción Navideña (Play Now)
   const card1 = document.getElementById('card-minigame-1');
   const btnPlayMinigame1 = document.getElementById('btn-play-minigame1');
   
@@ -136,7 +169,26 @@ function initApp() {
     };
   }
 
-  // 6. Lobby Cards 2 to 5: Locked Vault Interaction
+  // 7. Lobby Card 2: Karaoke Navideño Vice City (Play Now)
+  const card2 = document.getElementById('card-minigame-2');
+  const btnPlayMinigame2 = document.getElementById('btn-play-minigame2');
+
+  const startMinigame2Action = (e) => {
+    if (e) e.preventDefault();
+    audio.playClick();
+    router.navigateTo('minigame2');
+    minigame2.startNewGame();
+  };
+
+  if (card2) card2.onclick = startMinigame2Action;
+  if (btnPlayMinigame2) {
+    btnPlayMinigame2.onclick = (e) => {
+      e.stopPropagation();
+      startMinigame2Action(e);
+    };
+  }
+
+  // 8. Lobby Cards 3 to 5: Locked Vault Interaction
   const lockedCards = document.querySelectorAll('.game-card.card-locked');
   lockedCards.forEach(card => {
     card.onclick = (e) => {
@@ -152,7 +204,7 @@ function initApp() {
     };
   });
 
-  // 7. Lobby CTA: Ver Ruleta
+  // 9. Lobby CTA: Ver Ruleta
   const lobbyCtaWheel = document.getElementById('lobby-cta-wheel');
   if (lobbyCtaWheel) {
     lobbyCtaWheel.onclick = (e) => {
@@ -164,7 +216,7 @@ function initApp() {
     };
   }
 
-  // 8. Victory Modal Buttons
+  // 10. Victory Modal 1 Buttons (Adivina la Canción)
   if (btnModalGoRoulette) {
     btnModalGoRoulette.onclick = (e) => {
       e.preventDefault();
@@ -186,7 +238,29 @@ function initApp() {
     };
   }
 
-  // 9. Prize Won Modal Buttons
+  // 11. Victory Modal 2 Buttons (Karaoke Navideño)
+  if (btnKaraokeGoRoulette) {
+    btnKaraokeGoRoulette.onclick = (e) => {
+      e.preventDefault();
+      audio.playClick();
+      if (modalKaraokeVictory) modalKaraokeVictory.classList.remove('modal-show');
+      router.navigateTo('roulette');
+      roulette.drawWheel(roulette.currentRotation);
+      roulette.updateControlsState();
+    };
+  }
+
+  if (btnKaraokeVictoryLobby) {
+    btnKaraokeVictoryLobby.onclick = (e) => {
+      e.preventDefault();
+      audio.playClick();
+      if (modalKaraokeVictory) modalKaraokeVictory.classList.remove('modal-show');
+      router.navigateTo('lobby');
+      roulette.updateControlsState();
+    };
+  }
+
+  // 12. Prize Won Modal Buttons
   if (btnClaimChat) {
     btnClaimChat.onclick = (e) => {
       e.preventDefault();
@@ -212,7 +286,7 @@ function initApp() {
     };
   }
 
-  console.log('✨ Ari Navidad: Ready!');
+  console.log('✨ Ari Navidad: Ready with Minigames 1 & 2!');
 }
 
 // Robust execution: handles both early and late script loading

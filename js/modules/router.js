@@ -16,6 +16,7 @@ class ViewRouter {
     this.views = {
       'lobby': document.getElementById('view-lobby'),
       'minigame1': document.getElementById('view-minigame1'),
+      'minigame2': document.getElementById('view-minigame2'),
       'roulette': document.getElementById('view-roulette')
     };
 

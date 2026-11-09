@@ -156,25 +156,26 @@
             </div>
           </article>
 
-          <!-- CARD 2: Bóveda Vice City (BLOQUEADO) -->
-          <article class="game-card card-locked" data-locked-name="Bóveda de Regalos de Vice City">
-            <div class="vault-chains"></div>
-            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+          <!-- CARD 2: Karaoke Navideño (ACTIVO) -->
+          <article class="game-card card-active" id="card-minigame-2">
+            <div class="card-candy-border"></div>
+            <span class="card-badge-status badge-open">⭐ DISPONIBLE</span>
 
             <div class="card-icon-wrapper">
-              <span>🏦</span>
+              <span class="card-hat">🎅</span>
+              <span>🎤</span>
             </div>
 
             <span class="card-meta-num">Minijuego 02</span>
-            <h3 class="card-title">Bóveda Vice City</h3>
+            <h3 class="card-title">Karaoke Navideño</h3>
             <p class="card-desc">
-              Hackea la caja fuerte del club de Leonida para rescatar los regalos secuestrados.
+              Descifra la palabra censurada en 20 rondas con anti-delay para el chat. ¡El líder gana la tirada!
             </p>
 
             <div class="card-action">
-              <div class="lock-seal">
-                <span>🔒</span> PRÓXIMAMENTE
-              </div>
+              <button class="fn-btn fn-btn-cyan" id="btn-play-minigame2">
+                <span>🎤</span> ¡JUGAR AHORA!
+              </button>
             </div>
           </article>
 
@@ -360,6 +361,113 @@
       </section>
 
       <!-- ====================================================================
+           VIEW 2B: MINIJUEGO 2 (KARAOKE NAVIDEÑO VICE CITY - 20 RONDAS ANTI-DELAY)
+           ==================================================================== -->
+      <section class="spa-view" id="view-minigame2">
+        <div class="view-title-container">
+          <div class="title-badge-group">
+            <span class="season-tag">🎤 RETO DE KARAOKE • ANTI-DELAY TWITCH</span>
+            <h2 class="main-view-title">
+              Karaoke <span class="highlight-yellow">Navideño</span> Leonida
+            </h2>
+          </div>
+          <button class="fn-btn fn-btn-purple btn-back-lobby">
+            <span>⬅</span> Volver al Lobby
+          </button>
+        </div>
+
+        <div class="karaoke-screen-layout">
+
+          <!-- Left / Center: Karaoke Marquee Stage -->
+          <div class="karaoke-stage-container">
+
+            <!-- Top Mini HUD: Round Indicator + Circular Countdown Timer -->
+            <div class="karaoke-top-hud">
+              <div class="hud-left-meta">
+                <span class="karaoke-round-pill" id="karaoke-round-badge">RONDA 1 / 20</span>
+                <span class="karaoke-phase-tag phase-active" id="karaoke-phase-badge">⚡ TIEMPO PARA RESPONDER (15s)</span>
+              </div>
+
+              <!-- Circular SVG Timer -->
+              <div class="circular-timer-box" title="Tiempo de la ronda">
+                <svg class="timer-svg" viewBox="0 0 110 110">
+                  <circle class="timer-svg-bg" cx="55" cy="55" r="48"></circle>
+                  <circle class="timer-svg-progress" id="timer-svg-circle" cx="55" cy="55" r="48"></circle>
+                </svg>
+                <span class="timer-number-center" id="timer-svg-text">15s</span>
+              </div>
+            </div>
+
+            <!-- Neon Karaoke Marquee Signboard -->
+            <div class="karaoke-marquee-board" id="karaoke-marquee">
+              <div class="marquee-candy-border"></div>
+
+              <div class="karaoke-song-header">
+                <span class="karaoke-song-title" id="karaoke-song-title">🎵 Jingle Bells</span>
+              </div>
+
+              <div class="karaoke-lyrics-box">
+                <p class="karaoke-lyrics-text" id="karaoke-lyrics-text">
+                  "Jingle bells, jingle bells, jingle all the <span class="censored-highlight">___________</span>"
+                </p>
+              </div>
+
+              <div class="karaoke-status-banner status-waiting" id="karaoke-status-banner">
+                <span>⏳</span> ¡El chat tiene 15 segundos! Todos los que acierten se llevan +1 punto.
+              </div>
+            </div>
+
+            <!-- Bottom Response Dock & Simulated Chat Control -->
+            <div class="karaoke-dock-container">
+              <div class="karaoke-input-row">
+                <input type="text" class="karaoke-input-field input-user-tag" id="karaoke-input-user" placeholder="Tu Usuario" value="Tú (Streamer)" title="Nombre que aparecerá en el Leaderboard">
+                <input type="text" class="karaoke-input-field input-answer-box" id="karaoke-input-answer" placeholder="Escribe la palabra que falta y pulsa Enter..." autocomplete="off">
+                <button class="fn-btn fn-btn-pink" id="karaoke-btn-send">
+                  <span>📨</span> Enviar
+                </button>
+                <button class="fn-btn fn-btn-gold" id="karaoke-btn-sim-bots" title="Simula que espectadores del chat responden dentro de los 15s">
+                  <span>🤖</span> Simular Chat
+                </button>
+              </div>
+
+              <!-- Live Chat Responses Activity Log -->
+              <div class="karaoke-chat-feed" id="karaoke-chat-feed">
+                <div class="chat-log-msg system">⭐ ¡Partida lista! Tienes 15 segundos por ronda. Escribe la palabra que falta.</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Side: Leaderboard Panel (Top 5 Clasificación) -->
+          <aside class="karaoke-leaderboard-panel">
+            <div class="lb-header">
+              <div class="lb-title">
+                <span>🏆</span> CLASIFICACIÓN
+              </div>
+              <span class="lb-sub-pill" id="karaoke-total-players">0 participantes</span>
+            </div>
+
+            <div class="leaderboard-list" id="karaoke-leaderboard-list">
+              <!-- Rendered via JS -->
+              <div class="leaderboard-empty">
+                <span>🎮</span>
+                <p>Aún no hay puntos. ¡Escribe en el chat para entrar en el Top 5!</p>
+              </div>
+            </div>
+
+            <div class="lb-footer-note">
+              <span>⚡</span> Anti-Delay: Todos los que acierten en los 15s suman punto. Desempate al azar en Ronda 20.
+            </div>
+
+            <button class="fn-btn fn-btn-cyan" id="karaoke-btn-start" style="margin-top: 10px; width: 100%;">
+              <span>🔄</span> Reiniciar Partida (Ronda 1)
+            </button>
+          </aside>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
            VIEW 3: RULETA NAVIDEÑA (WHEEL + EXACT DROP RATES PANEL)
            ==================================================================== -->
       <section class="spa-view" id="view-roulette">
@@ -435,7 +543,7 @@
   </div>
 
   <!-- ======================================================================
-       MODAL 1: VICTORIA ROYALE EN MINIJUEGO (DESBLOQUEO DE TIRADA)
+       MODAL 1: VICTORIA ROYALE EN MINIJUEGO 1 (DESBLOQUEO DE TIRADA)
        ====================================================================== -->
   <div class="modal-overlay" id="modal-victory">
     <div class="modal-card">
@@ -456,6 +564,33 @@
           <span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!
         </button>
         <button class="fn-btn fn-btn-purple" id="btn-modal-victory-lobby">
+          <span>🏠</span> Volver al Lobby
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1B: VICTORIA EN MINIJUEGO 2 (KARAOKE NAVIDEÑO - GANADOR TOP 1)
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-karaoke-victory">
+    <div class="modal-card">
+      <h2 class="modal-slam-banner">¡VICTORIA ROYALE! 🎤👑</h2>
+      <div class="modal-sub-banner" id="karaoke-victory-sub">FIN DE LAS 20 RONDAS • CLASIFICACIÓN FINAL</div>
+
+      <div class="modal-prize-box" style="border-color: var(--fn-yellow);">
+        <span class="modal-prize-icon">🏆</span>
+        <h3 class="modal-prize-name" id="karaoke-winner-name">TÚ (STREAMER)</h3>
+        <p class="modal-prize-details" id="karaoke-winner-details">
+          ¡Campeón indiscutible del Karaoke de Leonida! Se desbloquea 1 tirada única en la Ruleta Navideña.
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="fn-btn fn-btn-gold" id="btn-karaoke-go-roulette" style="font-size: 1.25rem; padding: 14px;">
+          <span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!
+        </button>
+        <button class="fn-btn fn-btn-purple" id="btn-karaoke-victory-lobby">
           <span>🏠</span> Volver al Lobby
         </button>
       </div>
