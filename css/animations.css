@@ -1,0 +1,189 @@
+/* ==========================================================================
+   ARI-NAVIDAD: ANIMATIONS & KEYFRAMES
+   Fairy lights, Neon Glows, Fortnite Bounces, Deceleration & Celebration FX
+   ========================================================================== */
+
+/* 1. Christmas Fairy Lights Garland Animation */
+@keyframes fairyLightGlow1 {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #ff1744) drop-shadow(0 0 20px #ff1744);
+    transform: scale(1.05);
+  }
+  50% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 2px #ff1744);
+    transform: scale(0.92);
+  }
+}
+
+@keyframes fairyLightGlow2 {
+  0%, 100% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 2px #00e676);
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #00e676) drop-shadow(0 0 20px #00e676);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes fairyLightGlow3 {
+  0%, 100% {
+    opacity: 0.9;
+    filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 22px #ffd700);
+    transform: scale(1.03);
+  }
+  50% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 2px #ffd700);
+    transform: scale(0.95);
+  }
+}
+
+@keyframes fairyLightGlow4 {
+  0%, 100% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 3px #00f0ff);
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px #00f0ff) drop-shadow(0 0 24px #00f0ff);
+    transform: scale(1.06);
+  }
+}
+
+@keyframes fairyLightGlow5 {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px #ff007f) drop-shadow(0 0 20px #ff007f);
+    transform: scale(1.04);
+  }
+  50% {
+    opacity: 0.3;
+    filter: drop-shadow(0 0 2px #ff007f);
+    transform: scale(0.9);
+  }
+}
+
+/* 2. Neon Pulsing & Shimmer */
+@keyframes neonPulsePink {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.6), inset 0 0 8px rgba(255, 0, 127, 0.4);
+    border-color: #ff007f;
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(255, 0, 127, 0.9), inset 0 0 14px rgba(255, 0, 127, 0.7);
+    border-color: #ff66b2;
+  }
+}
+
+@keyframes neonPulseCyan {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.5), inset 0 0 8px rgba(0, 240, 255, 0.3);
+    border-color: #00f0ff;
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(0, 240, 255, 0.85), inset 0 0 14px rgba(0, 240, 255, 0.6);
+    border-color: #80f7ff;
+  }
+}
+
+@keyframes neonTextGlow {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(255, 0, 127, 0.7), 0 0 18px rgba(255, 0, 127, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 16px rgba(255, 0, 127, 1), 0 0 30px rgba(0, 240, 255, 0.8);
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255, 230, 0, 0.9);
+  }
+}
+
+/* 3. Fortnite Cartoon Bounce & Slant */
+@keyframes fnPop {
+  0% { transform: scale(0.9); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes badgeShine {
+  0% { transform: translateX(-100%) skewX(-20deg); }
+  30%, 100% { transform: translateX(200%) skewX(-20deg); }
+}
+
+/* 4. Candy Cane Border Scroll */
+@keyframes candyStripeMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 50px 50px; }
+}
+
+/* 5. Audio Player Vinyl Spin & Wave Bars */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 6. Locked Vault Door Shake */
+@keyframes vaultShake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-8px) rotate(-1deg); }
+  30% { transform: translateX(8px) rotate(1deg); }
+  45% { transform: translateX(-6px) rotate(-0.5deg); }
+  60% { transform: translateX(6px) rotate(0.5deg); }
+  75% { transform: translateX(-3px); }
+  90% { transform: translateX(3px); }
+}
+
+.vault-shake-anim {
+  animation: vaultShake 0.5s ease-in-out;
+}
+
+/* 7. Roulette Pointer Wobble / Ticking Spring */
+@keyframes flapperTick {
+  0% { transform: rotate(0deg); }
+  40% { transform: rotate(-22deg); }
+  70% { transform: rotate(6deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.flapper-tick-active {
+  animation: flapperTick 0.12s ease-out;
+}
+
+/* 8. Victory Banner Slam */
+@keyframes victorySlam {
+  0% {
+    opacity: 0;
+    transform: scale(2.2) translateY(-50px) rotate(-4deg);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.95) translateY(5px) rotate(1deg);
+    filter: blur(0);
+  }
+  80% {
+    transform: scale(1.03) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0);
+  }
+}
+
+/* 9. Floating Festive Ornaments */
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}

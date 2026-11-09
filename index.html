@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ari Navidad - Especial Twitch | GTA VI x Fortnite</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎄</text></svg>">
+</head>
+<body>
+
+  <!-- Background Environment: Vice City Sunset + Horizon Grid -->
+  <div class="app-background">
+    <div class="bg-grid"></div>
+    <div class="bg-palms"></div>
+  </div>
+
+  <!-- Interactive FX Canvases -->
+  <canvas id="snow-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Root Application Container -->
+  <div class="app-container">
+
+    <!-- Top Twitch Stream HUD Header -->
+    <header class="stream-header">
+      <!-- Channel Brand / Logo -->
+      <div class="brand-box">
+        <div class="brand-logo" id="header-logo">
+          <span class="santa-hat">🎅</span>
+          <span>🎮</span>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">Ari Navidad</h1>
+          <div class="brand-subtitle">
+            <span class="twitch-badge"><span class="live-indicator"></span> TWITCH LIVE</span>
+            <span>LEONIDA VICE CITY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Center: Spin Token HUD -->
+      <div class="header-center">
+        <div class="hud-pill" id="hud-spins-pill">
+          <span class="hud-label">🎰 Tiradas Ruleta:</span>
+          <span class="hud-value gold" id="header-spin-count">0</span>
+        </div>
+      </div>
+
+      <!-- Header Action Controls -->
+      <div class="header-actions">
+        <button class="fn-btn fn-btn-purple" id="nav-btn-lobby" title="Ir al Menú Principal">
+          <span>🏠</span> Lobby
+        </button>
+        <button class="fn-btn fn-btn-gold" id="nav-btn-roulette" title="Ir a la Ruleta">
+          <span>🎰</span> Ruleta
+        </button>
+        <button class="audio-toggle-btn" id="audio-toggle" title="Activar/Desactivar Sonido">
+          <span id="audio-icon">🔇</span>
+          <span id="audio-text">Audio Off</span>
+          <div class="eq-bars">
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+            <span class="eq-bar"></span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Christmas String Fairy Lights Garland -->
+      <div class="fairy-lights-garland" id="header-garland">
+        <div class="fairy-wire"></div>
+        <!-- Injected via JS or markup -->
+        <span class="fairy-bulb bulb-red"></span>
+        <span class="fairy-bulb bulb-gold"></span>
+        <span class="fairy-bulb bulb-green"></span>
+        <span class="fairy-bulb bulb-cyan"></span>
+        <span class="fairy-bulb bulb-pink"></span>
+        <span class="fairy-bulb bulb-red"></span>
+        <span class="fairy-bulb bulb-gold"></span>
+        <span class="fairy-bulb bulb-green"></span>
+        <span class="fairy-bulb bulb-cyan"></span>
+        <span class="fairy-bulb bulb-pink"></span>
+        <span class="fairy-bulb bulb-red"></span>
+        <span class="fairy-bulb bulb-gold"></span>
+        <span class="fairy-bulb bulb-green"></span>
+        <span class="fairy-bulb bulb-cyan"></span>
+        <span class="fairy-bulb bulb-pink"></span>
+        <span class="fairy-bulb bulb-red"></span>
+        <span class="fairy-bulb bulb-gold"></span>
+        <span class="fairy-bulb bulb-green"></span>
+        <span class="fairy-bulb bulb-cyan"></span>
+        <span class="fairy-bulb bulb-pink"></span>
+      </div>
+    </header>
+
+    <!-- Main SPA Stage for Screen Transitions (Zero Scroll) -->
+    <main class="main-stage">
+
+      <!-- ====================================================================
+           VIEW 1: LOBBY PRINCIPAL (5 CARDS)
+           ==================================================================== -->
+      <section class="spa-view active-view" id="view-lobby">
+        <div class="view-title-container">
+          <div class="title-badge-group">
+            <span class="season-tag">⭐ TEMPORADA ESPECIAL • VICE CITY WINTERFEST</span>
+            <h2 class="main-view-title">
+              Selecciona tu <span class="highlight-yellow">Minijuego</span> Navideño
+            </h2>
+          </div>
+          <div class="lobby-quick-stat">
+            <span class="hud-pill">🏆 Objetivo: Supera el Minijuego 1 para desbloquear 1 tirada</span>
+          </div>
+        </div>
+
+        <!-- 5 Minigame Cards Grid -->
+        <div class="lobby-grid">
+
+          <!-- CARD 1: Adivina la Canción Navideña (ACTIVO) -->
+          <article class="game-card card-active" id="card-minigame-1">
+            <div class="card-candy-border"></div>
+            <span class="card-badge-status badge-open">⭐ DISPONIBLE</span>
+            
+            <div class="card-icon-wrapper">
+              <span class="card-hat">🎅</span>
+              <span class="spinning-record">💿</span>
+            </div>
+
+            <span class="card-meta-num">Minijuego 01</span>
+            <h3 class="card-title">Adivina la Canción</h3>
+            <p class="card-desc">
+              Escucha el hit navideño en sintetizador Vice City y acierta la canción antes de que termine el tiempo.
+            </p>
+
+            <div class="card-action">
+              <button class="fn-btn fn-btn-pink" id="btn-play-minigame1">
+                <span>🎵</span> ¡JUGAR AHORA!
+              </button>
+            </div>
+          </article>
+
+          <!-- CARD 2: Bóveda Vice City (BLOQUEADO) -->
+          <article class="game-card card-locked" data-locked-name="Bóveda de Regalos de Vice City">
+            <div class="vault-chains"></div>
+            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+
+            <div class="card-icon-wrapper">
+              <span>🏦</span>
+            </div>
+
+            <span class="card-meta-num">Minijuego 02</span>
+            <h3 class="card-title">Bóveda Vice City</h3>
+            <p class="card-desc">
+              Hackea la caja fuerte del club de Leonida para rescatar los regalos secuestrados.
+            </p>
+
+            <div class="card-action">
+              <div class="lock-seal">
+                <span>🔒</span> PRÓXIMAMENTE
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD 3: Fortnite Winterfest Drop (BLOQUEADO) -->
+          <article class="game-card card-locked" data-locked-name="Fortnite Winterfest Supply Drop">
+            <div class="vault-chains"></div>
+            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+
+            <div class="card-icon-wrapper">
+              <span>🦙</span>
+            </div>
+
+            <span class="card-meta-num">Minijuego 03</span>
+            <h3 class="card-title">Winterfest Drop</h3>
+            <p class="card-desc">
+              Localiza la llama navideña antes de que la tormenta helada cubra la isla de Fortnite.
+            </p>
+
+            <div class="card-action">
+              <div class="lock-seal">
+                <span>🔒</span> PRÓXIMAMENTE
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD 4: El Atraco del Grinch (BLOQUEADO) -->
+          <article class="game-card card-locked" data-locked-name="El Gran Atraco del Grinch">
+            <div class="vault-chains"></div>
+            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+
+            <div class="card-icon-wrapper">
+              <span>🎄</span>
+            </div>
+
+            <span class="card-meta-num">Minijuego 04</span>
+            <h3 class="card-title">Atraco del Grinch</h3>
+            <p class="card-desc">
+              Intercepta la furgoneta de escape del Grinch por Ocean Drive antes de Nochebuena.
+            </p>
+
+            <div class="card-action">
+              <div class="lock-seal">
+                <span>🔒</span> PRÓXIMAMENTE
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD 5: Karaoke Navideño Twitch (BLOQUEADO) -->
+          <article class="game-card card-locked" data-locked-name="Karaoke Navideño de Twitch">
+            <div class="vault-chains"></div>
+            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+
+            <div class="card-icon-wrapper">
+              <span>🎤</span>
+            </div>
+
+            <span class="card-meta-num">Minijuego 05</span>
+            <h3 class="card-title">Twitch Karaoke</h3>
+            <p class="card-desc">
+              Duelo musical en vivo con el chat para coronar al Rey o Reina del stream navideño.
+            </p>
+
+            <div class="card-action">
+              <div class="lock-seal">
+                <span>🔒</span> PRÓXIMAMENTE
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Lobby Bottom Banner Explainer -->
+        <div class="lobby-footer-banner">
+          <div class="banner-left">
+            <span class="banner-icon">🎁</span>
+            <div>
+              <div class="banner-title">¡CONSIGUE TU TIRADA EN LA RULETA NAVIDEÑA!</div>
+              <div class="banner-desc">Supera con éxito el Minijuego 1 para desbloquear 1 tirada única con premios exclusivos (VIP, Subs, Skins, Picos y Tickets).</div>
+            </div>
+          </div>
+          <button class="fn-btn fn-btn-gold" id="lobby-cta-wheel">
+            <span>🎰</span> Ver Ruleta
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 2: MINIJUEGO 1 (ADIVINA LA CANCIÓN NAVIDEÑA)
+           ==================================================================== -->
+      <section class="spa-view" id="view-minigame1">
+        <div class="view-title-container">
+          <div class="title-badge-group">
+            <span class="season-tag">🎵 RETO MUSICAL NAVIDEÑO</span>
+            <h2 class="main-view-title">
+              Adivina la <span class="highlight-cyan">Canción</span> Navideña
+            </h2>
+          </div>
+          <button class="fn-btn fn-btn-purple btn-back-lobby">
+            <span>⬅</span> Volver al Lobby
+          </button>
+        </div>
+
+        <div class="quiz-screen-layout">
+
+          <!-- Quiz Top HUD: Round, Score & Decisive Countdown -->
+          <div class="quiz-top-hud">
+            <div class="hud-stat-box">
+              <span class="stat-label">Canción</span>
+              <span class="stat-value" id="quiz-round-display">1 / 3</span>
+            </div>
+            <div class="hud-stat-box">
+              <span class="stat-label">Aciertos Requeridos</span>
+              <span class="stat-value gold" id="quiz-score-display">0 / 3</span>
+            </div>
+            <div class="hud-stat-box">
+              <span class="stat-label">Tiempo</span>
+              <span class="stat-value" id="quiz-timer-display">15s</span>
+            </div>
+          </div>
+
+          <!-- Audio Cassette / Turntable Synthesizer Deck -->
+          <div class="audio-player-deck" id="quiz-player-deck">
+            <div class="player-cassette-visual">
+              <div class="vinyl-disc" id="quiz-vinyl">
+                <span class="vinyl-center-art">🎄</span>
+              </div>
+              <div class="player-wave-container">
+                <div class="wave-title">
+                  <span id="player-status-icon">🔊</span>
+                  <span id="player-status-text">Reproduciendo sintonía navideña...</span>
+                </div>
+                <div class="neon-equalizer-display">
+                  <span class="neon-eq-col"></span>
+                  <span class="neon-eq-col"></span>
+                  <span class="neon-eq-col"></span>
+                  <span class="neon-eq-col"></span>
+                  <span class="neon-eq-col"></span>
+                  <span class="neon-eq-col"></span>
+                  <span class="neon-eq-col"></span>
+                  <span class="neon-eq-col"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action buttons: Replay Melody -->
+            <button class="fn-btn fn-btn-cyan" id="btn-replay-song">
+              <span>🔁</span> Repetir Melodía
+            </button>
+
+            <!-- Neon Timer Bar -->
+            <div class="quiz-timer-wrap">
+              <div class="timer-header">
+                <span>TIEMPO RESTANTE</span>
+                <span id="timer-bar-text">100%</span>
+              </div>
+              <div class="timer-track">
+                <div class="timer-fill" id="quiz-timer-fill" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Fortnite-style Answers Grid -->
+          <div class="quiz-answers-grid" id="quiz-answers-container">
+            <button class="fn-btn fn-btn-pink answer-btn" data-index="0">
+              <span class="btn-letter-tag">A</span>
+              <span class="btn-answer-text">Jingle Bell Rock</span>
+            </button>
+            <button class="fn-btn fn-btn-cyan answer-btn" data-index="1">
+              <span class="btn-letter-tag">B</span>
+              <span class="btn-answer-text">All I Want for Christmas Is You</span>
+            </button>
+            <button class="fn-btn fn-btn-purple answer-btn" data-index="2">
+              <span class="btn-letter-tag">C</span>
+              <span class="btn-answer-text">Feliz Navidad</span>
+            </button>
+            <button class="fn-btn fn-btn-green answer-btn" data-index="3">
+              <span class="btn-letter-tag">D</span>
+              <span class="btn-answer-text">Last Christmas</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 3: RULETA NAVIDEÑA (WHEEL + EXACT DROP RATES PANEL)
+           ==================================================================== -->
+      <section class="spa-view" id="view-roulette">
+        <div class="view-title-container">
+          <div class="title-badge-group">
+            <span class="season-tag">🎰 CASINO DE LEONIDA • RULETA NAVIDEÑA</span>
+            <h2 class="main-view-title">
+              Ruleta Navideña <span class="highlight-yellow">VIP</span>
+            </h2>
+          </div>
+          <button class="fn-btn fn-btn-purple btn-back-lobby">
+            <span>⬅</span> Volver al Lobby
+          </button>
+        </div>
+
+        <div class="roulette-screen-layout">
+
+          <!-- Left / Center: Festive Christmas Roulette Wheel -->
+          <div class="wheel-stage-container">
+            <div class="wheel-outer-bezel" id="wheel-bezel">
+              <!-- Santa Hat on top -->
+              <div class="wheel-santa-cap">🎅</div>
+
+              <!-- Top Pointer Flapper -->
+              <div class="wheel-pointer-assembly" id="wheel-pointer">
+                <div class="wheel-pointer-triangle"></div>
+              </div>
+
+              <!-- Ring of 16 Fairy Lights around bezel -->
+              <div class="wheel-lights-ring" id="wheel-lights-ring"></div>
+
+              <!-- Canvas of 24 Slices -->
+              <canvas id="wheel-canvas" width="400" height="400"></canvas>
+
+              <!-- Central Gold Ornament Hub -->
+              <div class="wheel-center-hub">
+                <span>⭐</span>
+              </div>
+            </div>
+
+            <!-- Controls below the wheel -->
+            <div class="wheel-controls">
+              <button class="fn-btn fn-btn-gold wheel-spin-btn" id="btn-spin-wheel">
+                <span>🎰</span> ¡GIRAR RULETA!
+              </button>
+              <div class="spin-status-note" id="spin-status-feedback">
+                🔒 Requiere ganar el Minijuego 1 para desbloquear 1 tirada
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side: Drop Rates & Odds Legend Panel -->
+          <aside class="drop-rates-panel">
+            <div class="panel-header">
+              <h3 class="panel-title">
+                <span>📜</span> LEYENDA DE PREMIOS & PROBABILIDADES
+              </h3>
+              <span class="sub-tag">MATEMÁTICA EXACTA DROP RATES (TOTAL 100%)</span>
+            </div>
+
+            <div class="odds-list" id="odds-list-container">
+              <!-- Rendered via JS with exact drop rates & rarity badges -->
+            </div>
+          </aside>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1: VICTORIA ROYALE EN MINIJUEGO (DESBLOQUEO DE TIRADA)
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-victory">
+    <div class="modal-card">
+      <h2 class="modal-slam-banner">¡VICTORIA ROYALE! 👑</h2>
+      <div class="modal-sub-banner">¡HAS SUPERADO EL MINIJUEGO NAVIDEÑO!</div>
+
+      <div class="modal-prize-box">
+        <span class="modal-prize-icon">🎰</span>
+        <h3 class="modal-prize-name">¡1 TIRADA DESBLOQUEADA!</h3>
+        <p class="modal-prize-details">
+          Tienes exactamente 1 tirada garantizada en la Ruleta Navideña de Leonida.
+          ¡Gira ahora para descubrir tu premio especial del stream!
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="fn-btn fn-btn-gold" id="btn-modal-go-roulette" style="font-size: 1.25rem; padding: 14px;">
+          <span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!
+        </button>
+        <button class="fn-btn fn-btn-purple" id="btn-modal-victory-lobby">
+          <span>🏠</span> Volver al Lobby
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 2: PREMIO OBTENIDO EN RULETA (GTA MISSION PASSED STYLE)
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-prize-won">
+    <div class="modal-card">
+      <h2 class="modal-slam-banner" style="color: var(--gta-cyan);">¡PREMIO OBTENIDO! 🎁</h2>
+      <div class="modal-sub-banner" id="modal-passed-subtitle">MISSION PASSED • RECOMPENSA DE LEONIDA</div>
+
+      <div class="modal-prize-box" style="border-color: var(--gta-cyan);">
+        <span class="modal-prize-icon" id="won-prize-icon">👑</span>
+        <h3 class="modal-prize-name" id="won-prize-name">VIP DEL CANAL</h3>
+        <p class="modal-prize-details" id="won-prize-desc">
+          ¡Felicidades! Has conseguido el premio legendario con un 1% de probabilidad exacta.
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="fn-btn fn-btn-green" id="btn-claim-chat" style="font-size: 1.15rem; padding: 12px;">
+          <span>💬</span> ¡RECLAMAR EN TWITCH!
+        </button>
+        <button class="fn-btn fn-btn-purple" id="btn-prize-done">
+          <span>🏠</span> Volver al Lobby
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notice (Locked Vault Feedback) -->
+  <div class="toast-notice" id="toast-notice">
+    <span id="toast-icon">🔒</span>
+    <span id="toast-message">Bóveda sellada</span>
+  </div>
+
+  <!-- JavaScript Modular Scripts -->
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>
