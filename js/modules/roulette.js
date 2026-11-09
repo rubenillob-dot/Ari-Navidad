@@ -1,7 +1,7 @@
 /**
  * Ari-Navidad Christmas Roulette Module
  * Exact mathematical drop rates calculation, 24-slice canvas wheel with alternating prizes,
- * blinking fairy light bezel, pointer tick physics, and victory celebration.
+ * blinking fairy light bezel, pointer tick physics, demo mode, and victory celebration.
  */
 
 import { audio } from './audio.js';
@@ -19,6 +19,7 @@ export class ChristmasRoulette {
     this.lightsRing = document.getElementById('wheel-lights-ring');
     this.pointerEl = document.querySelector('.wheel-pointer-triangle');
     this.spinBtn = document.getElementById('btn-spin-wheel');
+    this.demoBtn = document.getElementById('btn-demo-spin');
     this.feedbackEl = document.getElementById('spin-status-feedback');
     this.oddsContainer = document.getElementById('odds-list-container');
     this.headerSpinCount = document.getElementById('header-spin-count');
@@ -81,9 +82,17 @@ export class ChristmasRoulette {
     this.updateControlsState();
 
     if (this.spinBtn) {
-      this.spinBtn.addEventListener('click', () => {
-        this.handleSpinClick();
-      });
+      this.spinBtn.onclick = (e) => {
+        e.preventDefault();
+        this.handleSpinClick(false);
+      };
+    }
+
+    if (this.demoBtn) {
+      this.demoBtn.onclick = (e) => {
+        e.preventDefault();
+        this.handleSpinClick(true);
+      };
     }
   }
 
@@ -94,9 +103,9 @@ export class ChristmasRoulette {
     if (!this.lightsRing) return;
     this.lightsRing.innerHTML = '';
     const lightCount = 18;
-    const radius = 210; // Bezel is 440px, lights around 420px diameter
-    const centerX = 220;
-    const centerY = 220;
+    const radius = 185;
+    const centerX = 200;
+    const centerY = 200;
     const bulbClasses = ['bulb-red', 'bulb-gold', 'bulb-green', 'bulb-cyan', 'bulb-pink'];
 
     for (let i = 0; i < lightCount; i++) {
@@ -172,23 +181,26 @@ export class ChristmasRoulette {
 
     if (this.isSpinning) {
       this.spinBtn.disabled = true;
+      if (this.demoBtn) this.demoBtn.disabled = true;
       this.feedbackEl.textContent = '🎰 ¡GIRANDO RULETA NAVIDEÑA...! ¡MUCHA SUERTE!';
       this.feedbackEl.style.color = 'var(--fn-yellow)';
       return;
     }
 
+    if (this.demoBtn) this.demoBtn.disabled = false;
+
     if (this.state.spinsAvailable > 0) {
       this.spinBtn.disabled = false;
-      this.feedbackEl.textContent = `⭐ ¡TIENES ${this.state.spinsAvailable} TIRADA DISPONIBLE! ¡HAZ CLICK PARA GIRAR!`;
+      this.feedbackEl.textContent = `⭐ ¡TIENES ${this.state.spinsAvailable} TIRADA OFICIAL LISTA! ¡HAZ CLICK PARA GIRAR!`;
       this.feedbackEl.style.color = 'var(--xmas-green)';
     } else if (this.state.hasWonMinigame) {
       this.spinBtn.disabled = true;
-      this.feedbackEl.textContent = '✅ Ya has utilizado tu tirada única. ¡Vuelve al Minijuego para jugar otra ronda!';
+      this.feedbackEl.textContent = '✅ Ya has reclamado tu tirada oficial. ¡Juega otra ronda en el Minijuego 1 o prueba el modo Demo!';
       this.feedbackEl.style.color = 'var(--gta-cyan)';
     } else {
       this.spinBtn.disabled = true;
-      this.feedbackEl.textContent = '🔒 Ruleta bloqueada: Supera el Minijuego 1 para ganar 1 tirada';
-      this.feedbackEl.style.color = 'var(--candy-red)';
+      this.feedbackEl.textContent = '🔒 Tirada oficial bloqueada: Gana el Minijuego 1 (o pulsa abajo para probar en Modo Demo)';
+      this.feedbackEl.style.color = '#ff99aa';
     }
   }
 
@@ -196,7 +208,12 @@ export class ChristmasRoulette {
    * Renders the 24-slice wheel onto the canvas
    */
   drawWheel(rotation = 0) {
+    if (!this.canvas) {
+      this.canvas = document.getElementById('wheel-canvas');
+      if (this.canvas) this.ctx = this.canvas.getContext('2d');
+    }
     if (!this.ctx) return;
+
     const width = this.canvas.width;
     const height = this.canvas.height;
     const centerX = width / 2;
@@ -293,18 +310,22 @@ export class ChristmasRoulette {
 
   /**
    * Spin Handler: Enforces 1 spin per victory and triggers deceleration
+   * @param {boolean} isDemo - Whether this is a test spin
    */
-  handleSpinClick() {
+  handleSpinClick(isDemo = false) {
     if (this.isSpinning) return;
 
-    if (this.state.spinsAvailable <= 0) {
+    if (!isDemo && this.state.spinsAvailable <= 0) {
       audio.playLockShake();
-      alert('¡Necesitas superar el Minijuego 1 para conseguir 1 tirada en la ruleta!');
+      alert('¡Para la tirada oficial necesitas superar el Minijuego 1! Puedes usar el botón "Modo Prueba" para probar el giro ahora mismo.');
       return;
     }
 
-    // Deduct spin token
-    this.state.spinsAvailable--;
+    if (!isDemo) {
+      // Deduct spin token
+      this.state.spinsAvailable = Math.max(0, this.state.spinsAvailable - 1);
+    }
+
     this.updateControlsState();
 
     // 1. Math selection: choose winning prize with EXACT drop rates
@@ -325,13 +346,10 @@ export class ChristmasRoulette {
 
     // 3. Calculate target stopping rotation:
     // Top pointer is at -90° (or 270° = 1.5 * PI).
-    // Target slice center is at (targetSliceIndex + 0.5) * sliceAngle.
-    // Formula: (targetSliceIndex + 0.5) * sliceAngle + finalAngle = 1.5 * Math.PI (mod 2*PI)
-    // => finalAngleMod = 1.5 * Math.PI - (targetSliceIndex + 0.5) * sliceAngle
     const sliceCenterAngle = (targetSliceIndex + 0.5) * this.sliceAngle;
-    const pointerAngle = 1.5 * Math.PI; // Top
+    const pointerAngle = 1.5 * Math.PI;
 
-    // Small random jitter within ±30% of half-slice width so it doesn't land on divider line
+    // Small random jitter within ±30% of half-slice width
     const jitter = (Math.random() - 0.5) * (this.sliceAngle * 0.6);
 
     let targetAngleMod = (pointerAngle - sliceCenterAngle + jitter) % (Math.PI * 2);
@@ -350,7 +368,7 @@ export class ChristmasRoulette {
 
     // 4. Animate with cubic deceleration physics
     this.spinToAngle(startAngle, targetTotalAngle, 5200, () => {
-      this.onSpinComplete(wonPrize);
+      this.onSpinComplete(wonPrize, isDemo);
     });
   }
 
@@ -363,15 +381,13 @@ export class ChristmasRoulette {
       const elapsed = currentTime - startTime;
       const progress = Math.min(1, elapsed / durationMs);
 
-      // Quartic ease-out for realistic heavy-wheel friction deceleration
-      // easeOutQuart: 1 - (1 - t)^4
+      // Quartic ease-out for realistic friction deceleration
       const ease = 1 - Math.pow(1 - progress, 4);
       const angle = startAngle + (targetAngle - startAngle) * ease;
       this.currentRotation = angle;
       this.drawWheel(angle);
 
       // Check slice tick for sound & pointer wobble
-      // Wheel moves relative to pointer at 1.5 * PI
       const pointerAngle = 1.5 * Math.PI;
       const currentWheelSlice = Math.floor(
         ((pointerAngle - angle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) / this.sliceAngle
@@ -399,18 +415,19 @@ export class ChristmasRoulette {
     requestAnimationFrame(animateFrame);
   }
 
-  onSpinComplete(wonPrize) {
+  onSpinComplete(wonPrize, isDemo) {
     audio.playWinFanfare();
     confetti.blast(180);
 
     // Save prize in state
     this.state.prizesWon.push({
       prize: wonPrize,
+      isDemo: isDemo,
       date: new Date().toLocaleTimeString()
     });
 
     if (this.onPrizeWonCallback) {
-      this.onPrizeWonCallback(wonPrize);
+      this.onPrizeWonCallback(wonPrize, isDemo);
     }
   }
 }

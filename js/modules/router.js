@@ -1,6 +1,6 @@
 /**
  * Ari-Navidad SPA Router Module
- * Controls zero-scroll screen transitions with fade & slide animations.
+ * Controls zero-scroll screen transitions with fade animations and robust event binding.
  */
 
 import { audio } from './audio.js';
@@ -8,40 +8,43 @@ import { audio } from './audio.js';
 class ViewRouter {
   constructor() {
     this.currentViewId = 'view-lobby';
+    this.viewChangeListeners = [];
+    this.views = {};
+  }
+
+  init() {
     this.views = {
       'lobby': document.getElementById('view-lobby'),
       'minigame1': document.getElementById('view-minigame1'),
       'roulette': document.getElementById('view-roulette')
     };
 
-    this.navBtnLobby = document.getElementById('nav-btn-lobby');
-    this.navBtnRoulette = document.getElementById('nav-btn-roulette');
-    this.viewChangeListeners = [];
+    const navBtnLobby = document.getElementById('nav-btn-lobby');
+    const navBtnRoulette = document.getElementById('nav-btn-roulette');
 
-    this.bindGlobalNav();
-  }
-
-  bindGlobalNav() {
-    if (this.navBtnLobby) {
-      this.navBtnLobby.addEventListener('click', () => {
+    if (navBtnLobby) {
+      navBtnLobby.onclick = (e) => {
+        e.preventDefault();
         audio.playClick();
         this.navigateTo('lobby');
-      });
+      };
     }
 
-    if (this.navBtnRoulette) {
-      this.navBtnRoulette.addEventListener('click', () => {
+    if (navBtnRoulette) {
+      navBtnRoulette.onclick = (e) => {
+        e.preventDefault();
         audio.playClick();
         this.navigateTo('roulette');
-      });
+      };
     }
 
     // Bind all ".btn-back-lobby" elements
     document.querySelectorAll('.btn-back-lobby').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.onclick = (e) => {
+        e.preventDefault();
         audio.playClick();
         this.navigateTo('lobby');
-      });
+      };
     });
   }
 
@@ -50,22 +53,24 @@ class ViewRouter {
   }
 
   navigateTo(viewKey) {
-    const targetView = this.views[viewKey];
+    if (!this.views || !this.views[viewKey]) {
+      this.init();
+    }
+
+    const targetView = this.views[viewKey] || document.getElementById(`view-${viewKey}`);
     if (!targetView) {
       console.warn(`View "${viewKey}" not found.`);
       return;
     }
 
     // Hide all views
-    Object.values(this.views).forEach(v => {
-      if (v) v.classList.remove('active-view');
+    document.querySelectorAll('.spa-view').forEach(v => {
+      v.classList.remove('active-view');
     });
 
     // Activate target
     targetView.classList.add('active-view');
     this.currentViewId = targetView.id;
-
-    // Scroll to top of view just in case
     targetView.scrollTop = 0;
 
     // Notify listeners

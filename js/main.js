@@ -18,25 +18,10 @@ const appState = {
 };
 
 // UI Elements
-const audioToggleBtn = document.getElementById('audio-toggle');
-const audioIcon = document.getElementById('audio-icon');
-const audioText = document.getElementById('audio-text');
-const toastNotice = document.getElementById('toast-notice');
-const toastMessage = document.getElementById('toast-message');
-const toastIcon = document.getElementById('toast-icon');
-
-// Modals
-const modalVictory = document.getElementById('modal-victory');
-const btnModalGoRoulette = document.getElementById('btn-modal-go-roulette');
-const btnModalVictoryLobby = document.getElementById('btn-modal-victory-lobby');
-
-const modalPrizeWon = document.getElementById('modal-prize-won');
-const wonPrizeIcon = document.getElementById('won-prize-icon');
-const wonPrizeName = document.getElementById('won-prize-name');
-const wonPrizeDesc = document.getElementById('won-prize-desc');
-const btnClaimChat = document.getElementById('btn-claim-chat');
-const btnPrizeDone = document.getElementById('btn-prize-done');
-
+let audioToggleBtn, audioIcon, audioText, toastNotice, toastMessage, toastIcon;
+let modalVictory, btnModalGoRoulette, btnModalVictoryLobby;
+let modalPrizeWon, wonPrizeIcon, wonPrizeName, wonPrizeDesc, btnClaimChat, btnPrizeDone;
+let modalPassedSubtitle;
 let toastTimeout = null;
 
 function showToast(message, icon = '🔒') {
@@ -52,16 +37,43 @@ function showToast(message, icon = '🔒') {
   }
 }
 
-// Initialize Application once DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Initialize Snow system on background canvas
+function initApp() {
+  console.log('🎄 Ari-Navidad: Initializing App...');
+
+  // Initialize router
+  router.init();
+
+  // Cache DOM elements
+  audioToggleBtn = document.getElementById('audio-toggle');
+  audioIcon = document.getElementById('audio-icon');
+  audioText = document.getElementById('audio-text');
+  toastNotice = document.getElementById('toast-notice');
+  toastMessage = document.getElementById('toast-message');
+  toastIcon = document.getElementById('toast-icon');
+
+  modalVictory = document.getElementById('modal-victory');
+  btnModalGoRoulette = document.getElementById('btn-modal-go-roulette');
+  btnModalVictoryLobby = document.getElementById('btn-modal-victory-lobby');
+
+  modalPrizeWon = document.getElementById('modal-prize-won');
+  wonPrizeIcon = document.getElementById('won-prize-icon');
+  wonPrizeName = document.getElementById('won-prize-name');
+  wonPrizeDesc = document.getElementById('won-prize-desc');
+  modalPassedSubtitle = document.getElementById('modal-passed-subtitle');
+  btnClaimChat = document.getElementById('btn-claim-chat');
+  btnPrizeDone = document.getElementById('btn-prize-done');
+
+  // 1. Initialize Snow particles on canvas
   new SnowSystem('snow-canvas');
 
   // 2. Initialize Roulette with App State
-  const roulette = new ChristmasRoulette(appState, (prize) => {
+  const roulette = new ChristmasRoulette(appState, (prize, isDemo) => {
     // Show Prize Won Modal (GTA Mission Passed Style)
     if (wonPrizeIcon) wonPrizeIcon.textContent = prize.icon;
     if (wonPrizeName) wonPrizeName.textContent = prize.name.toUpperCase();
+    if (modalPassedSubtitle) {
+      modalPassedSubtitle.textContent = isDemo ? 'MODO DEMOSTRACIÓN • TIRO DE PRUEBA' : 'MISSION PASSED • RECOMPENSA DE LEONIDA';
+    }
     if (wonPrizeDesc) {
       wonPrizeDesc.textContent = `¡Felicidades! Has conseguido "${prize.name}" (Rareza: ${prize.rarity}) con una probabilidad exacta del ${prize.rate}%.`;
     }
@@ -78,9 +90,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Always redraw wheel when switching to roulette view
+  router.onViewChange((viewKey) => {
+    if (viewKey === 'roulette') {
+      roulette.drawWheel(roulette.currentRotation);
+      roulette.updateControlsState();
+    }
+  });
+
   // 4. Audio Control Button Setup
   if (audioToggleBtn) {
-    audioToggleBtn.addEventListener('click', () => {
+    audioToggleBtn.onclick = (e) => {
+      e.preventDefault();
       const isUnmuted = audio.toggleMute();
       if (isUnmuted) {
         audioIcon.textContent = '🔊';
@@ -93,75 +114,82 @@ document.addEventListener('DOMContentLoaded', () => {
         audioToggleBtn.classList.remove('audio-active');
         showToast('Audio desactivado', '🔇');
       }
-    });
+    };
   }
 
   // 5. Lobby Card 1: Adivina la Canción Navideña (Play Now)
   const card1 = document.getElementById('card-minigame-1');
   const btnPlayMinigame1 = document.getElementById('btn-play-minigame1');
   
-  const startMinigameAction = () => {
+  const startMinigameAction = (e) => {
+    if (e) e.preventDefault();
     audio.playClick();
     router.navigateTo('minigame1');
     minigame1.startQuiz();
   };
 
-  if (card1) card1.addEventListener('click', startMinigameAction);
+  if (card1) card1.onclick = startMinigameAction;
   if (btnPlayMinigame1) {
-    btnPlayMinigame1.addEventListener('click', (e) => {
+    btnPlayMinigame1.onclick = (e) => {
       e.stopPropagation();
-      startMinigameAction();
-    });
+      startMinigameAction(e);
+    };
   }
 
   // 6. Lobby Cards 2 to 5: Locked Vault Interaction
   const lockedCards = document.querySelectorAll('.game-card.card-locked');
   lockedCards.forEach(card => {
-    card.addEventListener('click', () => {
+    card.onclick = (e) => {
+      e.preventDefault();
       audio.playLockShake();
       const vaultName = card.getAttribute('data-locked-name') || 'Esta bóveda';
       
-      // Shake animation
       card.classList.remove('vault-shake-anim');
       void card.offsetWidth; // Trigger reflow
       card.classList.add('vault-shake-anim');
 
       showToast(`🔒 ${vaultName} está sellada. ¡Próximamente en el stream!`, '🚫');
-    });
+    };
   });
 
   // 7. Lobby CTA: Ver Ruleta
   const lobbyCtaWheel = document.getElementById('lobby-cta-wheel');
   if (lobbyCtaWheel) {
-    lobbyCtaWheel.addEventListener('click', () => {
+    lobbyCtaWheel.onclick = (e) => {
+      e.preventDefault();
       audio.playClick();
       router.navigateTo('roulette');
+      roulette.drawWheel(roulette.currentRotation);
       roulette.updateControlsState();
-    });
+    };
   }
 
   // 8. Victory Modal Buttons
   if (btnModalGoRoulette) {
-    btnModalGoRoulette.addEventListener('click', () => {
+    btnModalGoRoulette.onclick = (e) => {
+      e.preventDefault();
       audio.playClick();
       if (modalVictory) modalVictory.classList.remove('modal-show');
       router.navigateTo('roulette');
+      roulette.drawWheel(roulette.currentRotation);
       roulette.updateControlsState();
-    });
+    };
   }
 
   if (btnModalVictoryLobby) {
-    btnModalVictoryLobby.addEventListener('click', () => {
+    btnModalVictoryLobby.onclick = (e) => {
+      e.preventDefault();
       audio.playClick();
       if (modalVictory) modalVictory.classList.remove('modal-show');
       router.navigateTo('lobby');
       roulette.updateControlsState();
-    });
+    };
   }
 
   // 9. Prize Won Modal Buttons
   if (btnClaimChat) {
-    btnClaimChat.addEventListener('click', () => {
+    btnClaimChat.onclick = (e) => {
+      e.preventDefault();
       audio.playClick();
       const lastPrize = appState.prizesWon[appState.prizesWon.length - 1];
       const claimText = `!reclamar ${lastPrize ? lastPrize.prize.name : 'Premio'} - Ari Navidad Leonida`;
@@ -172,23 +200,24 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         showToast(`💬 Escribe en el chat: "${claimText}"`, '🎁');
       }
-    });
+    };
   }
 
   if (btnPrizeDone) {
-    btnPrizeDone.addEventListener('click', () => {
+    btnPrizeDone.onclick = (e) => {
+      e.preventDefault();
       audio.playClick();
       if (modalPrizeWon) modalPrizeWon.classList.remove('modal-show');
       router.navigateTo('lobby');
-    });
+    };
   }
 
-  // 10. Update on View Changes
-  router.onViewChange((viewKey) => {
-    if (viewKey === 'roulette') {
-      roulette.updateControlsState();
-    }
-  });
+  console.log('✨ Ari Navidad: Ready!');
+}
 
-  console.log('🎄 Ari Navidad Twitch App initialized successfully! (GTA VI x Fortnite x Navidad)');
-});
+// Robust execution: handles both early and late script loading
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
