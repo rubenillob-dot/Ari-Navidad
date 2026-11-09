@@ -70,7 +70,31 @@ Ari-Navidad/
 
 ---
 
-## 🚀 Cómo Ejecutar la Aplicación
+## 🌐 Despliegue en GitHub Pages
+
+El proyecto está 100% preparado y optimizado para **GitHub Pages**:
+* Rutas relativas `./` para funcionar en subdirectorios de repositorio (`https://<usuario>.github.io/<repo>/`).
+* Archivo `.nojekyll` incluido para evitar filtrado por Jekyll.
+* Archivo `404.html` personalizado con temática Vice City para redirección automática.
+* Workflow de **GitHub Actions** automatizado en `.github/workflows/deploy.yml`.
+
+### Tu URL pública una vez activado:
+👉 **`https://rubenillob-dot.github.io/Ari-Navidad/`**
+
+### Pasos para activarlo en tu repositorio de GitHub:
+1. Sube los cambios con:
+   ```bash
+   git push origin main
+   ```
+2. En GitHub, ve a **Settings** de tu repositorio (`https://github.com/rubenillob-dot/Ari-Navidad/settings/pages`).
+3. En la sección **Build and deployment > Source**:
+   * **Opción recomendada (GitHub Actions)**: Selecciona **"GitHub Actions"**. Se ejecutará el workflow `.github/workflows/deploy.yml` automáticamente en cada `push`.
+   * **Opción clásica (Deploy from a branch)**: Selecciona **"Deploy from a branch"**, rama `main`, carpeta `/(root)` y pulsa **Save**.
+4. ¡En menos de un minuto tu web estará online para tu comunidad de Twitch!
+
+---
+
+## 🚀 Cómo Ejecutar en Local (Desarrollo)
 
 Al tratarse de una aplicación web modular con módulos ES6 (`import`/`export`), se recomienda servir los archivos mediante un servidor web local estático:
 
