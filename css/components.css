@@ -1544,3 +1544,238 @@
   align-items: center;
   gap: 6px;
 }
+
+/* --------------------------------------------------------------------------
+   9. Twitch Chat WebSocket UI: Caja Destacada (IlloJuan) & Live Feed
+   -------------------------------------------------------------------------- */
+
+/* Twitch Status Indicator in Header */
+.twitch-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  background: #ff1744;
+  box-shadow: 0 0 6px #ff1744;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.twitch-status-dot.connected {
+  background: #00e676;
+  box-shadow: 0 0 8px #00e676;
+  animation: liveBlink 1.4s infinite;
+}
+
+.twitch-status-dot.disconnected {
+  background: #ff1744;
+  box-shadow: 0 0 8px #ff1744;
+}
+
+/* Caja Destacada (Estilo IlloJuan) */
+.current-voter-box {
+  position: fixed;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  z-index: 1500;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.96) 0%, rgba(121, 40, 202, 0.98) 55%, rgba(12, 5, 25, 0.98) 100%);
+  border: 4px solid var(--fn-yellow);
+  border-radius: 24px;
+  padding: 1.6rem 2.8rem;
+  text-align: center;
+  box-shadow: 0 12px 0 #000, 0 0 60px rgba(255, 0, 127, 0.75), inset 0 0 30px rgba(255, 230, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s;
+  min-width: 380px;
+  max-width: 90vw;
+}
+
+.current-voter-box.voter-box-show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.current-voter-box.voter-box-popin {
+  animation: voterPopIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.voter-box-candy-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  border-radius: 18px 18px 0 0;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--candy-red) 0,
+    var(--candy-red) 10px,
+    var(--candy-white) 10px,
+    var(--candy-white) 20px
+  );
+}
+
+.voter-box-tag {
+  font-family: var(--font-hud);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fn-yellow);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.voter-name {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.8vw, 2.9rem);
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 4px 0 #000, 0 0 25px var(--gta-cyan);
+  line-height: 1.1;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.voter-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: #032410;
+  background: linear-gradient(180deg, #25f48b 0%, #05a353 100%);
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 4px 14px;
+  box-shadow: 0 3px 0 #000;
+}
+
+/* Feed Lateral Emergente ('live-votos-feed') */
+.live-votos-feed {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 280px;
+  max-height: 290px;
+  background: rgba(14, 7, 28, 0.94);
+  border: 2px solid var(--gta-cyan);
+  border-radius: 16px;
+  box-shadow: 0 8px 0 #000, 0 0 25px rgba(0, 240, 255, 0.35);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.feed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.feed-title-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff0044;
+  box-shadow: 0 0 8px #ff0044;
+  animation: liveBlink 1.2s infinite;
+}
+
+.feed-title {
+  font-family: var(--font-hud);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--gta-cyan);
+  text-transform: uppercase;
+}
+
+.feed-count-badge {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--fn-yellow);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--fn-yellow);
+  padding: 1px 8px;
+  border-radius: 6px;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  overflow-y: auto;
+  max-height: 220px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gta-cyan) rgba(0, 0, 0, 0.4);
+}
+
+.live-voto-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 10px;
+  animation: feedSlideIn 0.25s ease-out;
+}
+
+.voto-icon {
+  font-size: 16px;
+}
+
+.voto-user {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.voto-badge {
+  font-family: var(--font-hud);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #022010;
+  background: #25f48b;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Timer Overlay wrapper */
+.vote-timer-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) {
+  .live-votos-feed {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+  }
+}

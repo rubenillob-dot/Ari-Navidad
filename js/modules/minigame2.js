@@ -7,6 +7,7 @@
 
 import { audio } from './audio.js';
 import { confetti } from './confetti.js';
+import { twitchChat } from './twitch-chat.js';
 
 // 20-Round Christmas Carols Database (Public domain / festive classics)
 export const KARAOKE_SONGS = [
@@ -213,6 +214,22 @@ export class MinigameKaraoke {
       };
     }
 
+    // Wire native Twitch WebSocket hits
+    twitchChat.initDOM();
+    twitchChat.onValidAnswer((displayName, text, userColor) => {
+      if (this.phase === 'answering') {
+        if (!this.roundWinners.has(displayName)) {
+          this.roundWinners.add(displayName);
+          this.appendChatLog(displayName, text, true);
+
+          if (this.statusBannerEl) {
+            const count = this.roundWinners.size;
+            this.statusBannerEl.innerHTML = `<span>🎯</span> <strong>${count}</strong> ${count === 1 ? 'jugador ha acertado' : 'jugadores han acertado'} hasta ahora.`;
+          }
+        }
+      }
+    });
+
     // Expose global hook for Twitch IRC / tmi.js
     window.ariKaraokeSubmitAnswer = (username, text) => {
       this.submitAnswer(username, text);
@@ -284,6 +301,9 @@ export class MinigameKaraoke {
       this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
     }
 
+    // Sync with native Twitch WebSocket round
+    twitchChat.startRound(currentSong.respuesta_correcta);
+
     // Run circular timer
     this.runAnswerTimer();
   }
@@ -336,24 +356,12 @@ export class MinigameKaraoke {
     if (this.phase !== 'answering') return;
     if (!username || !text) return;
 
+    // Process through Twitch chat parser (checks Map & triggers Caja Destacada)
+    twitchChat.processChatAnswer(username, text, '#00f0ff');
+
     const currentSong = this.songs[this.currentRoundIdx];
     const isCorrect = this.normalizeText(text) === this.normalizeText(currentSong.respuesta_correcta);
-
-    if (isCorrect) {
-      if (!this.roundWinners.has(username)) {
-        this.roundWinners.add(username);
-        audio.playTone(740, 'triangle', 0.08);
-
-        this.appendChatLog(username, text, true);
-
-        // Dynamic feedback badge
-        if (this.statusBannerEl) {
-          const count = this.roundWinners.size;
-          this.statusBannerEl.innerHTML = `<span>🎯</span> <strong>${count}</strong> ${count === 1 ? 'jugador ha acertado' : 'jugadores han acertado'} hasta ahora.`;
-        }
-      }
-    } else {
-      // User sent an incorrect guess
+    if (!isCorrect) {
       this.appendChatLog(username, text, false);
     }
   }
@@ -377,6 +385,7 @@ export class MinigameKaraoke {
    */
   finishAnswerWindow() {
     this.phase = 'break';
+    twitchChat.endRound();
     const currentSong = this.songs[this.currentRoundIdx];
 
     // Award +1 point to ALL round winners (Zero Latency Anti-Delay)
@@ -489,6 +498,7 @@ export class MinigameKaraoke {
   finishGame() {
     this.phase = 'finished';
     this.clearTimers();
+    twitchChat.endRound();
 
     const players = Object.keys(this.scores).map(u => ({
       username: u,

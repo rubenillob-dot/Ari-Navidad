@@ -71,23 +71,29 @@ Ari-Navidad/
 │       ├── router.js            # Router de vistas SPA sin recarga
 │       ├── minigame1.js         # Lógica del Quiz musical, temporizador y victoria
 │       ├── minigame2.js         # Karaoke 20 rondas con Anti-Delay para Twitch y Leaderboard
-│       └── roulette.js          # Ruleta canvas 24 gajos y cálculo matemático exacto
+│       ├── roulette.js          # Ruleta canvas 24 gajos y cálculo matemático exacto
+│       └── twitch-chat.js       # Conexión WebSocket pura con Twitch Chat (#imarixu), Caja Destacada y Live Feed
 └── README.md
 ```
 
-### 💬 Integración Directa con Twitch Chat (Opcional)
+### 💬 Conexión en Vivo con Twitch Chat (WebSockets Nativos)
 
-Si utilizas una biblioteca como **ComfyJS** o **tmi.js** en tu stream, puedes conectar el chat en una sola línea de código:
+La aplicación incluye un cliente **WebSocket nativo y sin librerías externas** (`js/modules/twitch-chat.js`) conectado directamente al servidor IRC de Twitch (`wss://irc-ws.chat.twitch.tv:443`):
 
-```javascript
-// Ejemplo con ComfyJS:
-ComfyJS.onChat = (user, message, flags, self, extra) => {
-  if (window.ariKaraokeSubmitAnswer) {
-    window.ariKaraokeSubmitAnswer(user, message);
-  }
-};
-ComfyJS.Init("TU_CANAL_DE_TWITCH");
-```
+1. **Autenticación Anónima Segura**:
+   - Se conecta automáticamente mediante `justinfan<randomNum>` al canal **`#imarixu`**.
+   - Habilita capacidades IRC completas (`CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership`) para capturar `@display-name` y colores de usuario.
+   - Responde automáticamente al `PING :tmi.twitch.tv` del servidor con `PONG` para mantener la conexión viva de forma indefinida sin desconexiones.
+
+2. **Control Anti-Delay y Evitación de Spam**:
+   - Emplea un `Map` (`participantesRonda`) para registrar únicamente el **primer acierto válido** por usuario en cada una de las 20 rondas. Los mensajes duplicados o posteriores del mismo usuario se descartan silenciosamente.
+   - Normalización de texto avanzada (ignora mayúsculas, minúsculas, espacios y tildes/acentos `normalize("NFD")`) para que los espectadores no se vean perjudicados por el teclado del móvil o la rapidez.
+
+3. **Componentes Visuales en Directo**:
+   - **Caja Destacada (Estilo IlloJuan)** (`#currentVoterBox`): Cada vez que un espectador acierta en el chat, aparece en el centro de la pantalla un contenedor flotante animado (`voterPopIn`) durante 1.5 segundos mostrando el avatar navideño y el nombre del usuario en tipografía Fortnite y colores neón.
+   - **Feed en Vivo Lateral** (`#live-votos-feed`): Panel lateral translúcido con scroll automático que apila en tiempo real las tarjetas de los espectadores que van acertando en la ronda actual.
+   - **Indicador de Conexión en el HUD** (`#twitch-ws-pill`): Muestra el canal `#imarixu` y un indicador visual LED pulsante con los estados de la conexión (Verde = Conectado, Amarillo = Conectando, Rojo = Desconectado).
+   - **Simulador de Pruebas**: Botón `🤖 Simular Chat` en el HUD del Minijuego 2 para probar la ronda sin necesidad de que el canal de Twitch esté activo en ese instante.
 
 ---
 

@@ -10,6 +10,7 @@ import { SnowSystem } from './modules/snow.js';
 import { MinigameSongGuesser } from './modules/minigame1.js';
 import { MinigameKaraoke } from './modules/minigame2.js';
 import { ChristmasRoulette } from './modules/roulette.js';
+import { twitchChat } from './modules/twitch-chat.js';
 
 // Central Application State
 const appState = {
@@ -45,6 +46,10 @@ function initApp() {
 
   // Initialize router
   router.init();
+
+  // Initialize Twitch Chat Bridge
+  twitchChat.initDOM();
+  window.ariTwitchChat = twitchChat;
 
   // Cache DOM elements
   audioToggleBtn = document.getElementById('audio-toggle');

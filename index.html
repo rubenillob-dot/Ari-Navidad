@@ -57,11 +57,16 @@
         </div>
       </div>
 
-      <!-- Header Center: Spin Token HUD -->
+      <!-- Header Center: Spin Token HUD & Twitch WS Connection -->
       <div class="header-center">
         <div class="hud-pill" id="hud-spins-pill">
           <span class="hud-label">🎰 Tiradas Ruleta:</span>
           <span class="hud-value gold" id="header-spin-count">0</span>
+        </div>
+        <div class="hud-pill" id="twitch-ws-pill" title="Conexión WebSocket en vivo con el chat de Twitch">
+          <span class="twitch-status-dot connected" id="twitch-ws-dot"></span>
+          <span class="hud-label">Chat:</span>
+          <span class="hud-value" id="twitch-channel-display" style="font-size: 0.92rem; color: var(--gta-cyan);">#imarixu</span>
         </div>
       </div>
 
@@ -388,8 +393,8 @@
                 <span class="karaoke-phase-tag phase-active" id="karaoke-phase-badge">⚡ TIEMPO PARA RESPONDER (15s)</span>
               </div>
 
-              <!-- Circular SVG Timer -->
-              <div class="circular-timer-box" title="Tiempo de la ronda">
+              <!-- Overlay de Temporizador: Circular SVG Countdown Clock -->
+              <div class="circular-timer-box vote-timer-overlay" id="voteTimerOverlay" title="Cuenta atrás de la ronda">
                 <svg class="timer-svg" viewBox="0 0 110 110">
                   <circle class="timer-svg-bg" cx="55" cy="55" r="48"></circle>
                   <circle class="timer-svg-progress" id="timer-svg-circle" cx="55" cy="55" r="48"></circle>
@@ -465,6 +470,20 @@
           </aside>
 
         </div>
+
+        <!-- Feed en vivo lateral emergente ('live-votos-feed') -->
+        <aside class="live-votos-feed" id="live-votos-feed">
+          <div class="feed-header">
+            <div class="feed-title-box">
+              <span class="feed-live-dot"></span>
+              <span class="feed-title">ACERTANTES EN VIVO</span>
+            </div>
+            <span class="feed-count-badge" id="live-feed-counter">0</span>
+          </div>
+          <div class="feed-list" id="live-feed-list">
+            <!-- Dynamic entries from Twitch chat -->
+          </div>
+        </aside>
       </section>
 
       <!-- ====================================================================
@@ -540,6 +559,20 @@
       </section>
 
     </main>
+  </div>
+
+  <!-- ======================================================================
+       CAJA DESTACADA (ESTILO ILLOJUAN) - POP-IN AL ACERTAR EN EL CHAT
+       ====================================================================== -->
+  <div class="current-voter-box" id="currentVoterBox">
+    <div class="voter-box-candy-bar"></div>
+    <div class="voter-box-tag">
+      <span class="voter-sparkle">✨</span>
+      <span>¡ACIERTO EN EL CHAT!</span>
+      <span class="voter-sparkle">✨</span>
+    </div>
+    <div class="voter-name" id="currentVoterName">NOMBRE_USUARIO</div>
+    <div class="voter-score-badge">⭐ +1 PUNTO REGISTRADO</div>
   </div>
 
   <!-- ======================================================================

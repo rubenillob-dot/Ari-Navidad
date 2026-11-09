@@ -187,3 +187,36 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
+
+/* 10. IlloJuan Style Current Voter Box Pop-In */
+@keyframes voterPopIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0.35) rotate(-4deg);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  55% {
+    transform: translate(-50%, -50%) scale(1.12) rotate(1deg);
+    opacity: 1;
+    filter: blur(0);
+  }
+  75% {
+    transform: translate(-50%, -50%) scale(0.96) rotate(-0.5deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* 11. Live Feed Slide-in */
+@keyframes feedSlideIn {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
