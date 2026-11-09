@@ -872,11 +872,11 @@
 }
 
 /* Rarity Color Coding */
-.rarity-mythic { color: #ffd700; }
-.rarity-legendary { color: #00f0ff; }
-.rarity-epic { color: #cc44ff; }
-.rarity-uncommon { color: #22d3ee; }
+.rarity-mythic { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+.rarity-legendary { color: #00f0ff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
+.rarity-epic { color: #cc44ff; text-shadow: 0 0 10px rgba(204, 68, 255, 0.4); }
 .rarity-common { color: #ff5599; }
+.rarity-ticket-gold { color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); font-weight: 800; }
 
 .odd-right {
   display: flex;
@@ -897,8 +897,8 @@
 .rate-badge-mythic { background: #d4a000; color: #1a1100; }
 .rate-badge-legendary { background: #0099cc; }
 .rate-badge-epic { background: #7711aa; }
-.rate-badge-uncommon { background: #0077aa; }
 .rate-badge-common { background: #b30059; }
+.rate-badge-ticket-gold { background: linear-gradient(135deg, #e68a00, #b36200); color: #fff; border-color: #4a2800; }
 
 /* --------------------------------------------------------------------------
    7. Modals: Victory Royale & GTA Mission Passed

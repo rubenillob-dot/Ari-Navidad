@@ -32,36 +32,36 @@ export class ChristmasRoulette {
       { id: 'pico', name: 'Pico de la tienda', rate: 10.0, icon: '⛏️', rarity: 'ÉPICO', color: '#aa22ff', textColor: '#ffffff' },
       { id: 'mochila', name: 'Mochila de la tienda', rate: 10.0, icon: '🎒', rarity: 'ÉPICO', color: '#ff6600', textColor: '#ffffff' },
       { id: 'baile', name: 'Baile de la tienda', rate: 10.0, icon: '💃', rarity: 'ÉPICO', color: '#00e676', textColor: '#032612' },
-      { id: 'ticket1', name: '+1 Ticket Dorado', rate: 35.0, icon: '🎫', rarity: 'COMÚN', color: '#ff2e93', textColor: '#ffffff' },
-      { id: 'ticket2', name: '+2 Tickets Dorados', rate: 30.0, icon: 'POCO COMÚN', color: '#00bfff', textColor: '#041d2e' }
+      { id: 'ticket2', name: '+2 Tickets Dorados', rate: 30.0, icon: '🎟️', rarity: 'COMÚN', color: '#ffaa00', textColor: '#ffffff' },
+      { id: 'ticket1', name: '+1 Ticket Dorado', rate: 35.0, icon: '🎫', rarity: 'COMÚN', color: '#ff2e93', textColor: '#ffffff' }
     ];
 
     // 24 Wheel Slices Mapping: Distributed so identical items are never adjacent
     this.slices = [
-      this.prizes[0], // 0: VIP 👑 (1%)
-      this.prizes[6], // 1: +1 Ticket 🎫
-      this.prizes[3], // 2: Pico ⛏️
-      this.prizes[7], // 3: +2 Tickets 🎟️
-      this.prizes[4], // 4: Mochila 🎒
-      this.prizes[6], // 5: +1 Ticket 🎫
-      this.prizes[2], // 6: Skin Fortnite 👕 (3%)
-      this.prizes[7], // 7: +2 Tickets 🎟️
-      this.prizes[5], // 8: Baile 💃
-      this.prizes[6], // 9: +1 Ticket 🎫
-      this.prizes[1], // 10: Sub Regalo 🎁 (1%)
-      this.prizes[7], // 11: +2 Tickets 🎟️
-      this.prizes[3], // 12: Pico ⛏️
-      this.prizes[6], // 13: +1 Ticket 🎫
-      this.prizes[4], // 14: Mochila 🎒
-      this.prizes[7], // 15: +2 Tickets 🎟️
-      this.prizes[2], // 16: Skin Fortnite 👕
-      this.prizes[6], // 17: +1 Ticket 🎫
-      this.prizes[5], // 18: Baile 💃
-      this.prizes[7], // 19: +2 Tickets 🎟️
-      this.prizes[3], // 20: Pico ⛏️
-      this.prizes[6], // 21: +1 Ticket 🎫
-      this.prizes[4], // 22: Mochila 🎒
-      this.prizes[5]  // 23: Baile 💃
+      this.prizes.find(p => p.id === 'vip'),     // 0: VIP 👑 (1%)
+      this.prizes.find(p => p.id === 'ticket1'), // 1: +1 Ticket 🎫 (35%)
+      this.prizes.find(p => p.id === 'pico'),    // 2: Pico ⛏️
+      this.prizes.find(p => p.id === 'ticket2'), // 3: +2 Tickets 🎟️ (30%)
+      this.prizes.find(p => p.id === 'mochila'), // 4: Mochila 🎒
+      this.prizes.find(p => p.id === 'ticket1'), // 5: +1 Ticket 🎫
+      this.prizes.find(p => p.id === 'skin'),    // 6: Skin Fortnite 👕 (3%)
+      this.prizes.find(p => p.id === 'ticket2'), // 7: +2 Tickets 🎟️
+      this.prizes.find(p => p.id === 'baile'),   // 8: Baile 💃
+      this.prizes.find(p => p.id === 'ticket1'), // 9: +1 Ticket 🎫
+      this.prizes.find(p => p.id === 'sub'),     // 10: Sub Regalo 🎁 (1%)
+      this.prizes.find(p => p.id === 'ticket2'), // 11: +2 Tickets 🎟️
+      this.prizes.find(p => p.id === 'pico'),    // 12: Pico ⛏️
+      this.prizes.find(p => p.id === 'ticket1'), // 13: +1 Ticket 🎫
+      this.prizes.find(p => p.id === 'mochila'), // 14: Mochila 🎒
+      this.prizes.find(p => p.id === 'ticket2'), // 15: +2 Tickets 🎟️
+      this.prizes.find(p => p.id === 'skin'),    // 16: Skin Fortnite 👕
+      this.prizes.find(p => p.id === 'ticket1'), // 17: +1 Ticket 🎫
+      this.prizes.find(p => p.id === 'baile'),   // 18: Baile 💃
+      this.prizes.find(p => p.id === 'ticket2'), // 19: +2 Tickets 🎟️
+      this.prizes.find(p => p.id === 'pico'),    // 20: Pico ⛏️
+      this.prizes.find(p => p.id === 'ticket1'), // 21: +1 Ticket 🎫
+      this.prizes.find(p => p.id === 'mochila'), // 22: Mochila 🎒
+      this.prizes.find(p => p.id === 'baile')    // 23: Baile 💃
     ];
 
     this.numSlices = this.slices.length; // 24
@@ -132,7 +132,6 @@ export class ChristmasRoulette {
       'MÍTICO': 'rarity-mythic',
       'LEGENDARIO': 'rarity-legendary',
       'ÉPICO': 'rarity-epic',
-      'POCO COMÚN': 'rarity-uncommon',
       'COMÚN': 'rarity-common'
     };
 
@@ -140,7 +139,6 @@ export class ChristmasRoulette {
       'MÍTICO': 'rate-badge-mythic',
       'LEGENDARIO': 'rate-badge-legendary',
       'ÉPICO': 'rate-badge-epic',
-      'POCO COMÚN': 'rate-badge-uncommon',
       'COMÚN': 'rate-badge-common'
     };
 
@@ -148,8 +146,13 @@ export class ChristmasRoulette {
       const row = document.createElement('div');
       row.className = 'odd-item-row';
 
-      const rarityClass = rarityClassMap[prize.rarity] || 'rarity-common';
-      const badgeClass = badgeClassMap[prize.rarity] || 'rate-badge-common';
+      let rarityClass = rarityClassMap[prize.rarity] || 'rarity-common';
+      let badgeClass = badgeClassMap[prize.rarity] || 'rate-badge-common';
+
+      if (prize.id === 'ticket2') {
+        rarityClass = 'rarity-ticket-gold';
+        badgeClass = 'rate-badge-ticket-gold';
+      }
 
       row.innerHTML = `
         <div class="odd-left">
