@@ -1546,6 +1546,7 @@ class MinigameSongGuesser {
     this.vinylDisc = document.getElementById('quiz-vinyl');
     this.answersContainer = document.getElementById('quiz-answers-container');
     this.btnReplay = document.getElementById('btn-replay-song');
+    this.btnStartRound = document.getElementById('btn-start-round-m1');
     this.playerStatusText = document.getElementById('player-status-text');
     this.playerDeck = document.getElementById('quiz-player-deck');
 
@@ -1777,12 +1778,21 @@ class MinigameSongGuesser {
     this.score = 0;
     this.timeLeft = 15;
     this.timerInterval = null;
-    this.isAnsweringLocked = false;
+    this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
+    this.quizFinished = false;
 
     this.init();
   }
 
   init() {
+    if (this.btnStartRound) {
+      this.btnStartRound.addEventListener('click', () => {
+        audio.playClick();
+        this.onStartRoundBtnClicked();
+      });
+    }
+
     if (this.btnReplay) {
       this.btnReplay.addEventListener('click', () => {
         audio.playClick();
@@ -1794,7 +1804,7 @@ class MinigameSongGuesser {
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
     buttons.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        if (this.isAnsweringLocked) return;
+        if (this.isAnsweringLocked || !this.isRoundRunning) return;
         const selectedIndex = parseInt(btn.getAttribute('data-index'), 10);
         this.handleAnswer(selectedIndex, btn);
       });
@@ -1804,9 +1814,13 @@ class MinigameSongGuesser {
   startQuiz() {
     this.currentQuestionIdx = 0;
     this.score = 0;
-    this.isAnsweringLocked = false;
+    this.quizFinished = false;
+    this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
+    this.stopTimer();
+    audio.stopMelody();
     this.updateHUD();
-    this.loadQuestion(0);
+    this.setupQuestion(0);
   }
 
   updateHUD() {
@@ -1818,26 +1832,85 @@ class MinigameSongGuesser {
     }
   }
 
-  loadQuestion(index) {
+  setupQuestion(index) {
     this.currentQuestionIdx = index;
-    const q = this.questions[index];
+    this.isRoundRunning = false;
+    this.isAnsweringLocked = true;
+    this.stopTimer();
+    audio.stopMelody();
     this.updateHUD();
 
-    // Reset Answer Button states
+    const q = this.questions[index];
+
+    // Reset Answer Buttons in waiting state
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
     buttons.forEach((btn, i) => {
       btn.classList.remove('btn-correct', 'btn-wrong');
-      btn.disabled = false;
+      btn.disabled = true; // Disabled until round starts
       const textSpan = btn.querySelector('.btn-answer-text');
       if (textSpan) textSpan.textContent = q.options[i];
     });
 
+    // Reset Timer Display to 15s (stopped)
+    this.timeLeft = 15;
+    if (this.timerDisplay) this.timerDisplay.textContent = '15s';
+    if (this.timerFill) {
+      this.timerFill.style.width = '100%';
+      this.timerFill.classList.remove('urgent');
+    }
+    if (this.timerBarText) this.timerBarText.textContent = '100%';
+
+    // Vinyl and Deck stopped
+    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
+    if (this.playerDeck) this.playerDeck.classList.remove('playing');
+
+    // Show Start Round Button & Hide Replay Button
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'inline-flex';
+      this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${index + 1} / ${this.questions.length}!`;
+    }
+    if (this.btnReplay) {
+      this.btnReplay.style.display = 'none';
+    }
+
+    if (this.playerStatusText) {
+      this.playerStatusText.textContent = `👉 Pulsa "▶ ¡EMPEZAR RONDA ${index + 1}!" para escuchar la melodía navideña.`;
+    }
+  }
+
+  onStartRoundBtnClicked() {
+    if (this.quizFinished) {
+      this.startQuiz();
+      return;
+    }
+
+    if (!this.isRoundRunning) {
+      this.startCurrentRound();
+    }
+  }
+
+  startCurrentRound() {
+    this.isRoundRunning = true;
     this.isAnsweringLocked = false;
 
-    // Start Timer
+    // Enable answer buttons
+    const buttons = this.answersContainer.querySelectorAll('.answer-btn');
+    buttons.forEach(btn => {
+      btn.disabled = false;
+    });
+
+    // Hide Start Button, Show Replay Button
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'none';
+    }
+    if (this.btnReplay) {
+      this.btnReplay.style.display = 'inline-flex';
+    }
+
+    // Start 15s countdown
     this.startTimer(15);
 
-    // Play Melody
+    // Play synthesized melody
     this.playCurrentMelody();
   }
 
@@ -1852,7 +1925,9 @@ class MinigameSongGuesser {
     audio.playCarolMelody(q.melodyId, null, () => {
       if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
       if (this.playerDeck) this.playerDeck.classList.remove('playing');
-      if (this.playerStatusText) this.playerStatusText.textContent = '¿Reconoces el villancico? ¡Selecciona abajo!';
+      if (this.playerStatusText && this.isRoundRunning) {
+        this.playerStatusText.textContent = '¿Reconoces el villancico? ¡Selecciona tu respuesta!';
+      }
     });
   }
 
@@ -1894,18 +1969,20 @@ class MinigameSongGuesser {
 
   stopTimer() {
     clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.isRoundRunning = false;
+    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
+    if (this.playerDeck) this.playerDeck.classList.remove('playing');
   }
 
   handleAnswer(selectedIndex, clickedBtn) {
     this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
     this.stopTimer();
     audio.stopMelody();
-    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
-    if (this.playerDeck) this.playerDeck.classList.remove('playing');
 
     const q = this.questions[this.currentQuestionIdx];
     const isCorrect = selectedIndex === q.correctIndex;
-
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
 
     if (isCorrect) {
@@ -1915,29 +1992,19 @@ class MinigameSongGuesser {
       if (this.playerStatusText) this.playerStatusText.textContent = '✨ ¡EXCELENTE! ¡ACERTASTE!';
     } else {
       clickedBtn.classList.add('btn-wrong');
-      // Highlight correct answer
       buttons[q.correctIndex].classList.add('btn-correct');
       audio.playWrong();
       if (this.playerStatusText) this.playerStatusText.textContent = `❌ ¡FALLASTE! Era: "${q.options[q.correctIndex]}"`;
     }
 
     this.updateHUD();
-
-    // Advance to next question after 1.8 seconds
-    setTimeout(() => {
-      if (this.currentQuestionIdx + 1 < this.questions.length) {
-        this.loadQuestion(this.currentQuestionIdx + 1);
-      } else {
-        this.finishQuiz();
-      }
-    }, 1800);
+    this.showNextRoundControls();
   }
 
   handleTimeout() {
     this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
     audio.stopMelody();
-    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
-    if (this.playerDeck) this.playerDeck.classList.remove('playing');
 
     const q = this.questions[this.currentQuestionIdx];
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
@@ -1946,21 +2013,47 @@ class MinigameSongGuesser {
     if (this.playerStatusText) this.playerStatusText.textContent = `⏰ ¡TIEMPO AGOTADO! Era: "${q.options[q.correctIndex]}"`;
 
     this.updateHUD();
+    this.showNextRoundControls();
+  }
 
-    setTimeout(() => {
-      if (this.currentQuestionIdx + 1 < this.questions.length) {
-        this.loadQuestion(this.currentQuestionIdx + 1);
-      } else {
-        this.finishQuiz();
+  showNextRoundControls() {
+    // Lock buttons
+    const buttons = this.answersContainer.querySelectorAll('.answer-btn');
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (this.btnReplay) this.btnReplay.style.display = 'none';
+
+    if (this.currentQuestionIdx + 1 < this.questions.length) {
+      const nextIdx = this.currentQuestionIdx + 1;
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${nextIdx + 1} / ${this.questions.length}!`;
       }
-    }, 1800);
+      setTimeout(() => {
+        if (this.playerStatusText && !this.isRoundRunning) {
+          this.playerStatusText.textContent = `¡Ronda finalizada! Pulsa "▶ ¡EMPEZAR RONDA ${nextIdx + 1}!" cuando estés listo.`;
+        }
+      }, 1000);
+      
+      // Update click handler to prepare and start next question
+      this.btnStartRound.onclick = () => {
+        audio.playClick();
+        this.setupQuestion(nextIdx);
+        this.startCurrentRound();
+      };
+    } else {
+      // 20 rounds done
+      setTimeout(() => {
+        this.finishQuiz();
+      }, 1200);
+    }
   }
 
   finishQuiz() {
     this.stopTimer();
     audio.stopMelody();
+    this.quizFinished = true;
 
-    // Passing condition: at least 10 correct answers out of 20
     const REQUIRED_CORRECT = 10;
     const hasWon = this.score >= REQUIRED_CORRECT;
 
@@ -1972,18 +2065,34 @@ class MinigameSongGuesser {
       confetti.blast(160);
       audio.playWinFanfare();
 
+      if (this.playerStatusText) {
+        this.playerStatusText.textContent = `🎉 ¡VICTORIA ROYALE! Has acertado ${this.score}/20 canciones. ¡1 tirada en la ruleta desbloqueada!`;
+      }
+
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!`;
+        this.btnStartRound.onclick = () => {
+          if (window.ariNavigate) window.ariNavigate('roulette');
+        };
+      }
+
       if (this.onVictoryCallback) {
         this.onVictoryCallback();
       }
     } else {
-      // Defeat: allow retry
+      // Defeat: allow retry without annoying popup alert
       if (this.playerStatusText) {
-        this.playerStatusText.textContent = `⚠️ Has conseguido ${this.score}/20 aciertos. ¡Necesitas al menos ${REQUIRED_CORRECT} para ganar la tirada!`;
+        this.playerStatusText.textContent = `⚠️ Fin de la partida: ${this.score}/20 aciertos. ¡Necesitas al menos ${REQUIRED_CORRECT} para ganar la tirada! Pulsa para reiniciar.`;
       }
-      setTimeout(() => {
-        alert(`Has acertado ${this.score}/20 canciones navideñas. Necesitas al menos ${REQUIRED_CORRECT} aciertos para ganar tu tirada en la ruleta. ¡Inténtalo de nuevo!`);
-        this.startQuiz();
-      }, 500);
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>🔄</span> REINTENTAR MINIJUEGO (Ronda 1)`;
+        this.btnStartRound.onclick = () => {
+          audio.playClick();
+          this.startQuiz();
+        };
+      }
     }
   }
 }
@@ -2163,6 +2272,7 @@ class MinigameKaraoke {
     this.btnSend = document.getElementById('karaoke-btn-send');
     this.btnSimBots = document.getElementById('karaoke-btn-sim-bots');
     this.btnStart = document.getElementById('karaoke-btn-start');
+    this.btnStartRound = document.getElementById('karaoke-btn-start-round');
 
     // Bind User Input
     if (this.btnSend && this.inputAnswer) {
@@ -2251,19 +2361,20 @@ class MinigameKaraoke {
 
     // Reset Chat Feed
     if (this.chatFeed) {
-      this.chatFeed.innerHTML = '<div class="chat-log-msg system">⭐ ¡Partida iniciada! Tienes 15 segundos por ronda. Escribe la palabra que falta.</div>';
+      this.chatFeed.innerHTML = '<div class="chat-log-msg system">⭐ ¡Partida lista! Pulsa "▶ EMPEZAR RONDA 1" para activar el tiempo de respuestas para el chat.</div>';
     }
 
     this.renderLeaderboard();
-    this.startRound(0);
+    this.prepareRound(0);
   }
 
-  startRound(idx) {
+  prepareRound(idx) {
     this.currentRoundIdx = idx;
-    this.phase = 'answering';
+    this.phase = 'waiting';
     this.roundWinners.clear();
     this.timeLeft = 15;
     this.totalWindow = 15;
+    this.clearTimers();
 
     const currentSong = this.songs[idx];
 
@@ -2272,8 +2383,8 @@ class MinigameKaraoke {
       this.roundBadge.textContent = `RONDA ${idx + 1} / ${this.totalRounds}`;
     }
     if (this.phaseBadge) {
-      this.phaseBadge.textContent = `⚡ TIEMPO PARA RESPONDER (15s)`;
-      this.phaseBadge.className = 'karaoke-phase-tag phase-active';
+      this.phaseBadge.textContent = `⏸️ ESPERANDO INICIO (RONDA ${idx + 1})`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
     }
     if (this.songTitleEl) {
       this.songTitleEl.innerHTML = `🎵 ${currentSong.cancion}`;
@@ -2290,6 +2401,58 @@ class MinigameKaraoke {
     }
 
     if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>👉</span> Pulsa "<strong>▶ ¡EMPEZAR RONDA ${idx + 1}!</strong>" cuando el chat esté listo para iniciar los 15s de respuestas.`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    // Reset circular timer to 15s (stopped)
+    this.updateCircleProgress(15, 15);
+
+    // Show Start Round button
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'inline-flex';
+      this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds} (15s)!`;
+      this.btnStartRound.onclick = (e) => {
+        if (e) e.preventDefault();
+        audio.playClick();
+        this.startCurrentRound();
+      };
+    }
+
+    // Disable inputs while waiting
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+  }
+
+  startCurrentRound() {
+    this.phase = 'answering';
+    this.roundWinners.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+
+    const currentSong = this.songs[this.currentRoundIdx];
+
+    // Hide Start Button during active answering
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'none';
+    }
+
+    // Enable inputs
+    if (this.inputAnswer) {
+      this.inputAnswer.disabled = false;
+      this.inputAnswer.focus();
+    }
+    if (this.btnSend) this.btnSend.disabled = false;
+    if (this.btnSimBots) this.btnSimBots.disabled = false;
+
+    // Update HUD
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⚡ TIEMPO PARA RESPONDER (15s)`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-active';
+    }
+
+    if (this.statusBannerEl) {
       this.statusBannerEl.innerHTML = `<span>⏳</span> ¡El chat tiene 15 segundos! Todos los que acierten se llevan +1 punto.`;
       this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
     }
@@ -2299,6 +2462,11 @@ class MinigameKaraoke {
 
     // Run circular timer
     this.runAnswerTimer();
+  }
+
+  startRound(idx) {
+    this.prepareRound(idx);
+    this.startCurrentRound();
   }
 
   runAnswerTimer() {
@@ -2374,12 +2542,18 @@ class MinigameKaraoke {
 
   /**
    * Ends 15s window, awards +1 to all winners, updates Leaderboard,
-   * reveals answer and holds a 3s break.
+   * reveals answer and presents manual button for next round.
    */
   finishAnswerWindow() {
-    this.phase = 'break';
+    this.phase = 'round_summary';
+    this.clearTimers();
     twitchChat.endRound();
     const currentSong = this.songs[this.currentRoundIdx];
+
+    // Disable inputs
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
 
     // Award +1 point to ALL round winners (Zero Latency Anti-Delay)
     this.roundWinners.forEach(username => {
@@ -2400,7 +2574,7 @@ class MinigameKaraoke {
     }
 
     if (this.phaseBadge) {
-      this.phaseBadge.textContent = `🛑 DESCANSO & RECUENTO (3s)`;
+      this.phaseBadge.textContent = `🛑 RONDA FINALIZADA • RECUENTO`;
       this.phaseBadge.className = 'karaoke-phase-tag phase-break';
     }
 
@@ -2419,27 +2593,33 @@ class MinigameKaraoke {
       }
     }
 
-    // 3 seconds break before next round
-    this.breakLeft = 3;
-    this.updateCircleProgress(this.breakLeft, 3);
-
-    this.roundTimer = setInterval(() => {
-      this.breakLeft -= 0.1;
-      if (this.breakLeft <= 0) {
-        this.clearTimers();
-        this.proceedToNextRound();
-      } else {
-        this.updateCircleProgress(this.breakLeft, 3);
+    // Present button to start next round when streamer is ready!
+    if (this.currentRoundIdx + 1 < this.totalRounds) {
+      const nextIdx = this.currentRoundIdx + 1;
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${nextIdx + 1} / ${this.totalRounds} (15s)!`;
+        this.btnStartRound.onclick = (e) => {
+          if (e) e.preventDefault();
+          audio.playClick();
+          this.prepareRound(nextIdx);
+          this.startCurrentRound();
+        };
       }
-    }, 100);
+    } else {
+      // 20 rounds completed
+      setTimeout(() => {
+        this.finishGame();
+      }, 1500);
+    }
   }
 
-  proceedToNextRound() {
-    if (this.currentRoundIdx + 1 < this.totalRounds) {
-      this.startRound(this.currentRoundIdx + 1);
-    } else {
-      this.finishGame();
-    }
+  stopTimer() {
+    this.clearTimers();
+    twitchChat.endRound();
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
   }
 
   renderLeaderboard() {
@@ -2773,10 +2953,30 @@ function initApp() {
     else if (num === 2) startMinigame2Action();
   };
 
+  window.ariMinigame1 = minigame1;
+  window.ariMinigame2 = minigame2;
   window.ariRoulette = roulette;
+
+  // View change safety hook: cancel any active timers and music when leaving minigames
+  router.onViewChange((newViewKey) => {
+    if (newViewKey !== 'minigame1' && minigame1) {
+      minigame1.stopTimer();
+      audio.stopMelody();
+    }
+    if (newViewKey !== 'minigame2' && minigame2) {
+      minigame2.stopTimer();
+    }
+  });
 
   window.ariNavigate = (viewKey) => {
     if (audio && audio.playClick) audio.playClick();
+    if (viewKey !== 'minigame1' && window.ariMinigame1) {
+      window.ariMinigame1.stopTimer();
+      audio.stopMelody();
+    }
+    if (viewKey !== 'minigame2' && window.ariMinigame2) {
+      window.ariMinigame2.stopTimer();
+    }
     if (router) {
       router.navigateTo(viewKey);
     }

@@ -21,6 +21,7 @@ export class MinigameSongGuesser {
     this.vinylDisc = document.getElementById('quiz-vinyl');
     this.answersContainer = document.getElementById('quiz-answers-container');
     this.btnReplay = document.getElementById('btn-replay-song');
+    this.btnStartRound = document.getElementById('btn-start-round-m1');
     this.playerStatusText = document.getElementById('player-status-text');
     this.playerDeck = document.getElementById('quiz-player-deck');
 
@@ -252,12 +253,21 @@ export class MinigameSongGuesser {
     this.score = 0;
     this.timeLeft = 15;
     this.timerInterval = null;
-    this.isAnsweringLocked = false;
+    this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
+    this.quizFinished = false;
 
     this.init();
   }
 
   init() {
+    if (this.btnStartRound) {
+      this.btnStartRound.addEventListener('click', () => {
+        audio.playClick();
+        this.onStartRoundBtnClicked();
+      });
+    }
+
     if (this.btnReplay) {
       this.btnReplay.addEventListener('click', () => {
         audio.playClick();
@@ -269,7 +279,7 @@ export class MinigameSongGuesser {
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
     buttons.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        if (this.isAnsweringLocked) return;
+        if (this.isAnsweringLocked || !this.isRoundRunning) return;
         const selectedIndex = parseInt(btn.getAttribute('data-index'), 10);
         this.handleAnswer(selectedIndex, btn);
       });
@@ -279,9 +289,13 @@ export class MinigameSongGuesser {
   startQuiz() {
     this.currentQuestionIdx = 0;
     this.score = 0;
-    this.isAnsweringLocked = false;
+    this.quizFinished = false;
+    this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
+    this.stopTimer();
+    audio.stopMelody();
     this.updateHUD();
-    this.loadQuestion(0);
+    this.setupQuestion(0);
   }
 
   updateHUD() {
@@ -293,26 +307,85 @@ export class MinigameSongGuesser {
     }
   }
 
-  loadQuestion(index) {
+  setupQuestion(index) {
     this.currentQuestionIdx = index;
-    const q = this.questions[index];
+    this.isRoundRunning = false;
+    this.isAnsweringLocked = true;
+    this.stopTimer();
+    audio.stopMelody();
     this.updateHUD();
 
-    // Reset Answer Button states
+    const q = this.questions[index];
+
+    // Reset Answer Buttons in waiting state
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
     buttons.forEach((btn, i) => {
       btn.classList.remove('btn-correct', 'btn-wrong');
-      btn.disabled = false;
+      btn.disabled = true; // Disabled until round starts
       const textSpan = btn.querySelector('.btn-answer-text');
       if (textSpan) textSpan.textContent = q.options[i];
     });
 
+    // Reset Timer Display to 15s (stopped)
+    this.timeLeft = 15;
+    if (this.timerDisplay) this.timerDisplay.textContent = '15s';
+    if (this.timerFill) {
+      this.timerFill.style.width = '100%';
+      this.timerFill.classList.remove('urgent');
+    }
+    if (this.timerBarText) this.timerBarText.textContent = '100%';
+
+    // Vinyl and Deck stopped
+    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
+    if (this.playerDeck) this.playerDeck.classList.remove('playing');
+
+    // Show Start Round Button & Hide Replay Button
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'inline-flex';
+      this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${index + 1} / ${this.questions.length}!`;
+    }
+    if (this.btnReplay) {
+      this.btnReplay.style.display = 'none';
+    }
+
+    if (this.playerStatusText) {
+      this.playerStatusText.textContent = `👉 Pulsa "▶ ¡EMPEZAR RONDA ${index + 1}!" para escuchar la melodía navideña.`;
+    }
+  }
+
+  onStartRoundBtnClicked() {
+    if (this.quizFinished) {
+      this.startQuiz();
+      return;
+    }
+
+    if (!this.isRoundRunning) {
+      this.startCurrentRound();
+    }
+  }
+
+  startCurrentRound() {
+    this.isRoundRunning = true;
     this.isAnsweringLocked = false;
 
-    // Start Timer
+    // Enable answer buttons
+    const buttons = this.answersContainer.querySelectorAll('.answer-btn');
+    buttons.forEach(btn => {
+      btn.disabled = false;
+    });
+
+    // Hide Start Button, Show Replay Button
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'none';
+    }
+    if (this.btnReplay) {
+      this.btnReplay.style.display = 'inline-flex';
+    }
+
+    // Start 15s countdown
     this.startTimer(15);
 
-    // Play Melody
+    // Play synthesized melody
     this.playCurrentMelody();
   }
 
@@ -327,7 +400,9 @@ export class MinigameSongGuesser {
     audio.playCarolMelody(q.melodyId, null, () => {
       if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
       if (this.playerDeck) this.playerDeck.classList.remove('playing');
-      if (this.playerStatusText) this.playerStatusText.textContent = '¿Reconoces el villancico? ¡Selecciona abajo!';
+      if (this.playerStatusText && this.isRoundRunning) {
+        this.playerStatusText.textContent = '¿Reconoces el villancico? ¡Selecciona tu respuesta!';
+      }
     });
   }
 
@@ -369,18 +444,20 @@ export class MinigameSongGuesser {
 
   stopTimer() {
     clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.isRoundRunning = false;
+    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
+    if (this.playerDeck) this.playerDeck.classList.remove('playing');
   }
 
   handleAnswer(selectedIndex, clickedBtn) {
     this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
     this.stopTimer();
     audio.stopMelody();
-    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
-    if (this.playerDeck) this.playerDeck.classList.remove('playing');
 
     const q = this.questions[this.currentQuestionIdx];
     const isCorrect = selectedIndex === q.correctIndex;
-
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
 
     if (isCorrect) {
@@ -390,29 +467,19 @@ export class MinigameSongGuesser {
       if (this.playerStatusText) this.playerStatusText.textContent = '✨ ¡EXCELENTE! ¡ACERTASTE!';
     } else {
       clickedBtn.classList.add('btn-wrong');
-      // Highlight correct answer
       buttons[q.correctIndex].classList.add('btn-correct');
       audio.playWrong();
       if (this.playerStatusText) this.playerStatusText.textContent = `❌ ¡FALLASTE! Era: "${q.options[q.correctIndex]}"`;
     }
 
     this.updateHUD();
-
-    // Advance to next question after 1.8 seconds
-    setTimeout(() => {
-      if (this.currentQuestionIdx + 1 < this.questions.length) {
-        this.loadQuestion(this.currentQuestionIdx + 1);
-      } else {
-        this.finishQuiz();
-      }
-    }, 1800);
+    this.showNextRoundControls();
   }
 
   handleTimeout() {
     this.isAnsweringLocked = true;
+    this.isRoundRunning = false;
     audio.stopMelody();
-    if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
-    if (this.playerDeck) this.playerDeck.classList.remove('playing');
 
     const q = this.questions[this.currentQuestionIdx];
     const buttons = this.answersContainer.querySelectorAll('.answer-btn');
@@ -421,21 +488,47 @@ export class MinigameSongGuesser {
     if (this.playerStatusText) this.playerStatusText.textContent = `⏰ ¡TIEMPO AGOTADO! Era: "${q.options[q.correctIndex]}"`;
 
     this.updateHUD();
+    this.showNextRoundControls();
+  }
 
-    setTimeout(() => {
-      if (this.currentQuestionIdx + 1 < this.questions.length) {
-        this.loadQuestion(this.currentQuestionIdx + 1);
-      } else {
-        this.finishQuiz();
+  showNextRoundControls() {
+    // Lock buttons
+    const buttons = this.answersContainer.querySelectorAll('.answer-btn');
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (this.btnReplay) this.btnReplay.style.display = 'none';
+
+    if (this.currentQuestionIdx + 1 < this.questions.length) {
+      const nextIdx = this.currentQuestionIdx + 1;
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${nextIdx + 1} / ${this.questions.length}!`;
       }
-    }, 1800);
+      setTimeout(() => {
+        if (this.playerStatusText && !this.isRoundRunning) {
+          this.playerStatusText.textContent = `¡Ronda finalizada! Pulsa "▶ ¡EMPEZAR RONDA ${nextIdx + 1}!" cuando estés listo.`;
+        }
+      }, 1000);
+      
+      // Update click handler to prepare and start next question
+      this.btnStartRound.onclick = () => {
+        audio.playClick();
+        this.setupQuestion(nextIdx);
+        this.startCurrentRound();
+      };
+    } else {
+      // 20 rounds done
+      setTimeout(() => {
+        this.finishQuiz();
+      }, 1200);
+    }
   }
 
   finishQuiz() {
     this.stopTimer();
     audio.stopMelody();
+    this.quizFinished = true;
 
-    // Passing condition: at least 10 correct answers out of 20
     const REQUIRED_CORRECT = 10;
     const hasWon = this.score >= REQUIRED_CORRECT;
 
@@ -447,18 +540,34 @@ export class MinigameSongGuesser {
       confetti.blast(160);
       audio.playWinFanfare();
 
+      if (this.playerStatusText) {
+        this.playerStatusText.textContent = `🎉 ¡VICTORIA ROYALE! Has acertado ${this.score}/20 canciones. ¡1 tirada en la ruleta desbloqueada!`;
+      }
+
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!`;
+        this.btnStartRound.onclick = () => {
+          if (window.ariNavigate) window.ariNavigate('roulette');
+        };
+      }
+
       if (this.onVictoryCallback) {
         this.onVictoryCallback();
       }
     } else {
-      // Defeat: allow retry
+      // Defeat: allow retry without annoying popup alert
       if (this.playerStatusText) {
-        this.playerStatusText.textContent = `⚠️ Has conseguido ${this.score}/20 aciertos. ¡Necesitas al menos ${REQUIRED_CORRECT} para ganar la tirada!`;
+        this.playerStatusText.textContent = `⚠️ Fin de la partida: ${this.score}/20 aciertos. ¡Necesitas al menos ${REQUIRED_CORRECT} para ganar la tirada! Pulsa para reiniciar.`;
       }
-      setTimeout(() => {
-        alert(`Has acertado ${this.score}/20 canciones navideñas. Necesitas al menos ${REQUIRED_CORRECT} aciertos para ganar tu tirada en la ruleta. ¡Inténtalo de nuevo!`);
-        this.startQuiz();
-      }, 500);
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>🔄</span> REINTENTAR MINIJUEGO (Ronda 1)`;
+        this.btnStartRound.onclick = () => {
+          audio.playClick();
+          this.startQuiz();
+        };
+      }
     }
   }
 }

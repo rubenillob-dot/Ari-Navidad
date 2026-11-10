@@ -170,6 +170,7 @@ export class MinigameKaraoke {
     this.btnSend = document.getElementById('karaoke-btn-send');
     this.btnSimBots = document.getElementById('karaoke-btn-sim-bots');
     this.btnStart = document.getElementById('karaoke-btn-start');
+    this.btnStartRound = document.getElementById('karaoke-btn-start-round');
 
     // Bind User Input
     if (this.btnSend && this.inputAnswer) {
@@ -258,19 +259,20 @@ export class MinigameKaraoke {
 
     // Reset Chat Feed
     if (this.chatFeed) {
-      this.chatFeed.innerHTML = '<div class="chat-log-msg system">⭐ ¡Partida iniciada! Tienes 15 segundos por ronda. Escribe la palabra que falta.</div>';
+      this.chatFeed.innerHTML = '<div class="chat-log-msg system">⭐ ¡Partida lista! Pulsa "▶ EMPEZAR RONDA 1" para activar el tiempo de respuestas para el chat.</div>';
     }
 
     this.renderLeaderboard();
-    this.startRound(0);
+    this.prepareRound(0);
   }
 
-  startRound(idx) {
+  prepareRound(idx) {
     this.currentRoundIdx = idx;
-    this.phase = 'answering';
+    this.phase = 'waiting';
     this.roundWinners.clear();
     this.timeLeft = 15;
     this.totalWindow = 15;
+    this.clearTimers();
 
     const currentSong = this.songs[idx];
 
@@ -279,8 +281,8 @@ export class MinigameKaraoke {
       this.roundBadge.textContent = `RONDA ${idx + 1} / ${this.totalRounds}`;
     }
     if (this.phaseBadge) {
-      this.phaseBadge.textContent = `⚡ TIEMPO PARA RESPONDER (15s)`;
-      this.phaseBadge.className = 'karaoke-phase-tag phase-active';
+      this.phaseBadge.textContent = `⏸️ ESPERANDO INICIO (RONDA ${idx + 1})`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
     }
     if (this.songTitleEl) {
       this.songTitleEl.innerHTML = `🎵 ${currentSong.cancion}`;
@@ -297,6 +299,58 @@ export class MinigameKaraoke {
     }
 
     if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>👉</span> Pulsa "<strong>▶ ¡EMPEZAR RONDA ${idx + 1}!</strong>" cuando el chat esté listo para iniciar los 15s de respuestas.`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    // Reset circular timer to 15s (stopped)
+    this.updateCircleProgress(15, 15);
+
+    // Show Start Round button
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'inline-flex';
+      this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds} (15s)!`;
+      this.btnStartRound.onclick = (e) => {
+        if (e) e.preventDefault();
+        audio.playClick();
+        this.startCurrentRound();
+      };
+    }
+
+    // Disable inputs while waiting
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+  }
+
+  startCurrentRound() {
+    this.phase = 'answering';
+    this.roundWinners.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+
+    const currentSong = this.songs[this.currentRoundIdx];
+
+    // Hide Start Button during active answering
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'none';
+    }
+
+    // Enable inputs
+    if (this.inputAnswer) {
+      this.inputAnswer.disabled = false;
+      this.inputAnswer.focus();
+    }
+    if (this.btnSend) this.btnSend.disabled = false;
+    if (this.btnSimBots) this.btnSimBots.disabled = false;
+
+    // Update HUD
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⚡ TIEMPO PARA RESPONDER (15s)`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-active';
+    }
+
+    if (this.statusBannerEl) {
       this.statusBannerEl.innerHTML = `<span>⏳</span> ¡El chat tiene 15 segundos! Todos los que acierten se llevan +1 punto.`;
       this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
     }
@@ -306,6 +360,11 @@ export class MinigameKaraoke {
 
     // Run circular timer
     this.runAnswerTimer();
+  }
+
+  startRound(idx) {
+    this.prepareRound(idx);
+    this.startCurrentRound();
   }
 
   runAnswerTimer() {
@@ -381,12 +440,18 @@ export class MinigameKaraoke {
 
   /**
    * Ends 15s window, awards +1 to all winners, updates Leaderboard,
-   * reveals answer and holds a 3s break.
+   * reveals answer and presents manual button for next round.
    */
   finishAnswerWindow() {
-    this.phase = 'break';
+    this.phase = 'round_summary';
+    this.clearTimers();
     twitchChat.endRound();
     const currentSong = this.songs[this.currentRoundIdx];
+
+    // Disable inputs
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
 
     // Award +1 point to ALL round winners (Zero Latency Anti-Delay)
     this.roundWinners.forEach(username => {
@@ -407,7 +472,7 @@ export class MinigameKaraoke {
     }
 
     if (this.phaseBadge) {
-      this.phaseBadge.textContent = `🛑 DESCANSO & RECUENTO (3s)`;
+      this.phaseBadge.textContent = `🛑 RONDA FINALIZADA • RECUENTO`;
       this.phaseBadge.className = 'karaoke-phase-tag phase-break';
     }
 
@@ -426,27 +491,33 @@ export class MinigameKaraoke {
       }
     }
 
-    // 3 seconds break before next round
-    this.breakLeft = 3;
-    this.updateCircleProgress(this.breakLeft, 3);
-
-    this.roundTimer = setInterval(() => {
-      this.breakLeft -= 0.1;
-      if (this.breakLeft <= 0) {
-        this.clearTimers();
-        this.proceedToNextRound();
-      } else {
-        this.updateCircleProgress(this.breakLeft, 3);
+    // Present button to start next round when streamer is ready!
+    if (this.currentRoundIdx + 1 < this.totalRounds) {
+      const nextIdx = this.currentRoundIdx + 1;
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${nextIdx + 1} / ${this.totalRounds} (15s)!`;
+        this.btnStartRound.onclick = (e) => {
+          if (e) e.preventDefault();
+          audio.playClick();
+          this.prepareRound(nextIdx);
+          this.startCurrentRound();
+        };
       }
-    }, 100);
+    } else {
+      // 20 rounds completed
+      setTimeout(() => {
+        this.finishGame();
+      }, 1500);
+    }
   }
 
-  proceedToNextRound() {
-    if (this.currentRoundIdx + 1 < this.totalRounds) {
-      this.startRound(this.currentRoundIdx + 1);
-    } else {
-      this.finishGame();
-    }
+  stopTimer() {
+    this.clearTimers();
+    twitchChat.endRound();
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
   }
 
   renderLeaderboard() {

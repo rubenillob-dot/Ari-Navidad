@@ -135,6 +135,217 @@
 }
 
 /* --------------------------------------------------------------------------
+   Lobby Notice: Requisitos de Participación Twitch & Suscriptores
+   -------------------------------------------------------------------------- */
+.twitch-rules-banner {
+  position: relative;
+  background: linear-gradient(135deg, rgba(26, 12, 48, 0.95) 0%, rgba(13, 6, 26, 0.98) 100%);
+  border: 3px solid #9146ff;
+  border-radius: 18px;
+  box-shadow: 0 8px 0 #000, 0 0 25px rgba(145, 70, 255, 0.35), inset 0 0 15px rgba(255, 215, 0, 0.08);
+  padding: 1.1rem 1.6rem;
+  margin-bottom: 1.25rem;
+  width: 100%;
+  max-width: var(--max-content-width);
+  overflow: visible;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.twitch-rules-banner:hover {
+  box-shadow: 0 8px 0 #000, 0 0 35px rgba(145, 70, 255, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+.rules-candy-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: repeating-linear-gradient(
+    45deg,
+    #ff1744,
+    #ff1744 12px,
+    #ffffff 12px,
+    #ffffff 24px,
+    #9146ff 24px,
+    #9146ff 36px,
+    #ffd700 36px,
+    #ffd700 48px
+  );
+  border-radius: 18px 18px 0 0;
+  opacity: 0.95;
+}
+
+.rules-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.rules-tag {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--fn-yellow);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 #000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rules-tag .badge-icon {
+  font-size: 1.3rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.twitch-live-pill {
+  font-family: var(--font-hud);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(145, 70, 255, 0.25);
+  border: 1px solid #9146ff;
+  border-radius: 20px;
+  padding: 3px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+}
+
+.twitch-live-pill strong {
+  color: var(--gta-cyan);
+}
+
+.twitch-dot-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff0044;
+  box-shadow: 0 0 8px #ff0044;
+  animation: liveBlink 1.2s infinite;
+}
+
+.rules-content-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1.3fr;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.rule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.rule-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  border: 2px solid #000;
+  box-shadow: 0 4px 0 #000;
+}
+
+.twitch-icon-bg {
+  background: linear-gradient(135deg, #9146ff 0%, #6441a5 100%);
+  box-shadow: 0 4px 0 #000, 0 0 15px rgba(145, 70, 255, 0.6);
+}
+
+.sub-icon-bg {
+  background: linear-gradient(135deg, #ffd700 0%, #ff8800 100%);
+  box-shadow: 0 4px 0 #000, 0 0 18px rgba(255, 215, 0, 0.7);
+  animation: goldPulse 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes goldPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.06); filter: brightness(1.2); }
+}
+
+.rule-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rule-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rule-title.sub-title {
+  color: var(--fn-yellow);
+}
+
+.sub-exclusive-badge {
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(90deg, #ff0044 0%, #ff007f 100%);
+  border: 1px solid #fff;
+  border-radius: 6px;
+  padding: 2px 7px;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 0 #000;
+  animation: badgeBlink 1.8s infinite alternate;
+}
+
+@keyframes badgeBlink {
+  0% { transform: scale(0.96); filter: brightness(1); }
+  100% { transform: scale(1.04); filter: brightness(1.25); }
+}
+
+.rule-desc {
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #d2dcf0;
+  margin: 0;
+}
+
+.rule-desc strong {
+  color: var(--gta-cyan);
+}
+
+.rule-item.highlight-sub .rule-desc strong {
+  color: var(--fn-yellow);
+}
+
+.rule-divider {
+  width: 2px;
+  height: 56px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.25) 50%, transparent);
+}
+
+@media (max-width: 1024px) {
+  .rules-content-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .rule-divider {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
    3. Lobby 5-Cards Grid
    -------------------------------------------------------------------------- */
 .lobby-grid {

@@ -202,10 +202,30 @@ function initApp() {
     else if (num === 2) startMinigame2Action();
   };
 
+  window.ariMinigame1 = minigame1;
+  window.ariMinigame2 = minigame2;
   window.ariRoulette = roulette;
+
+  // View change safety hook: cancel any active timers and music when leaving minigames
+  router.onViewChange((newViewKey) => {
+    if (newViewKey !== 'minigame1' && minigame1) {
+      minigame1.stopTimer();
+      audio.stopMelody();
+    }
+    if (newViewKey !== 'minigame2' && minigame2) {
+      minigame2.stopTimer();
+    }
+  });
 
   window.ariNavigate = (viewKey) => {
     if (audio && audio.playClick) audio.playClick();
+    if (viewKey !== 'minigame1' && window.ariMinigame1) {
+      window.ariMinigame1.stopTimer();
+      audio.stopMelody();
+    }
+    if (viewKey !== 'minigame2' && window.ariMinigame2) {
+      window.ariMinigame2.stopTimer();
+    }
     if (router) {
       router.navigateTo(viewKey);
     }
