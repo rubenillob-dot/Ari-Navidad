@@ -27,10 +27,17 @@
 </head>
 <body>
 
-  <!-- Background Environment: Vice City Sunset + Horizon Grid -->
+  <!-- Background Environment: Cozy Christmas Cabin (Fortnite x GTA VI) + Live Animations -->
   <div class="app-background">
-    <div class="bg-grid"></div>
-    <div class="bg-palms"></div>
+    <div class="bg-cabin-scene"></div>
+    <div class="hearth-fire-glow"></div>
+    <div class="xmas-tree-glow"></div>
+    <div class="sky-window-stars">
+      <span class="shooting-star star-streak-1"></span>
+      <span class="shooting-star star-streak-2"></span>
+      <span class="shooting-star star-streak-3"></span>
+    </div>
+    <div class="bg-vignette-overlay"></div>
   </div>
 
   <!-- Interactive FX Canvases -->
@@ -72,10 +79,10 @@
 
       <!-- Header Action Controls -->
       <div class="header-actions">
-        <button class="fn-btn fn-btn-purple" id="nav-btn-lobby" title="Ir al Menú Principal">
+        <button class="fn-btn fn-btn-purple" id="nav-btn-lobby" onclick="window.ariNavigate('lobby')" title="Ir al Menú Principal">
           <span>🏠</span> Lobby
         </button>
-        <button class="fn-btn fn-btn-gold" id="nav-btn-roulette" title="Ir a la Ruleta">
+        <button class="fn-btn fn-btn-gold" id="nav-btn-roulette" onclick="window.ariNavigate('roulette')" title="Ir a la Ruleta">
           <span>🎰</span> Ruleta
         </button>
         <button class="audio-toggle-btn" id="audio-toggle" title="Activar/Desactivar Sonido">
@@ -139,7 +146,7 @@
         <div class="lobby-grid">
 
           <!-- CARD 1: Adivina la Canción Navideña (ACTIVO) -->
-          <article class="game-card card-active" id="card-minigame-1">
+          <article class="game-card card-active has-snow-cap" id="card-minigame-1" onclick="window.ariPlayMinigame(1)">
             <div class="card-candy-border"></div>
             <span class="card-badge-status badge-open">⭐ DISPONIBLE</span>
             
@@ -151,18 +158,18 @@
             <span class="card-meta-num">Minijuego 01</span>
             <h3 class="card-title">Adivina la Canción</h3>
             <p class="card-desc">
-              Escucha el hit navideño en sintetizador Vice City y acierta la canción antes de que termine el tiempo.
+              Escucha el hit navideño en sintetizador Vice City y acierta al menos 10 de las 20 canciones antes de que termine el tiempo.
             </p>
 
             <div class="card-action">
-              <button class="fn-btn fn-btn-pink" id="btn-play-minigame1">
+              <button class="fn-btn fn-btn-pink" id="btn-play-minigame1" onclick="event.stopPropagation(); window.ariPlayMinigame(1);">
                 <span>🎵</span> ¡JUGAR AHORA!
               </button>
             </div>
           </article>
 
           <!-- CARD 2: Karaoke Navideño (ACTIVO) -->
-          <article class="game-card card-active" id="card-minigame-2">
+          <article class="game-card card-active has-snow-cap" id="card-minigame-2" onclick="window.ariPlayMinigame(2)">
             <div class="card-candy-border"></div>
             <span class="card-badge-status badge-open">⭐ DISPONIBLE</span>
 
@@ -178,7 +185,7 @@
             </p>
 
             <div class="card-action">
-              <button class="fn-btn fn-btn-cyan" id="btn-play-minigame2">
+              <button class="fn-btn fn-btn-cyan" id="btn-play-minigame2" onclick="event.stopPropagation(); window.ariPlayMinigame(2);">
                 <span>🎤</span> ¡JUGAR AHORA!
               </button>
             </div>
@@ -253,7 +260,7 @@
         </div>
 
         <!-- Lobby Bottom Banner Explainer -->
-        <div class="lobby-footer-banner">
+        <div class="lobby-footer-banner has-snow-cap">
           <div class="banner-left">
             <span class="banner-icon">🎁</span>
             <div>
@@ -261,7 +268,7 @@
               <div class="banner-desc">Supera con éxito el Minijuego 1 para desbloquear 1 tirada única con premios exclusivos (VIP, Subs, Skins, Picos y Tickets).</div>
             </div>
           </div>
-          <button class="fn-btn fn-btn-gold" id="lobby-cta-wheel">
+          <button class="fn-btn fn-btn-gold" id="lobby-cta-wheel" onclick="window.ariNavigate('roulette')">
             <span>🎰</span> Ver Ruleta
           </button>
         </div>
@@ -278,9 +285,45 @@
               Adivina la <span class="highlight-cyan">Canción</span> Navideña
             </h2>
           </div>
-          <button class="fn-btn fn-btn-purple btn-back-lobby">
-            <span>⬅</span> Volver al Lobby
-          </button>
+          <div class="view-header-actions">
+            <button class="fn-btn fn-btn-gold" id="btn-toggle-instructions-m1">
+              <span>📜</span> Instrucciones
+            </button>
+            <button class="fn-btn fn-btn-purple btn-back-lobby" onclick="window.ariNavigate('lobby')">
+              <span>⬅</span> Volver al Lobby
+            </button>
+          </div>
+        </div>
+
+        <!-- Apartado de Instrucciones Minijuego 1 -->
+        <div class="game-instructions-card has-snow-cap" id="instructions-card-m1">
+          <div class="instructions-header" id="instructions-header-m1">
+            <div class="instructions-title-wrap">
+              <span class="instructions-icon">📜</span>
+              <h4 class="instructions-title">¿CÓMO FUNCIONA? • RETO MUSICAL (20 RONDAS)</h4>
+            </div>
+            <span class="instructions-toggle-pill" id="instructions-pill-m1">Ocultar ▲</span>
+          </div>
+          <div class="instructions-body" id="instructions-body-m1">
+            <div class="instruction-step">
+              <span class="step-badge">1</span>
+              <div>
+                <strong>Escucha la Canción:</strong> En cada una de las <strong>20 rondas</strong>, el sintetizador navideño reproducirá una melodía. Puedes usar <em>"🔁 Repetir Melodía"</em> cuantas veces necesites.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">2</span>
+              <div>
+                <strong>Contrarreloj de 15s:</strong> Pulsa una de las 4 opciones (A, B, C o D) antes de que el temporizador llegue a cero.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">3</span>
+              <div>
+                <strong>Objetivo de Victoria:</strong> Acierta al menos <strong>10 canciones de las 20</strong> para desbloquear <strong>1 Tirada en la Ruleta Navideña</strong> con premios exclusivos (VIP, Subs, Skins, Picos y Tickets Dorados).
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="quiz-screen-layout">
@@ -289,11 +332,11 @@
           <div class="quiz-top-hud">
             <div class="hud-stat-box">
               <span class="stat-label">Canción</span>
-              <span class="stat-value" id="quiz-round-display">1 / 3</span>
+              <span class="stat-value" id="quiz-round-display">1 / 20</span>
             </div>
             <div class="hud-stat-box">
-              <span class="stat-label">Aciertos Requeridos</span>
-              <span class="stat-value gold" id="quiz-score-display">0 / 3</span>
+              <span class="stat-label">Aciertos (Meta: 10)</span>
+              <span class="stat-value gold" id="quiz-score-display">0 / 20</span>
             </div>
             <div class="hud-stat-box">
               <span class="stat-label">Tiempo</span>
@@ -376,9 +419,51 @@
               Karaoke <span class="highlight-yellow">Navideño</span> Leonida
             </h2>
           </div>
-          <button class="fn-btn fn-btn-purple btn-back-lobby">
-            <span>⬅</span> Volver al Lobby
-          </button>
+          <div class="view-header-actions">
+            <button class="fn-btn fn-btn-gold" id="btn-toggle-instructions-m2">
+              <span>📜</span> Instrucciones
+            </button>
+            <button class="fn-btn fn-btn-purple btn-back-lobby" onclick="window.ariNavigate('lobby')">
+              <span>⬅</span> Volver al Lobby
+            </button>
+          </div>
+        </div>
+
+        <!-- Apartado de Instrucciones Minijuego 2 -->
+        <div class="game-instructions-card has-snow-cap" id="instructions-card-m2">
+          <div class="instructions-header" id="instructions-header-m2">
+            <div class="instructions-title-wrap">
+              <span class="instructions-icon">📜</span>
+              <h4 class="instructions-title">¿CÓMO FUNCIONA? • KARAOKE ANTI-DELAY (20 RONDAS)</h4>
+            </div>
+            <span class="instructions-toggle-pill" id="instructions-pill-m2">Ocultar ▲</span>
+          </div>
+          <div class="instructions-body" id="instructions-body-m2">
+            <div class="instruction-step">
+              <span class="step-badge">1</span>
+              <div>
+                <strong>Palabra Censurada:</strong> Cada una de las <strong>20 rondas</strong> muestra la letra de un villancico clásico con una palabra faltante (<span class="censored-highlight">___________</span>).
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">2</span>
+              <div>
+                <strong>Tecnología Anti-Delay (15s):</strong> <em>¡Sin importar la latencia del stream de Twitch!</em> Todos los espectadores que escriban la palabra correcta en el chat durante los 15s reciben +1 punto.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">3</span>
+              <div>
+                <strong>Participa o Simula:</strong> Escribe tu respuesta en el campo inferior y pulsa <em>"📨 Enviar"</em> o pulsa <em>"🤖 Simular Chat"</em> para generar respuestas automáticas de espectadores en vivo.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">4</span>
+              <div>
+                <strong>Premio Top 1:</strong> Tras la Ronda 20, el líder de la clasificación se lleva <strong>1 Tirada en la Ruleta Navideña</strong>. Si hay empate, ¡se desempata al azar en vivo!
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="karaoke-screen-layout">
@@ -497,7 +582,7 @@
               Ruleta Navideña <span class="highlight-yellow">VIP</span>
             </h2>
           </div>
-          <button class="fn-btn fn-btn-purple btn-back-lobby">
+          <button class="fn-btn fn-btn-purple btn-back-lobby" onclick="window.ariNavigate('lobby')">
             <span>⬅</span> Volver al Lobby
           </button>
         </div>
@@ -542,7 +627,7 @@
           </div>
 
           <!-- Right Side: Drop Rates & Odds Legend Panel -->
-          <aside class="drop-rates-panel">
+          <aside class="drop-rates-panel has-snow-cap">
             <div class="panel-header">
               <h3 class="panel-title">
                 <span>📜</span> LEYENDA DE PREMIOS & PROBABILIDADES
@@ -593,10 +678,10 @@
       </div>
 
       <div class="modal-actions">
-        <button class="fn-btn fn-btn-gold" id="btn-modal-go-roulette" style="font-size: 1.25rem; padding: 14px;">
+        <button class="fn-btn fn-btn-gold" id="btn-modal-go-roulette" onclick="window.ariNavigate('roulette')" style="font-size: 1.25rem; padding: 14px;">
           <span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!
         </button>
-        <button class="fn-btn fn-btn-purple" id="btn-modal-victory-lobby">
+        <button class="fn-btn fn-btn-purple" id="btn-modal-victory-lobby" onclick="window.ariNavigate('lobby')">
           <span>🏠</span> Volver al Lobby
         </button>
       </div>
@@ -620,10 +705,10 @@
       </div>
 
       <div class="modal-actions">
-        <button class="fn-btn fn-btn-gold" id="btn-karaoke-go-roulette" style="font-size: 1.25rem; padding: 14px;">
+        <button class="fn-btn fn-btn-gold" id="btn-karaoke-go-roulette" onclick="window.ariNavigate('roulette')" style="font-size: 1.25rem; padding: 14px;">
           <span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!
         </button>
-        <button class="fn-btn fn-btn-purple" id="btn-karaoke-victory-lobby">
+        <button class="fn-btn fn-btn-purple" id="btn-karaoke-victory-lobby" onclick="window.ariNavigate('lobby')">
           <span>🏠</span> Volver al Lobby
         </button>
       </div>
@@ -663,8 +748,8 @@
     <span id="toast-message">Bóveda sellada</span>
   </div>
 
-  <!-- JavaScript Modular Scripts -->
-  <script type="module" src="./js/main.js"></script>
+  <!-- JavaScript Application Script (Compatible with file:// and http/https) -->
+  <script src="./js/bundle.js"></script>
 
 </body>
 </html>

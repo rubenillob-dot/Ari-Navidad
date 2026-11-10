@@ -9,10 +9,10 @@
    -------------------------------------------------------------------------- */
 .fairy-lights-garland {
   position: absolute;
-  bottom: -9px;
+  bottom: -11px;
   left: 0;
   right: 0;
-  height: 18px;
+  height: 20px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -142,9 +142,8 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 1.25rem;
   width: 100%;
-  flex: 1;
+  margin: auto 0;
   align-items: stretch;
-  min-height: 0;
 }
 
 /* Common Minigame Card Style */
@@ -274,8 +273,8 @@
   font-size: 0.82rem;
   color: #b9b6c8;
   line-height: 1.35;
-  margin-bottom: 1rem;
-  flex: 1;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
 }
 
 /* Locked Minigame Cards (2 to 5) - GTA Vault / Fortnite Safe Aesthetic */
@@ -371,6 +370,135 @@
 .banner-desc {
   font-size: 0.82rem;
   color: #e2e8f5;
+}
+
+/* Header Action Groups in Views */
+.view-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   Apartado de Instrucciones para Minijuegos (GTA x Fortnite HUD Card)
+   -------------------------------------------------------------------------- */
+.game-instructions-card {
+  background: linear-gradient(135deg, rgba(24, 12, 45, 0.94) 0%, rgba(10, 5, 22, 0.96) 100%);
+  border: 2px solid var(--fn-yellow);
+  border-radius: 16px;
+  box-shadow: 0 6px 0 #000, 0 0 25px rgba(255, 230, 0, 0.25);
+  padding: 0.9rem 1.4rem;
+  margin-bottom: 1.25rem;
+  max-width: var(--max-content-width);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.instructions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.instructions-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.instructions-icon {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.instructions-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--fn-yellow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 0 #000;
+  margin: 0;
+}
+
+.instructions-toggle-pill {
+  font-family: var(--font-hud);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gta-cyan);
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--gta-cyan);
+  border-radius: 20px;
+  padding: 4px 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.instructions-toggle-pill:hover {
+  background: rgba(0, 240, 255, 0.3);
+  transform: scale(1.04);
+}
+
+.instructions-body {
+  margin-top: 0.85rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.instructions-body.collapsed {
+  display: none;
+}
+
+.instruction-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #d8e2f0;
+}
+
+.instruction-step strong {
+  color: var(--gta-cyan);
+}
+
+.instruction-step em {
+  color: var(--fn-yellow);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.step-badge {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  background: var(--fn-yellow);
+  color: #1a1000;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 0 #000;
 }
 
 /* --------------------------------------------------------------------------
@@ -1044,6 +1172,8 @@
   }
   .lobby-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
   }
   .karaoke-screen-layout {
     grid-template-columns: 1fr;
@@ -1772,7 +1902,7 @@
   justify-content: center;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .live-votos-feed {
     position: static;
     width: 100%;

@@ -1,0 +1,167 @@
+================================================================================
+🎄 ARI-NAVIDAD: LISTA DE CANCIONES NAVIDEÑAS PARA DESCARGA DE MP3 🎄
+Especial Twitch: GTA VI x Fortnite | Comunidad #imarixu
+================================================================================
+
+Este fichero contiene el listado completo de canciones de cada ronda para que
+puedas buscar y descargar los archivos de audio en formato .mp3.
+
+Cuando tengas descargados los archivos MP3, puedes guardarlos en:
+Carpeta sugerida: assets/audio/
+Formato recomendado: .mp3 (estéreo o mono, 128kbps o superior, recorte de 10-20s de la melodía principal)
+
+--------------------------------------------------------------------------------
+MINIJUEGO 1: ADIVINA LA CANCIÓN NAVIDEÑA (20 RONDAS)
+--------------------------------------------------------------------------------
+En este minijuego suena un fragmento musical de la canción y el jugador debe
+adivinar el título entre 4 opciones en un contrarreloj de 15 segundos.
+
+Ronda 01:
+  - Nombre: Jingle Bells (Navidad, Dulce Navidad)
+  - Artista / Versión: Clásico Tradicional / James Pierpont
+  - Nombre sugerido para el archivo: m1_r01_jingle_bells.mp3
+  - Búsqueda recomendada: "Jingle Bells instrumental christmas"
+
+Ronda 02:
+  - Nombre: All I Want for Christmas Is You
+  - Artista / Versión: Mariah Carey
+  - Nombre sugerido para el archivo: m1_r02_all_i_want.mp3
+  - Búsqueda recomendada: "Mariah Carey All I Want for Christmas Is You instrumental"
+
+Ronda 03:
+  - Nombre: Feliz Navidad
+  - Artista / Versión: José Feliciano
+  - Nombre sugerido para el archivo: m1_r03_feliz_navidad.mp3
+  - Búsqueda recomendada: "Jose Feliciano Feliz Navidad instrumental"
+
+Ronda 04:
+  - Nombre: Campana sobre Campana
+  - Artista / Versión: Villancico Tradicional Español
+  - Nombre sugerido para el archivo: m1_r04_campana_sobre_campana.mp3
+  - Búsqueda recomendada: "Campana sobre Campana villancico instrumental"
+
+Ronda 05:
+  - Nombre: Noche de Paz (Silent Night)
+  - Artista / Versión: Franz Xaver Gruber / Clásico Universal
+  - Nombre sugerido para el archivo: m1_r05_noche_de_paz.mp3
+  - Búsqueda recomendada: "Noche de Paz villancico instrumental"
+
+Ronda 06:
+  - Nombre: Los Peces en el Río
+  - Artista / Versión: Villancico Tradicional Español / Manolo Escobar
+  - Nombre sugerido para el archivo: m1_r06_los_peces_en_el_rio.mp3
+  - Búsqueda recomendada: "Los Peces en el Rio villancico instrumental"
+
+Ronda 07:
+  - Nombre: We Wish You a Merry Christmas
+  - Artista / Versión: Villancico Tradicional Inglés (Siglo XVI)
+  - Nombre sugerido para el archivo: m1_r07_we_wish_you_a_merry_christmas.mp3
+  - Búsqueda recomendada: "We Wish You a Merry Christmas instrumental"
+
+Ronda 08:
+  - Nombre: Mi Burrito Sabanero (El Burrito de Belén)
+  - Artista / Versión: Hugo Blanco / La Rondallita / Juanes
+  - Nombre sugerido para el archivo: m1_r08_mi_burrito_sabanero.mp3
+  - Búsqueda recomendada: "Mi Burrito Sabanero instrumental"
+
+Ronda 09:
+  - Nombre: Rudolph the Red-Nosed Reindeer (Rodolfo el Reno)
+  - Artista / Versión: Johnny Marks / Gene Autry
+  - Nombre sugerido para el archivo: m1_r09_rudolph.mp3
+  - Búsqueda recomendada: "Rudolph the Red-Nosed Reindeer instrumental"
+
+Ronda 10:
+  - Nombre: El Tamborilero (The Little Drummer Boy)
+  - Artista / Versión: Katherine Kennicott Davis / Raphael
+  - Nombre sugerido para el archivo: m1_r10_el_tamborilero.mp3
+  - Búsqueda recomendada: "El Tamborilero Raphael instrumental"
+
+Ronda 11:
+  - Nombre: Blanca Navidad (White Christmas)
+  - Artista / Versión: Irving Berlin / Bing Crosby
+  - Nombre sugerido para el archivo: m1_r11_blanca_navidad.mp3
+  - Búsqueda recomendada: "White Christmas Bing Crosby instrumental"
+
+Ronda 12:
+  - Nombre: Last Christmas
+  - Artista / Versión: Wham! (George Michael)
+  - Nombre sugerido para el archivo: m1_r12_last_christmas.mp3
+  - Búsqueda recomendada: "Wham Last Christmas instrumental"
+
+Ronda 13:
+  - Nombre: Santa Claus Llegó a la Ciudad (Santa Claus Is Coming to Town)
+  - Artista / Versión: J. Fred Coots & Haven Gillespie / Michael Bublé / Luis Miguel
+  - Nombre sugerido para el archivo: m1_r13_santa_claus_llego.mp3
+  - Búsqueda recomendada: "Santa Claus Is Coming to Town instrumental"
+
+Ronda 14:
+  - Nombre: Let It Snow! Let It Snow! Let It Snow!
+  - Artista / Versión: Sammy Cahn & Jule Styne / Dean Martin / Frank Sinatra
+  - Nombre sugerido para el archivo: m1_r14_let_it_snow.mp3
+  - Búsqueda recomendada: "Dean Martin Let It Snow instrumental"
+
+Ronda 15:
+  - Nombre: Frosty the Snowman (Frosty el Muñeco de Nieve)
+  - Artista / Versión: Walter E. Rollins & Steve Nelson / Gene Autry
+  - Nombre sugerido para el archivo: m1_r15_frosty_the_snowman.mp3
+  - Búsqueda recomendada: "Frosty the Snowman instrumental"
+
+Ronda 16:
+  - Nombre: Hacia Belén va una Burra (Rin Rin)
+  - Artista / Versión: Villancico Popular Español
+  - Nombre sugerido para el archivo: m1_r16_hacia_belen_va_una_burra.mp3
+  - Búsqueda recomendada: "Hacia Belen va una burra rin rin instrumental"
+
+Ronda 17:
+  - Nombre: Ay del Chiquirritín
+  - Artista / Versión: Villancico Tradicional Popular de Navarra / Andalucía
+  - Nombre sugerido para el archivo: m1_r17_ay_del_chiquirritin.mp3
+  - Búsqueda recomendada: "Ay del Chiquirritin villancico instrumental"
+
+Ronda 18:
+  - Nombre: La Marimorena (Ande, Ande, Ande la Marimorena)
+  - Artista / Versión: Villancico Tradicional Español
+  - Nombre sugerido para el archivo: m1_r18_la_marimorena.mp3
+  - Búsqueda recomendada: "Ande ande ande la marimorena instrumental"
+
+Ronda 19:
+  - Nombre: Rockin' Around the Christmas Tree
+  - Artista / Versión: Brenda Lee
+  - Nombre sugerido para el archivo: m1_r19_rockin_around_the_christmas_tree.mp3
+  - Búsqueda recomendada: "Brenda Lee Rockin Around the Christmas Tree instrumental"
+
+Ronda 20:
+  - Nombre: Jingle Bell Rock
+  - Artista / Versión: Bobby Helms
+  - Nombre sugerido para el archivo: m1_r20_jingle_bell_rock.mp3
+  - Búsqueda recomendada: "Bobby Helms Jingle Bell Rock instrumental"
+
+--------------------------------------------------------------------------------
+MINIJUEGO 2: KARAOKE ANTI-DELAY / CHAT TWITCH (20 RONDAS)
+--------------------------------------------------------------------------------
+Por si también deseas añadir los audios correspondientes a las canciones del karaoke:
+
+Ronda 01: Campana sobre Campana (Palabra: una)
+Ronda 02: Feliz Navidad - José Feliciano (Palabra: felicidad)
+Ronda 03: Noche de Paz (Palabra: derredor)
+Ronda 04: Los Peces en el Río (Palabra: río)
+Ronda 05: We Wish You a Merry Christmas (Palabra: year)
+Ronda 06: Mi Burrito Sabanero (Palabra: belén)
+Ronda 07: Rudolph the Red-Nosed Reindeer (Palabra: nose)
+Ronda 08: El Tamborilero (Palabra: cubrió)
+Ronda 09: Blanca Navidad (Palabra: ilusión)
+Ronda 10: Silent Night (Palabra: bright)
+Ronda 11: Santa Claus Is Coming to Town (Palabra: why)
+Ronda 12: Ay del Chiquirritín (Palabra: alma)
+Ronda 13: All I Want for Christmas Is You - Mariah Carey (Palabra: you)
+Ronda 14: Jingle Bells (Palabra: sleigh)
+Ronda 15: Last Christmas - Wham! (Palabra: heart)
+Ronda 16: La Marimorena (Palabra: nochebuena)
+Ronda 17: Frosty the Snowman (Palabra: soul)
+Ronda 18: Ya Vienen los Reyes Magos (Palabra: olivo)
+Ronda 19: Let It Snow (Palabra: snow)
+Ronda 20: Arre Borriquito (Palabra: prisa)
+
+================================================================================
+¡Listo! Cuando tengas los archivos MP3, avísame y los vinculamos de inmediato.
+================================================================================

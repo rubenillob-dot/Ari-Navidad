@@ -39,7 +39,7 @@
   --font-hud: 'Rajdhani', sans-serif;
 
   /* Dimensions */
-  --header-height: 72px;
+  --header-height: 96px;
   --max-content-width: 1400px;
 }
 
@@ -64,53 +64,157 @@ html, body {
   position: relative;
 }
 
-/* Background Scene: Vice City Leonida Sunset + Christmas Atmosphere */
+/* Background Scene: Fortnite x GTA VI Cozy Christmas Cabin + Live Animations */
 .app-background {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: 
-    radial-gradient(circle at 50% 15%, rgba(255, 0, 127, 0.22) 0%, transparent 60%),
-    radial-gradient(circle at 85% 75%, rgba(0, 240, 255, 0.18) 0%, transparent 50%),
-    radial-gradient(circle at 15% 85%, rgba(121, 40, 202, 0.25) 0%, transparent 55%),
-    linear-gradient(180deg, #090314 0%, #17072b 40%, #2b0b3f 70%, #150524 100%);
   overflow: hidden;
+  background-color: #0c0519;
 }
 
-/* Vice City Synthwave Horizon Grid & Palms */
-.bg-grid {
+.bg-cabin-scene {
   position: absolute;
-  bottom: -60px;
-  left: -20%;
-  right: -20%;
-  height: 320px;
-  background: 
-    linear-gradient(transparent 75%, rgba(0, 240, 255, 0.28) 98%),
-    repeating-linear-gradient(90deg, transparent 0, transparent 48px, rgba(255, 0, 127, 0.16) 48px, rgba(255, 0, 127, 0.16) 50px),
-    repeating-linear-gradient(0deg, transparent 0, transparent 30px, rgba(0, 240, 255, 0.15) 30px, rgba(0, 240, 255, 0.15) 32px);
-  transform: perspective(400px) rotateX(65deg);
-  transform-origin: bottom center;
-  opacity: 0.7;
+  inset: -15px;
+  background: url('../assets/christmas_cabin_bg.jpg') center center / cover no-repeat;
+  filter: brightness(0.82) saturate(1.15) contrast(1.08);
+  transform: scale(1.02);
+  animation: cabinAmbientBreathe 24s ease-in-out infinite alternate;
 }
 
-.bg-palms {
+@keyframes cabinAmbientBreathe {
+  0% { transform: scale(1.02) translate(0, 0); }
+  50% { transform: scale(1.035) translate(-4px, -2px); }
+  100% { transform: scale(1.02) translate(2px, 1px); }
+}
+
+/* Fireplace Hearth Flickering Glow */
+.hearth-fire-glow {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 180px;
-  background-image: radial-gradient(ellipse at bottom, rgba(255, 85, 0, 0.15) 0%, transparent 70%);
+  left: 10%;
+  bottom: 12%;
+  width: 440px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(255, 120, 0, 0.45) 0%, rgba(255, 45, 0, 0.22) 42%, transparent 75%);
+  filter: blur(28px);
+  mix-blend-mode: screen;
   pointer-events: none;
-  opacity: 0.6;
+  animation: hearthFlicker 3s infinite alternate ease-in-out;
 }
 
-/* Snow Particles Canvas (Full screen layer) */
+@keyframes hearthFlicker {
+  0% { opacity: 0.65; transform: scale(0.96) translate(0, 0); }
+  25% { opacity: 0.95; transform: scale(1.06) translate(2px, -3px); }
+  50% { opacity: 0.72; transform: scale(0.98) translate(-1px, 2px); }
+  75% { opacity: 1; transform: scale(1.08) translate(3px, -2px); }
+  100% { opacity: 0.78; transform: scale(1.02) translate(-2px, 1px); }
+}
+
+/* Christmas Tree Twinkling Glow & Light Refraction */
+.xmas-tree-glow {
+  position: absolute;
+  right: 12%;
+  bottom: 10%;
+  width: 460px;
+  height: 500px;
+  background: 
+    radial-gradient(circle at 45% 40%, rgba(255, 215, 0, 0.26) 0%, transparent 50%),
+    radial-gradient(circle at 65% 55%, rgba(0, 240, 255, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 40% 70%, rgba(255, 0, 127, 0.22) 0%, transparent 45%);
+  filter: blur(32px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: treeLightsPulse 4.5s infinite alternate ease-in-out;
+}
+
+@keyframes treeLightsPulse {
+  0% { opacity: 0.55; filter: blur(28px) hue-rotate(0deg); }
+  50% { opacity: 0.95; filter: blur(36px) hue-rotate(15deg); }
+  100% { opacity: 0.6; filter: blur(30px) hue-rotate(-15deg); }
+}
+
+/* Shooting Stars Passing Across Window Sky */
+.sky-window-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shooting-star {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, #ffffff 0%, rgba(0, 240, 255, 0.85) 50%, transparent 100%);
+  border-radius: 999px;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.9));
+  opacity: 0;
+}
+
+.star-streak-1 {
+  top: 15%;
+  left: 56%;
+  width: 130px;
+  transform: rotate(-35deg);
+  animation: shootStarRun 7s infinite 1.2s ease-out;
+}
+
+.star-streak-2 {
+  top: 24%;
+  left: 72%;
+  width: 95px;
+  transform: rotate(-30deg);
+  animation: shootStarRun 9.5s infinite 4.2s ease-out;
+}
+
+.star-streak-3 {
+  top: 9%;
+  left: 42%;
+  width: 145px;
+  transform: rotate(-38deg);
+  animation: shootStarRun 12s infinite 7.5s ease-out;
+}
+
+@keyframes shootStarRun {
+  0% {
+    transform: rotate(-35deg) translateX(0);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  10% {
+    transform: rotate(-35deg) translateX(-260px);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(-35deg) translateX(-260px);
+    opacity: 0;
+  }
+}
+
+/* Semi-transparent Vignette Overlay so HUD & Text are 100% Readable */
+.bg-vignette-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 50% 30%, rgba(9, 3, 22, 0.4) 0%, rgba(9, 3, 22, 0.8) 100%),
+    linear-gradient(180deg, rgba(8, 2, 18, 0.65) 0%, transparent 35%, rgba(6, 1, 14, 0.85) 100%);
+  pointer-events: none;
+}
+
+/* Snow Particles Canvas (Constantly falling over screen layer) */
 #snow-canvas {
   position: fixed;
   inset: 0;
-  z-index: 1;
-  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
+  z-index: 998; /* In front of cards, under modals (1000) and confetti (999) */
+  pointer-events: none; /* Clicks pass straight through */
 }
 
 /* Confetti Canvas for Victory Celebrations */
@@ -131,19 +235,20 @@ html, body {
   flex-direction: column;
 }
 
-/* Twitch Stream Top Header HUD */
+/* Twitch Stream Top Header HUD - Enhanced Height & Padding for Fairy Lights */
 .stream-header {
   height: var(--header-height);
+  min-height: 96px;
   width: 100%;
-  background: rgba(9, 3, 20, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(9, 3, 20, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 3px solid rgba(255, 0, 127, 0.6);
-  box-shadow: 0 4px 25px rgba(255, 0, 127, 0.3), 0 2px 10px rgba(0, 240, 255, 0.2);
+  box-shadow: 0 6px 30px rgba(255, 0, 127, 0.35), 0 2px 12px rgba(0, 240, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
+  padding: 0.6rem 2.2rem 1.4rem 2.2rem;
   position: relative;
   z-index: 100;
   flex-shrink: 0;
@@ -456,23 +561,122 @@ html, body {
 }
 
 .spa-view.active-view {
-  display: flex;
-  opacity: 1;
+  display: flex !important;
+  opacity: 1 !important;
   pointer-events: auto;
   transform: scale(1) translateY(0);
   z-index: 10;
-  animation: fadeInView 0.22s ease-out forwards;
+  animation: fadeInView 0.18s ease-out forwards;
 }
 
 @keyframes fadeInView {
-  from { opacity: 0; transform: scale(0.98); }
+  from { opacity: 0.6; transform: scale(0.99); }
   to { opacity: 1; transform: scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   Snow Accumulation Effect on Blocks (.has-snow-cap)
+   Progressive snow buildup with fluffy mounds and winter glisten
+   -------------------------------------------------------------------------- */
+.has-snow-cap {
+  position: relative;
+}
+
+.has-snow-cap::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: -2px;
+  right: -2px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 15;
+  transform-origin: bottom center;
+  background-image: 
+    radial-gradient(ellipse 26px 13px at 8% 100%, #ffffff 82%, transparent 84%),
+    radial-gradient(ellipse 32px 15px at 24% 100%, #ffffff 82%, transparent 84%),
+    radial-gradient(ellipse 28px 14px at 42% 100%, #ffffff 82%, transparent 84%),
+    radial-gradient(ellipse 36px 17px at 60% 100%, #ffffff 82%, transparent 84%),
+    radial-gradient(ellipse 30px 14px at 78% 100%, #ffffff 82%, transparent 84%),
+    radial-gradient(ellipse 25px 12px at 94% 100%, #ffffff 82%, transparent 84%),
+    linear-gradient(180deg, #ffffff 0%, #e0f4ff 60%, rgba(190, 230, 255, 0.95) 100%);
+  border-radius: 12px 12px 4px 4px;
+  box-shadow: 
+    0 -2px 10px rgba(255, 255, 255, 0.85),
+    0 3px 6px rgba(0, 0, 0, 0.4),
+    inset 0 2px 3px #ffffff,
+    inset 0 -2px 4px rgba(0, 200, 255, 0.3);
+  animation: snowAccumulateDrift 8s cubic-bezier(0.25, 1, 0.5, 1) forwards, snowCapShimmer 3.5s infinite ease-in-out;
+}
+
+/* Subtle hanging icicle drips */
+.has-snow-cap::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 12px;
+  right: 12px;
+  height: 8px;
+  pointer-events: none;
+  z-index: 14;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(180, 240, 255, 0.7) 70%, transparent 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(180, 240, 255, 0.7) 70%, transparent 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(180, 240, 255, 0.7) 70%, transparent 100%);
+  background-size: 4px 7px, 5px 9px, 4px 6px;
+  background-position: 18% 0, 52% 0, 84% 0;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+  opacity: 0;
+  animation: icicleFadeIn 7s ease-out 2s forwards;
+}
+
+@keyframes snowAccumulateDrift {
+  0% {
+    transform: scaleY(0.1) translateY(6px);
+    opacity: 0.2;
+    filter: blur(1px);
+  }
+  30% {
+    transform: scaleY(0.4) translateY(3px);
+    opacity: 0.65;
+    filter: blur(0.5px);
+  }
+  65% {
+    transform: scaleY(0.8) translateY(1px);
+    opacity: 0.9;
+    filter: blur(0px);
+  }
+  100% {
+    transform: scaleY(1) translateY(0);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@keyframes snowCapShimmer {
+  0%, 100% {
+    box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.85), 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 2px 3px #ffffff, inset 0 -2px 4px rgba(0, 200, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 -3px 14px rgba(255, 255, 255, 1), 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 2px 4px #ffffff, inset 0 -2px 6px rgba(0, 240, 255, 0.5);
+  }
+}
+
+@keyframes icicleFadeIn {
+  from { opacity: 0; transform: scaleY(0.3); }
+  to { opacity: 0.85; transform: scaleY(1); }
 }
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .stream-header {
-    padding: 0 1rem;
+    height: auto;
+    min-height: 96px;
+    padding: 0.8rem 1rem 1.6rem 1rem;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
   }
   .spa-view {
     padding: 1rem 1.25rem;

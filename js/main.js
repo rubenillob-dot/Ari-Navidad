@@ -125,8 +125,11 @@ function initApp() {
     }
   });
 
-  // Expose minigame2 instance for testing / stream control
+  // Expose minigame2 instance and global bridges
   window.ariKaraokeInstance = minigame2;
+  window.ariRouter = router;
+  window.ariMinigame1 = minigame1;
+  window.ariMinigame2 = minigame2;
 
   // Always redraw wheel when switching to roulette view
   router.onViewChange((viewKey) => {
@@ -192,6 +195,50 @@ function initApp() {
       startMinigame2Action(e);
     };
   }
+
+  // Global direct access bridge
+  window.ariPlayMinigame = (num) => {
+    if (num === 1) startMinigameAction();
+    else if (num === 2) startMinigame2Action();
+  };
+
+  window.ariRoulette = roulette;
+
+  window.ariNavigate = (viewKey) => {
+    if (audio && audio.playClick) audio.playClick();
+    if (router) {
+      router.navigateTo(viewKey);
+    }
+    if (viewKey === 'roulette' && window.ariRoulette) {
+      window.ariRoulette.drawWheel(window.ariRoulette.currentRotation || 0);
+      window.ariRoulette.updateControlsState();
+    }
+    if (viewKey === 'lobby') {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('modal-show'));
+    }
+  };
+
+  // 7b. Instructions Accordion Controls (Minigames 1 & 2)
+  const setupInstructionsToggle = (btnId, cardId, pillId) => {
+    const btn = document.getElementById(btnId);
+    const card = document.getElementById(cardId);
+    const pill = document.getElementById(pillId);
+    if (!card) return;
+    const toggle = (e) => {
+      if (e) e.preventDefault();
+      audio.playClick();
+      const body = card.querySelector('.instructions-body');
+      if (!body) return;
+      const isCollapsed = body.classList.toggle('collapsed');
+      if (pill) pill.textContent = isCollapsed ? 'Ver Instrucciones ▼' : 'Ocultar ▲';
+    };
+    if (btn) btn.onclick = toggle;
+    const header = card.querySelector('.instructions-header');
+    if (header) header.onclick = toggle;
+  };
+
+  setupInstructionsToggle('btn-toggle-instructions-m1', 'instructions-card-m1', 'instructions-pill-m1');
+  setupInstructionsToggle('btn-toggle-instructions-m2', 'instructions-card-m2', 'instructions-pill-m2');
 
   // 8. Lobby Cards 3 to 5: Locked Vault Interaction
   const lockedCards = document.querySelectorAll('.game-card.card-locked');

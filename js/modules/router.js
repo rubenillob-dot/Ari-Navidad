@@ -67,10 +67,15 @@ class ViewRouter {
     // Hide all views
     document.querySelectorAll('.spa-view').forEach(v => {
       v.classList.remove('active-view');
+      v.style.display = 'none';
+      v.style.opacity = '0';
     });
 
     // Activate target
     targetView.classList.add('active-view');
+    targetView.style.display = 'flex';
+    targetView.style.opacity = '1';
+    targetView.style.zIndex = '10';
     this.currentViewId = targetView.id;
     targetView.scrollTop = 0;
 
