@@ -86,7 +86,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.2rem;
   flex-shrink: 0;
 }
 
@@ -139,15 +139,17 @@
    -------------------------------------------------------------------------- */
 .twitch-rules-banner {
   position: relative;
-  background: linear-gradient(135deg, rgba(26, 12, 48, 0.95) 0%, rgba(13, 6, 26, 0.98) 100%);
+  background: linear-gradient(135deg, rgba(26, 12, 48, 0.82) 0%, rgba(13, 6, 26, 0.88) 100%);
   border: 3px solid #9146ff;
   border-radius: 18px;
   box-shadow: 0 8px 0 #000, 0 0 25px rgba(145, 70, 255, 0.35), inset 0 0 15px rgba(255, 215, 0, 0.08);
-  padding: 1.1rem 1.6rem;
-  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.8rem;
+  margin-bottom: 2rem;
   width: 100%;
   max-width: var(--max-content-width);
   overflow: visible;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -346,14 +348,135 @@
 }
 
 /* --------------------------------------------------------------------------
+   Lobby Notice: Recordatorio Código Creador ARIXU (Mamá Noel & Carbón)
+   -------------------------------------------------------------------------- */
+.creator-code-ribbon {
+  background: linear-gradient(135deg, rgba(38, 10, 25, 0.82) 0%, rgba(18, 5, 20, 0.86) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px dashed #ff007f;
+  border-left: 5px solid var(--fn-yellow);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 #000, 0 0 20px rgba(255, 0, 127, 0.35);
+  padding: 0.9rem 1.6rem;
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: var(--max-content-width);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.creator-code-ribbon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #000, 0 0 25px rgba(255, 230, 0, 0.45);
+}
+
+.code-ribbon-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.code-mama-noel-icon {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+  animation: mamaNoelFloat 3s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes mamaNoelFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(4deg); }
+}
+
+.code-ribbon-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.code-ribbon-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  color: var(--fn-yellow);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.code-badge-coal {
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #fff;
+  background: #2b111e;
+  border: 1px solid #ff0055;
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: 0.5px;
+}
+
+.code-ribbon-desc {
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: #e2e8f6;
+  margin: 0;
+}
+
+.code-ribbon-desc strong.code-highlight {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--fn-yellow);
+  background: rgba(255, 230, 0, 0.15);
+  border: 1px solid var(--fn-yellow);
+  border-radius: 6px;
+  padding: 0 6px;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px #000;
+}
+
+.code-ribbon-desc strong.coal-warning {
+  color: #ff3366;
+}
+
+.copy-code-btn {
+  font-size: 0.88rem;
+  padding: 8px 18px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 4px 0 #000, 0 0 12px rgba(255, 230, 0, 0.4);
+}
+
+.copy-code-btn:hover {
+  transform: scale(1.04);
+}
+
+@media (max-width: 900px) {
+  .creator-code-ribbon {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .copy-code-btn {
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
    3. Lobby 5-Cards Grid
    -------------------------------------------------------------------------- */
 .lobby-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 1.25rem;
+  gap: 1.6rem;
   width: 100%;
-  margin: auto 0;
+  margin: 1rem auto 3rem auto;
   align-items: stretch;
 }
 
@@ -361,20 +484,22 @@
 .game-card {
   position: relative;
   border-radius: 18px;
-  padding: 1.25rem;
+  padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
   border: 3px solid #000;
   box-shadow: 0 8px 0 #000, 0 10px 25px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
 }
 
 /* Card 1: Active Game (Adivina la Canción Navideña) */
 .game-card.card-active {
-  background: linear-gradient(165deg, rgba(25, 10, 45, 0.95) 0%, rgba(10, 5, 25, 0.98) 100%);
+  background: linear-gradient(165deg, rgba(25, 10, 45, 0.84) 0%, rgba(10, 5, 25, 0.88) 100%);
   border: 3px solid var(--gta-pink);
   box-shadow: 0 8px 0 #000, 0 0 25px rgba(255, 0, 127, 0.4), inset 0 0 20px rgba(255, 0, 127, 0.2);
   cursor: pointer;
@@ -490,11 +615,13 @@
 
 /* Locked Minigame Cards (2 to 5) - GTA Vault / Fortnite Safe Aesthetic */
 .game-card.card-locked {
-  background: linear-gradient(170deg, #181922 0%, #0e0f15 100%);
+  background: linear-gradient(170deg, rgba(24, 25, 34, 0.78) 0%, rgba(14, 15, 21, 0.84) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 3px solid #2d303f;
   box-shadow: 0 8px 0 #000;
   cursor: pointer;
-  opacity: 0.88;
+  opacity: 0.9;
 }
 
 .game-card.card-locked:hover {
@@ -547,15 +674,17 @@
 
 /* Lobby Bottom Banner: Victory Condition Explainer */
 .lobby-footer-banner {
-  margin-top: 1.25rem;
-  background: linear-gradient(90deg, rgba(255, 0, 127, 0.25), rgba(0, 240, 255, 0.25));
+  margin-top: 2rem;
+  margin-bottom: 2.5rem;
+  background: linear-gradient(90deg, rgba(255, 0, 127, 0.18), rgba(0, 240, 255, 0.18));
   border: 2px solid var(--gta-cyan);
   border-radius: 14px;
-  padding: 0.75rem 1.5rem;
+  padding: 1.1rem 1.8rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
   flex-shrink: 0;
 }
@@ -2118,5 +2247,113 @@
     position: static;
     width: 100%;
     margin-top: 10px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Footer de Copyright y Créditos (Creado por Rubenillo)
+   -------------------------------------------------------------------------- */
+.app-copyright-footer {
+  margin-top: 3.2rem;
+  padding-top: 1.8rem;
+  padding-bottom: 4.5rem;
+  width: 100%;
+  max-width: var(--max-content-width);
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.copyright-candy-line {
+  position: absolute;
+  top: -2px;
+  left: 15%;
+  right: 15%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--xmas-red) 20%,
+    var(--fn-yellow) 40%,
+    var(--gta-cyan) 60%,
+    var(--gta-pink) 80%,
+    transparent
+  );
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.copyright-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 0.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.copyright-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: #b0bcd6;
+}
+
+.copyright-left strong {
+  color: #ffffff;
+}
+
+.xmas-emblem {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.copyright-credits {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #d2ddf5;
+  flex-wrap: wrap;
+}
+
+.author-highlight {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  letter-spacing: 0.8px;
+  background: linear-gradient(90deg, var(--fn-yellow) 0%, #ff8800 50%, var(--gta-pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+  text-transform: uppercase;
+}
+
+.author-badge {
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #1a1000;
+  background: linear-gradient(90deg, #ffd700, #ffaa00);
+  border: 1px solid #000;
+  border-radius: 6px;
+  padding: 2px 8px;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 0 #000;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .copyright-content {
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
   }
 }

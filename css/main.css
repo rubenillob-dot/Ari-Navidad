@@ -78,7 +78,7 @@ html, body {
   position: absolute;
   inset: -15px;
   background: url('../assets/christmas_cabin_bg.jpg?v=3') center center / cover no-repeat;
-  filter: brightness(0.82) saturate(1.15) contrast(1.08);
+  filter: brightness(0.95) saturate(1.15) contrast(1.05);
   transform: scale(1.02);
   animation: cabinAmbientBreathe 24s ease-in-out infinite alternate;
 }
@@ -197,13 +197,13 @@ html, body {
   }
 }
 
-/* Semi-transparent Vignette Overlay so HUD & Text are 100% Readable */
+/* Semi-transparent Soft Vignette Overlay allowing vivid background appreciation */
 .bg-vignette-overlay {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse at 50% 30%, rgba(9, 3, 22, 0.4) 0%, rgba(9, 3, 22, 0.8) 100%),
-    linear-gradient(180deg, rgba(8, 2, 18, 0.65) 0%, transparent 35%, rgba(6, 1, 14, 0.85) 100%);
+    radial-gradient(ellipse at 50% 40%, rgba(9, 3, 22, 0.15) 0%, rgba(9, 3, 22, 0.52) 100%),
+    linear-gradient(180deg, rgba(8, 2, 18, 0.35) 0%, transparent 40%, rgba(6, 1, 14, 0.6) 100%);
   pointer-events: none;
 }
 
@@ -532,7 +532,7 @@ html, body {
   overflow: hidden;
 }
 
-/* SPA Screen Views: absolute overlays for instant zero-scroll transitions */
+/* SPA Screen Views: Spacious viewports with smooth downward scrolling */
 .spa-view {
   position: absolute;
   inset: 0;
@@ -540,10 +540,11 @@ html, body {
   height: 100%;
   display: none;
   flex-direction: column;
-  padding: 1.25rem 2rem;
+  padding: 2rem 3.5rem 5rem 3.5rem;
   opacity: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: var(--gta-pink) rgba(0,0,0,0.4);
 }

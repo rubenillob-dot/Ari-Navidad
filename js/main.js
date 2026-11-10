@@ -238,6 +238,21 @@ function initApp() {
     }
   };
 
+  // Creator Code Copy Bridge (Arixu)
+  window.ariCopyCreatorCode = () => {
+    if (audio && audio.playClick) audio.playClick();
+    const code = 'ARIXU';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('📋 ¡Código "ARIXU" copiado! Úsalo en la tienda y sálvate del carbón de Mamá Noel 🤶🪨', '🎁');
+      }).catch(() => {
+        showToast('🛒 Código en tienda: "ARIXU" ¡Líbrate del carbón de Mamá Noel! 🤶', '🎁');
+      });
+    } else {
+      showToast('🛒 Código en tienda: "ARIXU" ¡Líbrate del carbón de Mamá Noel! 🤶', '🎁');
+    }
+  };
+
   // 7b. Instructions Accordion Controls (Minigames 1 & 2)
   const setupInstructionsToggle = (btnId, cardId, pillId) => {
     const btn = document.getElementById(btnId);
