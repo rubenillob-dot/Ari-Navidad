@@ -26,6 +26,10 @@ export class TwitchChatBridge {
     this.roundStartTime = null;
     this.isRoundActive = false;
 
+    // Chat History & Counter
+    this.messageCount = 0;
+    this.messagesHistory = [];
+
     // Callbacks
     this.onValidAnswerCallbacks = [];
     this.onStatusChangeCallbacks = [];
@@ -79,6 +83,11 @@ export class TwitchChatBridge {
         this.ws.send(`JOIN #${this.channel}`);
 
         this.updateStatus(true, `#${this.channel}`);
+        this.addLiveChatMessage({
+          displayName: 'Twitch IRC',
+          text: `🟢 Conectado con éxito a #${this.channel} en vivo. ¡Los mensajes del chat se reciben aquí!`,
+          isSystem: true
+        });
       };
 
       this.ws.onmessage = (event) => {
@@ -93,6 +102,11 @@ export class TwitchChatBridge {
         console.warn('🔌 Twitch WS Desconectado. Reintentando...');
         this.isConnected = false;
         this.updateStatus(false, 'Desconectado');
+        this.addLiveChatMessage({
+          displayName: 'Twitch IRC',
+          text: '🔌 Conexión cerrada. Reconectando...',
+          isSystem: true
+        });
         this.scheduleReconnect();
       };
     } catch (e) {
@@ -190,7 +204,76 @@ export class TwitchChatBridge {
     this.onMessageCallbacks.forEach(cb => cb(displayName, messageText, userColor));
 
     // Evaluate answer in active round
-    this.processChatAnswer(displayName, messageText, userColor);
+    const isHit = this.processChatAnswer(displayName, messageText, userColor);
+    if (!isHit) {
+      this.addLiveChatMessage({ displayName, text: messageText, userColor });
+    }
+  }
+
+  /**
+   * Appends and scrolls a real-time message across all live Twitch chat containers
+   */
+  addLiveChatMessage({ displayName, text, userColor = '#00f0ff', isCorrect = false, speed = null, isSystem = false }) {
+    this.messageCount++;
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    const msgObj = { displayName, text, userColor, isCorrect, speed, isSystem, timeStr };
+    this.messagesHistory.push(msgObj);
+    if (this.messagesHistory.length > 80) {
+      this.messagesHistory.shift();
+    }
+
+    const containers = document.querySelectorAll('.twitch-live-messages-container');
+    containers.forEach(c => {
+      const el = document.createElement('div');
+      el.className = `twitch-msg-item ${isCorrect ? 'msg-correct' : ''} ${isSystem ? 'msg-system' : ''}`;
+      el.innerHTML = `
+        <span class="twitch-msg-time">${timeStr}</span>
+        <span class="twitch-msg-badge">${isCorrect ? '⭐' : (isSystem ? '🔔' : '💬')}</span>
+        <span class="twitch-msg-author" style="color: ${userColor}">${displayName}:</span>
+        <span class="twitch-msg-content">${text}</span>
+        ${isCorrect && speed !== null ? `<span class="twitch-msg-speed">⚡ ${speed}s (+1 pto)</span>` : ''}
+      `;
+      c.appendChild(el);
+      c.scrollTop = c.scrollHeight;
+      while (c.children.length > 60) {
+        c.removeChild(c.firstChild);
+      }
+    });
+
+    document.querySelectorAll('.twitch-msg-counter').forEach(b => {
+      b.textContent = `${this.messageCount} msgs`;
+    });
+  }
+
+  /**
+   * Generates a realistic simulated stream viewer chat message
+   */
+  simulateChatMessage(customText = null) {
+    const bots = ['LeonidaPro', 'ViceCityElf', 'FortniteKing', 'NavidadGamer', 'RudolphSpeed', 'TwitchChallenger', 'SantaSniper', 'GrinchHacker', 'ArixuPrime', 'SubNavideño'];
+    const colors = ['#00f0ff', '#ff007f', '#ffd700', '#00ff66', '#b388ff', '#ff8800', '#00e5ff'];
+    const bot = bots[Math.floor(Math.random() * bots.length)];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    let msg = customText;
+    if (!msg) {
+      const phrases = [
+        '¡Vamos con todo!', 'A por la tirada de la ruleta 🎰', '¡Buenas tardes chat!',
+        'Hypeeee 🔥', 'GG', 'jajaja', '¡Qué buena esa!', '¿Alguien sabe la respuesta?',
+        'Let\'s gooo! 🎮', '¡Felices fiestas #imarixu! 🎄', '¡Esa estuvo cerca!', 'Fortnite x GTA VI god'
+      ];
+      msg = phrases[Math.floor(Math.random() * phrases.length)];
+    }
+
+    if (this.isRoundActive) {
+      const isHit = this.processChatAnswer(bot, msg, color);
+      if (!isHit) {
+        this.addLiveChatMessage({ displayName: bot, text: msg, userColor: color });
+      }
+    } else {
+      this.addLiveChatMessage({ displayName: bot, text: msg, userColor: color });
+    }
   }
 
   /**
@@ -242,10 +325,10 @@ export class TwitchChatBridge {
    * Validates chat response against active target answer(s)
    */
   processChatAnswer(displayName, text, userColor) {
-    if (!this.isRoundActive || (!this.activeAnswer && (!this.activeAnswers || this.activeAnswers.length === 0))) return;
+    if (!this.isRoundActive || (!this.activeAnswer && (!this.activeAnswers || this.activeAnswers.length === 0))) return false;
 
     const normalizedGuess = this.normalizeText(text);
-    if (!normalizedGuess) return;
+    if (!normalizedGuess) return false;
 
     // Check against array of valid answers or single target answer
     const isMatch = this.activeAnswers && this.activeAnswers.length > 0
@@ -257,7 +340,7 @@ export class TwitchChatBridge {
 
       // Rule: Map control prevents duplicate answers in the same round
       if (this.participantesRonda.has(userKey)) {
-        return; // Already registered in this round
+        return true; // Already registered in this round
       }
 
       const now = Date.now();
@@ -278,13 +361,16 @@ export class TwitchChatBridge {
       // Trigger UI visual feedback
       this.triggerCajaDestacada(displayName, userColor);
       this.addToLiveFeed(displayName, userColor, text);
+      this.addLiveChatMessage({ displayName, text, userColor, isCorrect: true, speed: elapsedSec });
 
       // Sound chime
       audio.playTone(880, 'triangle', 0.09, 0, 0.45);
 
       // Notify Minigame / subscribers with elapsed seconds (speed)
       this.onValidAnswerCallbacks.forEach(cb => cb(displayName, text, userColor, elapsedSec));
+      return true;
     }
+    return false;
   }
 
   /**

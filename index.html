@@ -409,87 +409,135 @@
 
         <div class="quiz-screen-layout">
 
-          <!-- Quiz Top HUD: Round, Score & Decisive Countdown -->
-          <div class="quiz-top-hud">
-            <div class="hud-stat-box">
-              <span class="stat-label">Canción</span>
-              <span class="stat-value" id="quiz-round-display">1 / 20</span>
-            </div>
-            <div class="hud-stat-box">
-              <span class="stat-label">Aciertos (Meta: 10)</span>
-              <span class="stat-value gold" id="quiz-score-display">0 / 20</span>
-            </div>
-            <div class="hud-stat-box">
-              <span class="stat-label">Tiempo</span>
-              <span class="stat-value" id="quiz-timer-display">15s</span>
-            </div>
-          </div>
-
-          <!-- Audio Cassette / Turntable Synthesizer Deck -->
-          <div class="audio-player-deck" id="quiz-player-deck">
-            <div class="player-cassette-visual">
-              <div class="vinyl-disc" id="quiz-vinyl">
-                <span class="vinyl-center-art">🎄</span>
+          <!-- Left Column: Quiz Game Stage -->
+          <div class="quiz-stage-container">
+            <!-- Quiz Top HUD: Round, Score & Decisive Countdown -->
+            <div class="quiz-top-hud">
+              <div class="hud-stat-box">
+                <span class="stat-label">Canción</span>
+                <span class="stat-value" id="quiz-round-display">1 / 20</span>
               </div>
-              <div class="player-wave-container">
-                <div class="wave-title">
-                  <span id="player-status-icon">🔊</span>
-                  <span id="player-status-text">Reproduciendo sintonía navideña...</span>
+              <div class="hud-stat-box">
+                <span class="stat-label">Aciertos (Meta: 10)</span>
+                <span class="stat-value gold" id="quiz-score-display">0 / 20</span>
+              </div>
+              <div class="hud-stat-box">
+                <span class="stat-label">Tiempo</span>
+                <span class="stat-value" id="quiz-timer-display">15s</span>
+              </div>
+            </div>
+
+            <!-- Audio Cassette / Turntable Synthesizer Deck -->
+            <div class="audio-player-deck" id="quiz-player-deck">
+              <div class="player-cassette-visual">
+                <div class="vinyl-disc" id="quiz-vinyl">
+                  <span class="vinyl-center-art">🎄</span>
                 </div>
-                <div class="neon-equalizer-display">
-                  <span class="neon-eq-col"></span>
-                  <span class="neon-eq-col"></span>
-                  <span class="neon-eq-col"></span>
-                  <span class="neon-eq-col"></span>
-                  <span class="neon-eq-col"></span>
-                  <span class="neon-eq-col"></span>
-                  <span class="neon-eq-col"></span>
-                  <span class="neon-eq-col"></span>
+                <div class="player-wave-container">
+                  <div class="wave-title">
+                    <span id="player-status-icon">🔊</span>
+                    <span id="player-status-text">Reproduciendo sintonía navideña...</span>
+                  </div>
+                  <div class="neon-equalizer-display">
+                    <span class="neon-eq-col"></span>
+                    <span class="neon-eq-col"></span>
+                    <span class="neon-eq-col"></span>
+                    <span class="neon-eq-col"></span>
+                    <span class="neon-eq-col"></span>
+                    <span class="neon-eq-col"></span>
+                    <span class="neon-eq-col"></span>
+                    <span class="neon-eq-col"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action buttons: Start Round & Replay Melody -->
+              <div class="quiz-action-bar" style="display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <button class="fn-btn fn-btn-gold" id="btn-start-round-m1" style="font-size: 1.15rem; padding: 10px 24px;">
+                  <span>▶</span> ¡EMPEZAR RONDA 1!
+                </button>
+                <button class="fn-btn fn-btn-cyan" id="btn-replay-song" style="display: none;">
+                  <span>🔁</span> Repetir Melodía
+                </button>
+              </div>
+
+              <!-- Neon Timer Bar -->
+              <div class="quiz-timer-wrap">
+                <div class="timer-header">
+                  <span>TIEMPO RESTANTE</span>
+                  <span id="timer-bar-text">100%</span>
+                </div>
+                <div class="timer-track">
+                  <div class="timer-fill" id="quiz-timer-fill" style="width: 100%;"></div>
                 </div>
               </div>
             </div>
 
-            <!-- Action buttons: Start Round & Replay Melody -->
-            <div class="quiz-action-bar" style="display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap;">
-              <button class="fn-btn fn-btn-gold" id="btn-start-round-m1" style="font-size: 1.15rem; padding: 10px 24px;">
-                <span>▶</span> ¡EMPEZAR RONDA 1!
+            <!-- 4 Fortnite-style Answers Grid -->
+            <div class="quiz-answers-grid" id="quiz-answers-container">
+              <button class="fn-btn fn-btn-pink answer-btn" data-index="0">
+                <span class="btn-letter-tag">A</span>
+                <span class="btn-answer-text">Jingle Bell Rock</span>
               </button>
-              <button class="fn-btn fn-btn-cyan" id="btn-replay-song" style="display: none;">
-                <span>🔁</span> Repetir Melodía
+              <button class="fn-btn fn-btn-cyan answer-btn" data-index="1">
+                <span class="btn-letter-tag">B</span>
+                <span class="btn-answer-text">All I Want for Christmas Is You</span>
               </button>
-            </div>
-
-            <!-- Neon Timer Bar -->
-            <div class="quiz-timer-wrap">
-              <div class="timer-header">
-                <span>TIEMPO RESTANTE</span>
-                <span id="timer-bar-text">100%</span>
-              </div>
-              <div class="timer-track">
-                <div class="timer-fill" id="quiz-timer-fill" style="width: 100%;"></div>
-              </div>
+              <button class="fn-btn fn-btn-purple answer-btn" data-index="2">
+                <span class="btn-letter-tag">C</span>
+                <span class="btn-answer-text">Feliz Navidad</span>
+              </button>
+              <button class="fn-btn fn-btn-green answer-btn" data-index="3">
+                <span class="btn-letter-tag">D</span>
+                <span class="btn-answer-text">Last Christmas</span>
+              </button>
             </div>
           </div>
 
-          <!-- 4 Fortnite-style Answers Grid -->
-          <div class="quiz-answers-grid" id="quiz-answers-container">
-            <button class="fn-btn fn-btn-pink answer-btn" data-index="0">
-              <span class="btn-letter-tag">A</span>
-              <span class="btn-answer-text">Jingle Bell Rock</span>
-            </button>
-            <button class="fn-btn fn-btn-cyan answer-btn" data-index="1">
-              <span class="btn-letter-tag">B</span>
-              <span class="btn-answer-text">All I Want for Christmas Is You</span>
-            </button>
-            <button class="fn-btn fn-btn-purple answer-btn" data-index="2">
-              <span class="btn-letter-tag">C</span>
-              <span class="btn-answer-text">Feliz Navidad</span>
-            </button>
-            <button class="fn-btn fn-btn-green answer-btn" data-index="3">
-              <span class="btn-letter-tag">D</span>
-              <span class="btn-answer-text">Last Christmas</span>
-            </button>
-          </div>
+          <!-- Right Column: Minigame 1 Live Twitch Chat Sidebar -->
+          <aside class="game-right-sidebar mode-chat" id="m1-right-sidebar">
+            <div class="sidebar-twitch-chat-section">
+              <div class="twitch-chat-header">
+                <div class="twitch-chat-title">
+                  <span class="twitch-icon-svg">🟣</span>
+                  <div>
+                    <div class="twitch-channel-title">CHAT EN DIRECTO</div>
+                    <div class="twitch-channel-slug">
+                      <span class="twitch-status-dot connected"></span>
+                      <span>twitch.tv/<strong>#imarixu</strong></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="twitch-msg-counter" id="m1-msg-counter">0 msgs</span>
+              </div>
+
+              <div class="chat-game-info-banner">
+                <span>🎵</span> ¡El chat puede votar escribiendo <strong>A, B, C o D</strong> o el título del villancico!
+              </div>
+
+              <!-- Real-time Scrolling Messages Stream -->
+              <div class="twitch-live-messages-container" id="m1-twitch-chat-feed">
+                <div class="twitch-msg-item msg-system">
+                  <span class="twitch-msg-badge">🔔</span>
+                  <span class="twitch-msg-content">⭐ ¡Conectado al chat de #imarixu! Los mensajes en vivo aparecen aquí a la derecha.</span>
+                </div>
+              </div>
+
+              <!-- Quick Chat Dock -->
+              <div class="twitch-chat-dock">
+                <div class="twitch-dock-row">
+                  <input type="text" class="twitch-chat-input input-user" id="m1-dock-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                  <input type="text" class="twitch-chat-input input-msg" id="m1-dock-msg" placeholder="Vota A, B, C, D o comenta..." autocomplete="off">
+                  <button class="fn-btn fn-btn-purple btn-send-twitch" id="m1-btn-dock-send" title="Enviar al chat">
+                    <span>📨</span>
+                  </button>
+                </div>
+                <button class="fn-btn fn-btn-gold btn-sim-twitch" id="m1-btn-dock-sim" title="Simula mensajes de espectadores en el chat">
+                  <span>🤖</span> Simular Chat en Vivo
+                </button>
+              </div>
+            </div>
+          </aside>
 
         </div>
 
@@ -638,30 +686,86 @@
 
           </div>
 
-          <!-- Right Side: Leaderboard Panel (Top 5 Clasificación) -->
-          <aside class="karaoke-leaderboard-panel">
-            <div class="lb-header">
-              <div class="lb-title">
-                <span>🏆</span> CLASIFICACIÓN
+          <!-- Right Side: Sidebar with Live Twitch Chat & Clasificación (Minijuego 2) -->
+          <aside class="game-right-sidebar mode-split" id="m2-right-sidebar">
+            <!-- Mode Switcher Tabs -->
+            <div class="sidebar-tabs-row">
+              <button class="sidebar-tab-btn active" data-mode="split" onclick="window.ariSwitchSidebarTab(this, 'split')">
+                <span>📑 Ambos</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="chat" onclick="window.ariSwitchSidebarTab(this, 'chat')">
+                <span class="twitch-tab-dot"></span>
+                <span>💬 Chat Twitch</span>
+                <span class="tab-badge-live">LIVE</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="leaderboard" onclick="window.ariSwitchSidebarTab(this, 'leaderboard')">
+                <span>🏆 Clasificación</span>
+              </button>
+            </div>
+
+            <!-- 1. Leaderboard Section -->
+            <div class="sidebar-leaderboard-section">
+              <div class="lb-header">
+                <div class="lb-title">
+                  <span>🏆</span> CLASIFICACIÓN
+                </div>
+                <span class="lb-sub-pill" id="karaoke-total-players">0 participantes</span>
               </div>
-              <span class="lb-sub-pill" id="karaoke-total-players">0 participantes</span>
+
+              <div class="leaderboard-list" id="karaoke-leaderboard-list">
+                <div class="leaderboard-empty">
+                  <span>🎮</span>
+                  <p>Aún no hay puntos. ¡Escribe en el chat para entrar en el Top 5!</p>
+                </div>
+              </div>
+
+              <div class="lb-footer-note">
+                <span>⚡</span> Todos los que acierten suman punto. Desempate al azar en Ronda 20.
+              </div>
+
+              <button class="fn-btn fn-btn-cyan" id="karaoke-btn-start" style="margin-top: 6px; width: 100%; padding: 6px 12px; font-size: 0.82rem;">
+                <span>🔄</span> Reiniciar Partida (Ronda 1)
+              </button>
             </div>
 
-            <div class="leaderboard-list" id="karaoke-leaderboard-list">
-              <!-- Rendered via JS -->
-              <div class="leaderboard-empty">
-                <span>🎮</span>
-                <p>Aún no hay puntos. ¡Escribe en el chat para entrar en el Top 5!</p>
+            <!-- 2. Live Twitch Chat Section -->
+            <div class="sidebar-twitch-chat-section">
+              <div class="twitch-chat-header">
+                <div class="twitch-chat-title">
+                  <span class="twitch-icon-svg">🟣</span>
+                  <div>
+                    <div class="twitch-channel-title">CHAT EN DIRECTO</div>
+                    <div class="twitch-channel-slug">
+                      <span class="twitch-status-dot connected"></span>
+                      <span>twitch.tv/<strong>#imarixu</strong></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="twitch-msg-counter" id="m2-msg-counter">0 msgs</span>
+              </div>
+
+              <!-- Real-time Scrolling Messages Stream -->
+              <div class="twitch-live-messages-container" id="m2-twitch-chat-feed">
+                <div class="twitch-msg-item msg-system">
+                  <span class="twitch-msg-badge">🔔</span>
+                  <span class="twitch-msg-content">⭐ Chat de #imarixu en vivo. ¡Escribe la palabra que falta aquí o en Twitch!</span>
+                </div>
+              </div>
+
+              <!-- Quick Chat Dock -->
+              <div class="twitch-chat-dock">
+                <div class="twitch-dock-row">
+                  <input type="text" class="twitch-chat-input input-user" id="m2-dock-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                  <input type="text" class="twitch-chat-input input-msg" id="m2-dock-msg" placeholder="Escribe la palabra que falta..." autocomplete="off">
+                  <button class="fn-btn fn-btn-purple btn-send-twitch" id="m2-btn-dock-send" title="Enviar respuesta">
+                    <span>📨</span>
+                  </button>
+                </div>
+                <button class="fn-btn fn-btn-gold btn-sim-twitch" id="m2-btn-dock-sim" style="padding: 5px 10px; font-size: 0.78rem;" title="Simula mensajes de espectadores en el chat">
+                  <span>🤖</span> Simular Chat en Vivo
+                </button>
               </div>
             </div>
-
-            <div class="lb-footer-note">
-              <span>⚡</span> Anti-Delay: Todos los que acierten en los 15s suman punto. Desempate al azar en Ronda 20.
-            </div>
-
-            <button class="fn-btn fn-btn-cyan" id="karaoke-btn-start" style="margin-top: 10px; width: 100%;">
-              <span>🔄</span> Reiniciar Partida (Ronda 1)
-            </button>
           </aside>
 
         </div>
@@ -812,26 +916,86 @@
             </div>
           </div>
 
-          <!-- Right: Leaderboard -->
-          <aside class="karaoke-leaderboard-panel">
-            <div class="lb-header">
-              <div class="lb-title">
-                <span>🏆</span> CLASIFICACIÓN DÍA 3
+          <!-- Right Side: Sidebar with Live Twitch Chat & Clasificación (Minijuego 3) -->
+          <aside class="game-right-sidebar mode-split" id="m3-right-sidebar">
+            <!-- Mode Switcher Tabs -->
+            <div class="sidebar-tabs-row">
+              <button class="sidebar-tab-btn active" data-mode="split" onclick="window.ariSwitchSidebarTab(this, 'split')">
+                <span>📑 Ambos</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="chat" onclick="window.ariSwitchSidebarTab(this, 'chat')">
+                <span class="twitch-tab-dot"></span>
+                <span>💬 Chat Twitch</span>
+                <span class="tab-badge-live">LIVE</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="leaderboard" onclick="window.ariSwitchSidebarTab(this, 'leaderboard')">
+                <span>🏆 Clasificación</span>
+              </button>
+            </div>
+
+            <!-- 1. Leaderboard Section -->
+            <div class="sidebar-leaderboard-section">
+              <div class="lb-header">
+                <div class="lb-title">
+                  <span>🏆</span> CLASIFICACIÓN DÍA 3
+                </div>
+                <span class="lb-sub-pill" id="m3-total-players">0 participantes</span>
               </div>
-              <span class="lb-sub-pill" id="m3-total-players">0 participantes</span>
+
+              <div class="leaderboard-list" id="m3-leaderboard-list">
+                <div class="leaderboard-empty">
+                  <span>🔮</span>
+                  <p>Aún no hay aciertos. ¡Escribe en el chat para entrar en el Top 5!</p>
+                </div>
+              </div>
+
+              <div class="lb-footer-note">
+                <span>⚡</span> Más aciertos + Menor tiempo de respuesta (segundos)
+              </div>
+
+              <button class="fn-btn fn-btn-cyan" id="m3-btn-reset" style="margin-top: 6px; width: 100%; padding: 6px 12px; font-size: 0.82rem;">
+                <span>🔄</span> Reiniciar Partida (Ronda 1)
+              </button>
             </div>
-            <div class="leaderboard-list" id="m3-leaderboard-list">
-              <div class="leaderboard-empty">
-                <span>🔮</span>
-                <p>Aún no hay aciertos. ¡Escribe en el chat para entrar en el Top 5!</p>
+
+            <!-- 2. Live Twitch Chat Section -->
+            <div class="sidebar-twitch-chat-section">
+              <div class="twitch-chat-header">
+                <div class="twitch-chat-title">
+                  <span class="twitch-icon-svg">🟣</span>
+                  <div>
+                    <div class="twitch-channel-title">CHAT EN DIRECTO</div>
+                    <div class="twitch-channel-slug">
+                      <span class="twitch-status-dot connected"></span>
+                      <span>twitch.tv/<strong>#imarixu</strong></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="twitch-msg-counter" id="m3-msg-counter">0 msgs</span>
+              </div>
+
+              <!-- Real-time Scrolling Messages Stream -->
+              <div class="twitch-live-messages-container" id="m3-twitch-chat-feed">
+                <div class="twitch-msg-item msg-system">
+                  <span class="twitch-msg-badge">🔔</span>
+                  <span class="twitch-msg-content">⭐ Chat de #imarixu en vivo. ¡Descifra los emojis y envía tu solución aquí o en Twitch!</span>
+                </div>
+              </div>
+
+              <!-- Quick Chat Dock -->
+              <div class="twitch-chat-dock">
+                <div class="twitch-dock-row">
+                  <input type="text" class="twitch-chat-input input-user" id="m3-dock-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                  <input type="text" class="twitch-chat-input input-msg" id="m3-dock-msg" placeholder="Descifra los emojis..." autocomplete="off">
+                  <button class="fn-btn fn-btn-purple btn-send-twitch" id="m3-btn-dock-send" title="Enviar respuesta">
+                    <span>📨</span>
+                  </button>
+                </div>
+                <button class="fn-btn fn-btn-gold btn-sim-twitch" id="m3-btn-dock-sim" style="padding: 5px 10px; font-size: 0.78rem;" title="Simula mensajes de espectadores en el chat">
+                  <span>🤖</span> Simular Chat en Vivo
+                </button>
               </div>
             </div>
-            <div class="lb-footer-note">
-              <span>⚡</span> Medición: Más aciertos + Menor tiempo de respuesta (segundos).
-            </div>
-            <button class="fn-btn fn-btn-cyan" id="m3-btn-reset" style="margin-top: 10px; width: 100%;">
-              <span>🔄</span> Reiniciar Partida (Ronda 1)
-            </button>
           </aside>
         </div>
 
@@ -991,26 +1155,86 @@
             </div>
           </div>
 
-          <!-- Right: Leaderboard -->
-          <aside class="karaoke-leaderboard-panel">
-            <div class="lb-header">
-              <div class="lb-title">
-                <span>🏆</span> CLASIFICACIÓN DÍA 4
+          <!-- Right Side: Sidebar with Live Twitch Chat & Clasificación (Minijuego 4) -->
+          <aside class="game-right-sidebar mode-split" id="m4-right-sidebar">
+            <!-- Mode Switcher Tabs -->
+            <div class="sidebar-tabs-row">
+              <button class="sidebar-tab-btn active" data-mode="split" onclick="window.ariSwitchSidebarTab(this, 'split')">
+                <span>📑 Ambos</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="chat" onclick="window.ariSwitchSidebarTab(this, 'chat')">
+                <span class="twitch-tab-dot"></span>
+                <span>💬 Chat Twitch</span>
+                <span class="tab-badge-live">LIVE</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="leaderboard" onclick="window.ariSwitchSidebarTab(this, 'leaderboard')">
+                <span>🏆 Clasificación</span>
+              </button>
+            </div>
+
+            <!-- 1. Leaderboard Section -->
+            <div class="sidebar-leaderboard-section">
+              <div class="lb-header">
+                <div class="lb-title">
+                  <span>🏆</span> CLASIFICACIÓN DÍA 4
+                </div>
+                <span class="lb-sub-pill" id="m4-total-players">0 agentes</span>
               </div>
-              <span class="lb-sub-pill" id="m4-total-players">0 agentes</span>
+
+              <div class="leaderboard-list" id="m4-leaderboard-list">
+                <div class="leaderboard-empty">
+                  <span>🚨</span>
+                  <p>Aún no hay sospechosos capturados. ¡Responde rápido para entrar al Top 5!</p>
+                </div>
+              </div>
+
+              <div class="lb-footer-note">
+                <span>⚡</span> Más casos resueltos + Menor tiempo de respuesta
+              </div>
+
+              <button class="fn-btn fn-btn-cyan" id="m4-btn-reset" style="margin-top: 6px; width: 100%; padding: 6px 12px; font-size: 0.82rem;">
+                <span>🔄</span> Reiniciar Partida (Ronda 1)
+              </button>
             </div>
-            <div class="leaderboard-list" id="m4-leaderboard-list">
-              <div class="leaderboard-empty">
-                <span>🚨</span>
-                <p>Aún no hay sospechosos capturados. ¡Responde rápido para entrar al Top 5!</p>
+
+            <!-- 2. Live Twitch Chat Section -->
+            <div class="sidebar-twitch-chat-section">
+              <div class="twitch-chat-header">
+                <div class="twitch-chat-title">
+                  <span class="twitch-icon-svg">🟣</span>
+                  <div>
+                    <div class="twitch-channel-title">CHAT EN DIRECTO</div>
+                    <div class="twitch-channel-slug">
+                      <span class="twitch-status-dot connected"></span>
+                      <span>twitch.tv/<strong>#imarixu</strong></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="twitch-msg-counter" id="m4-msg-counter">0 msgs</span>
+              </div>
+
+              <!-- Real-time Scrolling Messages Stream -->
+              <div class="twitch-live-messages-container" id="m4-twitch-chat-feed">
+                <div class="twitch-msg-item msg-system">
+                  <span class="twitch-msg-badge">🔔</span>
+                  <span class="twitch-msg-content">⭐ Chat de #imarixu en vivo. ¡El chat puede pulsar A, B, C, D o escribir el sospechoso!</span>
+                </div>
+              </div>
+
+              <!-- Quick Chat Dock -->
+              <div class="twitch-chat-dock">
+                <div class="twitch-dock-row">
+                  <input type="text" class="twitch-chat-input input-user" id="m4-dock-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                  <input type="text" class="twitch-chat-input input-msg" id="m4-dock-msg" placeholder="Escribe el sospechoso o comenta..." autocomplete="off">
+                  <button class="fn-btn fn-btn-purple btn-send-twitch" id="m4-btn-dock-send" title="Enviar respuesta">
+                    <span>📨</span>
+                  </button>
+                </div>
+                <button class="fn-btn fn-btn-gold btn-sim-twitch" id="m4-btn-dock-sim" style="padding: 5px 10px; font-size: 0.78rem;" title="Simula mensajes de espectadores en el chat">
+                  <span>🤖</span> Simular Chat en Vivo
+                </button>
               </div>
             </div>
-            <div class="lb-footer-note">
-              <span>⚡</span> Medición: Más casos resueltos + Menor tiempo de respuesta.
-            </div>
-            <button class="fn-btn fn-btn-cyan" id="m4-btn-reset" style="margin-top: 10px; width: 100%;">
-              <span>🔄</span> Reiniciar Partida (Ronda 1)
-            </button>
           </aside>
         </div>
 
@@ -1150,26 +1374,86 @@
             </div>
           </div>
 
-          <!-- Right: Leaderboard -->
-          <aside class="karaoke-leaderboard-panel">
-            <div class="lb-header">
-              <div class="lb-title">
-                <span>🏆</span> CLASIFICACIÓN DÍA 5
+          <!-- Right Side: Sidebar with Live Twitch Chat & Clasificación (Minijuego 5) -->
+          <aside class="game-right-sidebar mode-split" id="m5-right-sidebar">
+            <!-- Mode Switcher Tabs -->
+            <div class="sidebar-tabs-row">
+              <button class="sidebar-tab-btn active" data-mode="split" onclick="window.ariSwitchSidebarTab(this, 'split')">
+                <span>📑 Ambos</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="chat" onclick="window.ariSwitchSidebarTab(this, 'chat')">
+                <span class="twitch-tab-dot"></span>
+                <span>💬 Chat Twitch</span>
+                <span class="tab-badge-live">LIVE</span>
+              </button>
+              <button class="sidebar-tab-btn" data-mode="leaderboard" onclick="window.ariSwitchSidebarTab(this, 'leaderboard')">
+                <span>🏆 Clasificación</span>
+              </button>
+            </div>
+
+            <!-- 1. Leaderboard Section -->
+            <div class="sidebar-leaderboard-section">
+              <div class="lb-header">
+                <div class="lb-title">
+                  <span>🏆</span> CLASIFICACIÓN DÍA 5
+                </div>
+                <span class="lb-sub-pill" id="m5-total-players">0 concursantes</span>
               </div>
-              <span class="lb-sub-pill" id="m5-total-players">0 concursantes</span>
+
+              <div class="leaderboard-list" id="m5-leaderboard-list">
+                <div class="leaderboard-empty">
+                  <span>🔤</span>
+                  <p>Aún no hay anagramas resueltos. ¡Escribe la palabra para entrar al Top 5!</p>
+                </div>
+              </div>
+
+              <div class="lb-footer-note">
+                <span>⚡</span> Más anagramas resueltos + Menor tiempo de respuesta
+              </div>
+
+              <button class="fn-btn fn-btn-cyan" id="m5-btn-reset" style="margin-top: 6px; width: 100%; padding: 6px 12px; font-size: 0.82rem;">
+                <span>🔄</span> Reiniciar Partida (Ronda 1)
+              </button>
             </div>
-            <div class="leaderboard-list" id="m5-leaderboard-list">
-              <div class="leaderboard-empty">
-                <span>🔤</span>
-                <p>Aún no hay anagramas resueltos. ¡Escribe la palabra para entrar al Top 5!</p>
+
+            <!-- 2. Live Twitch Chat Section -->
+            <div class="sidebar-twitch-chat-section">
+              <div class="twitch-chat-header">
+                <div class="twitch-chat-title">
+                  <span class="twitch-icon-svg">🟣</span>
+                  <div>
+                    <div class="twitch-channel-title">CHAT EN DIRECTO</div>
+                    <div class="twitch-channel-slug">
+                      <span class="twitch-status-dot connected"></span>
+                      <span>twitch.tv/<strong>#imarixu</strong></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="twitch-msg-counter" id="m5-msg-counter">0 msgs</span>
+              </div>
+
+              <!-- Real-time Scrolling Messages Stream -->
+              <div class="twitch-live-messages-container" id="m5-twitch-chat-feed">
+                <div class="twitch-msg-item msg-system">
+                  <span class="twitch-msg-badge">🔔</span>
+                  <span class="twitch-msg-content">⭐ Chat de #imarixu en vivo. ¡Descifra la palabra y escríbela en el chat!</span>
+                </div>
+              </div>
+
+              <!-- Quick Chat Dock -->
+              <div class="twitch-chat-dock">
+                <div class="twitch-dock-row">
+                  <input type="text" class="twitch-chat-input input-user" id="m5-dock-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                  <input type="text" class="twitch-chat-input input-msg" id="m5-dock-msg" placeholder="Escribe la palabra ordenada..." autocomplete="off">
+                  <button class="fn-btn fn-btn-purple btn-send-twitch" id="m5-btn-dock-send" title="Enviar respuesta">
+                    <span>📨</span>
+                  </button>
+                </div>
+                <button class="fn-btn fn-btn-gold btn-sim-twitch" id="m5-btn-dock-sim" style="padding: 5px 10px; font-size: 0.78rem;" title="Simula mensajes de espectadores en el chat">
+                  <span>🤖</span> Simular Chat en Vivo
+                </button>
               </div>
             </div>
-            <div class="lb-footer-note">
-              <span>⚡</span> Medición: Más palabras resueltas + Menor tiempo de respuesta.
-            </div>
-            <button class="fn-btn fn-btn-cyan" id="m5-btn-reset" style="margin-top: 10px; width: 100%;">
-              <span>🔄</span> Reiniciar Partida (Ronda 1)
-            </button>
           </aside>
         </div>
 

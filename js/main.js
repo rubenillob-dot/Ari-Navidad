@@ -379,6 +379,125 @@ function initApp() {
     }
   };
 
+  // Sidebar Tab Switcher (Ambos, Chat Twitch, Clasificación)
+  window.ariSwitchSidebarTab = (btnEl, mode) => {
+    if (audio && audio.playClick) audio.playClick();
+    const sidebar = btnEl.closest('.game-right-sidebar');
+    if (!sidebar) return;
+    sidebar.classList.remove('mode-split', 'mode-chat', 'mode-leaderboard');
+    sidebar.classList.add(`mode-${mode}`);
+
+    const row = btnEl.parentElement;
+    if (row) {
+      row.querySelectorAll('.sidebar-tab-btn').forEach(btn => btn.classList.remove('active'));
+    }
+    btnEl.classList.add('active');
+  };
+
+  // Wire up Live Twitch Chat Docks for all 5 minigames (right sidebar)
+  const setupSidebarTwitchDock = (idx) => {
+    const userInput = document.getElementById(`m${idx}-dock-user`);
+    const msgInput = document.getElementById(`m${idx}-dock-msg`);
+    const btnSend = document.getElementById(`m${idx}-btn-dock-send`);
+    const btnSim = document.getElementById(`m${idx}-btn-dock-sim`);
+
+    const sendAction = () => {
+      if (!msgInput) return;
+      const user = userInput?.value.trim() || 'Tú (Streamer)';
+      const msg = msgInput.value.trim();
+      if (!msg) return;
+
+      audio.playClick();
+      msgInput.value = '';
+
+      // Minigame 1: Route answer if round is active
+      if (idx === 1 && window.ariMinigame1?.isRoundRunning && !window.ariMinigame1?.isAnsweringLocked) {
+        const q = window.ariMinigame1.questions[window.ariMinigame1.currentQuestionIdx];
+        if (q) {
+          const letter = ['a', 'b', 'c', 'd'][q.correctIndex];
+          const num = String(q.correctIndex + 1);
+          const norm = twitchChat.normalizeText(msg);
+          if (norm === letter || norm === num || norm === twitchChat.normalizeText(q.options[q.correctIndex])) {
+            twitchChat.processChatAnswer(user, msg, '#ffd700');
+            return;
+          }
+        }
+      }
+
+      // Minigames 2 to 5: Route answer to the active minigame if in answering phase
+      if (idx === 2 && window.ariMinigame2?.phase === 'answering') {
+        window.ariMinigame2.submitAnswer(user, msg);
+        return;
+      }
+      if (idx === 3 && window.ariMinigame3?.phase === 'answering') {
+        window.ariMinigame3.submitAnswer(user, msg);
+        return;
+      }
+      if (idx === 4 && window.ariMinigame4?.phase === 'answering') {
+        window.ariMinigame4.submitAnswer(user, msg);
+        return;
+      }
+      if (idx === 5 && window.ariMinigame5?.phase === 'answering') {
+        window.ariMinigame5.submitAnswer(user, msg);
+        return;
+      }
+
+      // Process with twitchChat if round active, or broadcast to live chat feed
+      if (twitchChat.isRoundActive) {
+        const isHit = twitchChat.processChatAnswer(user, msg, '#ffd700');
+        if (!isHit) {
+          twitchChat.addLiveChatMessage({ displayName: user, text: msg, userColor: '#ffd700' });
+        }
+      } else {
+        twitchChat.addLiveChatMessage({ displayName: user, text: msg, userColor: '#ffd700' });
+      }
+    };
+
+    if (btnSend) {
+      btnSend.addEventListener('click', (e) => {
+        e.preventDefault();
+        sendAction();
+      });
+    }
+
+    if (msgInput) {
+      msgInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendAction();
+        }
+      });
+    }
+
+    if (btnSim) {
+      btnSim.addEventListener('click', (e) => {
+        e.preventDefault();
+        audio.playClick();
+        if (idx === 2 && window.ariMinigame2?.phase === 'answering') {
+          window.ariMinigame2.triggerSimulatedChatAnswers();
+          return;
+        }
+        if (idx === 3 && window.ariMinigame3?.phase === 'answering') {
+          window.ariMinigame3.triggerSimulatedChatAnswers();
+          return;
+        }
+        if (idx === 4 && window.ariMinigame4?.phase === 'answering') {
+          window.ariMinigame4.triggerSimulatedChatAnswers();
+          return;
+        }
+        if (idx === 5 && window.ariMinigame5?.phase === 'answering') {
+          window.ariMinigame5.triggerSimulatedChatAnswers();
+          return;
+        }
+        twitchChat.simulateChatMessage();
+      });
+    }
+  };
+
+  for (let i = 1; i <= 5; i++) {
+    setupSidebarTwitchDock(i);
+  }
+
   // Instructions Accordion Controls (Minigames 1 to 5)
   const setupInstructionsToggle = (btnId, cardId, pillId) => {
     const btn = document.getElementById(btnId);

@@ -6,6 +6,7 @@
 
 import { audio } from './audio.js';
 import { confetti } from './confetti.js';
+import { twitchChat } from './twitch-chat.js';
 
 export class MinigameSongGuesser {
   constructor(state, onVictoryCallback) {
@@ -284,6 +285,18 @@ export class MinigameSongGuesser {
         this.handleAnswer(selectedIndex, btn);
       });
     });
+
+    // Connect to global Twitch Chat Bridge
+    twitchChat.initDOM();
+    twitchChat.onValidAnswer((displayName, text, userColor) => {
+      if (this.isRoundRunning && !this.isAnsweringLocked) {
+        const q = this.questions[this.currentQuestionIdx];
+        const allBtns = this.answersContainer.querySelectorAll('.answer-btn');
+        if (allBtns && allBtns[q.correctIndex]) {
+          this.handleAnswer(q.correctIndex, allBtns[q.correctIndex]);
+        }
+      }
+    });
   }
 
   startQuiz() {
@@ -385,6 +398,15 @@ export class MinigameSongGuesser {
     // Start 15s countdown
     this.startTimer(15);
 
+    // Sync Twitch Chat WebSocket with valid answer options
+    const q = this.questions[this.currentQuestionIdx];
+    if (q) {
+      const letter = ['a', 'b', 'c', 'd'][q.correctIndex];
+      const num = String(q.correctIndex + 1);
+      const correctName = q.options[q.correctIndex];
+      twitchChat.startRound([letter, num, correctName]);
+    }
+
     // Play synthesized melody
     this.playCurrentMelody();
   }
@@ -446,6 +468,7 @@ export class MinigameSongGuesser {
     clearInterval(this.timerInterval);
     this.timerInterval = null;
     this.isRoundRunning = false;
+    twitchChat.endRound();
     if (this.vinylDisc) this.vinylDisc.classList.remove('playing');
     if (this.playerDeck) this.playerDeck.classList.remove('playing');
   }
@@ -454,6 +477,7 @@ export class MinigameSongGuesser {
     this.isAnsweringLocked = true;
     this.isRoundRunning = false;
     this.stopTimer();
+    twitchChat.endRound();
     audio.stopMelody();
 
     const q = this.questions[this.currentQuestionIdx];
@@ -479,6 +503,7 @@ export class MinigameSongGuesser {
   handleTimeout() {
     this.isAnsweringLocked = true;
     this.isRoundRunning = false;
+    twitchChat.endRound();
     audio.stopMelody();
 
     const q = this.questions[this.currentQuestionIdx];

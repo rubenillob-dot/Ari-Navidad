@@ -86,24 +86,30 @@ Ari-Navidad/
 └── README.md
 ```
 
-### 💬 Conexión en Vivo con Twitch Chat (WebSockets Nativos)
+### 💬 Conexión en Vivo con Twitch Chat y Sidebar Lateral en Todos los Minijuegos
 
-La aplicación incluye un cliente **WebSocket nativo y sin librerías externas** (`js/modules/twitch-chat.js`) conectado directamente al servidor IRC de Twitch (`wss://irc-ws.chat.twitch.tv:443`):
+La aplicación incluye un cliente **WebSocket nativo y sin librerías externas** (`js/modules/twitch-chat.js`) conectado directamente al servidor IRC de Twitch (`wss://irc-ws.chat.twitch.tv:443`), integrado con una **barra lateral en vivo a la derecha de CADA UNO de los 5 minijuegos**:
 
 1. **Autenticación Anónima Segura**:
    - Se conecta automáticamente mediante `justinfan<randomNum>` al canal **`#imarixu`**.
    - Habilita capacidades IRC completas (`CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership`) para capturar `@display-name` y colores de usuario.
    - Responde automáticamente al `PING :tmi.twitch.tv` del servidor con `PONG` para mantener la conexión viva de forma indefinida sin desconexiones.
 
-2. **Control Anti-Delay y Evitación de Spam**:
-   - Emplea un `Map` (`participantesRonda`) para registrar únicamente el **primer acierto válido** por usuario en cada una de las 20 rondas. Los mensajes duplicados o posteriores del mismo usuario se descartan silenciosamente.
+2. **Sidebar Lateral en Vivo a la Derecha (Minijuegos 1, 2, 3, 4 y 5)**:
+   - **Pestañas de Modo Interactivas** (`Ambos`, `Chat Twitch`, `Clasificación`): Permite al streamer o espectador alternar la vista entre el chat al 100%, el leaderboard al 100% o la vista dividida (*split*).
+   - **Stream de Mensajes en Tiempo Real**: Feed de chat con desplazamiento automático, contador en vivo de mensajes recibidos, insignia de estado LIVE de Twitch y colores reales de cada espectador.
+   - **Dock de Entrada Rápida y Simulación**: Campo para escribir y enviar respuestas directamente desde la pantalla (o probar comandos) y botón `🤖 Simular Chat en Vivo` para generar actividad realista de bots sin necesidad de que el stream esté emitiendo en ese momento.
+   - **Integración con la Lógica de Juego**: En todos los minijuegos, si el mensaje enviado en el dock o recibido por el chat de Twitch coincide con la respuesta correcta activa, se valida al instante otorgando la puntuación y midiendo los segundos de reacción.
+
+3. **Control Anti-Delay, Precisión de Reflejos y Evitación de Spam**:
+   - Emplea un `Map` (`participantesRonda`) para registrar únicamente el **primer acierto válido** por usuario en cada ronda activa. Los mensajes duplicados o posteriores del mismo usuario en la misma ronda se descartan silenciosamente.
+   - Registro de tiempo al milisegundo: se calcula la velocidad de respuesta desde que se pulsa *"▶ ¡EMPEZAR RONDA!"* hasta el instante exacto en que llega el mensaje o clic, definiendo el desempate en la clasificación.
    - Normalización de texto avanzada (ignora mayúsculas, minúsculas, espacios y tildes/acentos `normalize("NFD")`) para que los espectadores no se vean perjudicados por el teclado del móvil o la rapidez.
 
-3. **Componentes Visuales en Directo**:
+4. **Componentes Visuales en Directo**:
    - **Caja Destacada (Estilo IlloJuan)** (`#currentVoterBox`): Cada vez que un espectador acierta en el chat, aparece en el centro de la pantalla un contenedor flotante animado (`voterPopIn`) durante 1.5 segundos mostrando el avatar navideño y el nombre del usuario en tipografía Fortnite y colores neón.
    - **Feed en Vivo Lateral** (`#live-votos-feed`): Panel lateral translúcido con scroll automático que apila en tiempo real las tarjetas de los espectadores que van acertando en la ronda actual.
    - **Indicador de Conexión en el HUD** (`#twitch-ws-pill`): Muestra el canal `#imarixu` y un indicador visual LED pulsante con los estados de la conexión (Verde = Conectado, Amarillo = Conectando, Rojo = Desconectado).
-   - **Simulador de Pruebas**: Botón `🤖 Simular Chat` en el HUD del Minijuego 2 para probar la ronda sin necesidad de que el canal de Twitch esté activo en ese instante.
 
 ---
 
