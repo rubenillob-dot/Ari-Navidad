@@ -17,6 +17,9 @@ class ViewRouter {
       'lobby': document.getElementById('view-lobby'),
       'minigame1': document.getElementById('view-minigame1'),
       'minigame2': document.getElementById('view-minigame2'),
+      'minigame3': document.getElementById('view-minigame3'),
+      'minigame4': document.getElementById('view-minigame4'),
+      'minigame5': document.getElementById('view-minigame5'),
       'roulette': document.getElementById('view-roulette')
     };
 

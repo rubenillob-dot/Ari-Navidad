@@ -22,6 +22,8 @@ export class TwitchChatBridge {
 
     // Round state
     this.activeAnswer = '';
+    this.activeAnswers = [];
+    this.roundStartTime = null;
     this.isRoundActive = false;
 
     // Callbacks
@@ -206,11 +208,17 @@ export class TwitchChatBridge {
   }
 
   /**
-   * Starts a new round: clears participant map and sets the target answer
+   * Starts a new round: clears participant map and sets the target answer(s)
    */
   startRound(targetAnswer) {
     this.participantesRonda.clear();
-    this.activeAnswer = this.normalizeText(targetAnswer);
+    this.roundStartTime = Date.now();
+    if (Array.isArray(targetAnswer)) {
+      this.activeAnswers = targetAnswer.map(a => this.normalizeText(a));
+    } else {
+      this.activeAnswers = [this.normalizeText(targetAnswer)];
+    }
+    this.activeAnswer = this.activeAnswers[0] || '';
     this.isRoundActive = true;
 
     // Reset Live Feed list for the new round
@@ -227,19 +235,24 @@ export class TwitchChatBridge {
    */
   endRound() {
     this.isRoundActive = false;
+    this.roundStartTime = null;
   }
 
   /**
-   * Validates chat response against active target answer
+   * Validates chat response against active target answer(s)
    */
   processChatAnswer(displayName, text, userColor) {
-    if (!this.isRoundActive || !this.activeAnswer) return;
+    if (!this.isRoundActive || (!this.activeAnswer && (!this.activeAnswers || this.activeAnswers.length === 0))) return;
 
     const normalizedGuess = this.normalizeText(text);
     if (!normalizedGuess) return;
 
-    // Exact word match
-    if (normalizedGuess === this.activeAnswer) {
+    // Check against array of valid answers or single target answer
+    const isMatch = this.activeAnswers && this.activeAnswers.length > 0
+      ? this.activeAnswers.includes(normalizedGuess)
+      : normalizedGuess === this.activeAnswer;
+
+    if (isMatch) {
       const userKey = displayName.toLowerCase();
 
       // Rule: Map control prevents duplicate answers in the same round
@@ -247,12 +260,18 @@ export class TwitchChatBridge {
         return; // Already registered in this round
       }
 
+      const now = Date.now();
+      const elapsedSec = this.roundStartTime
+        ? Math.max(0.1, parseFloat(((now - this.roundStartTime) / 1000).toFixed(2)))
+        : 1.0;
+
       // Register first valid response
       const entry = {
         displayName,
         userColor,
         text,
-        timestamp: Date.now()
+        timestamp: now,
+        elapsedSec
       };
       this.participantesRonda.set(userKey, entry);
 
@@ -263,8 +282,8 @@ export class TwitchChatBridge {
       // Sound chime
       audio.playTone(880, 'triangle', 0.09, 0, 0.45);
 
-      // Notify Minigame / subscribers
-      this.onValidAnswerCallbacks.forEach(cb => cb(displayName, text, userColor));
+      // Notify Minigame / subscribers with elapsed seconds (speed)
+      this.onValidAnswerCallbacks.forEach(cb => cb(displayName, text, userColor, elapsedSec));
     }
   }
 

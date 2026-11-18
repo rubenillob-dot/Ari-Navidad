@@ -252,69 +252,72 @@
             </div>
           </article>
 
-          <!-- CARD 3: Fortnite Winterfest Drop (BLOQUEADO) -->
-          <article class="game-card card-locked" data-locked-name="Fortnite Winterfest Supply Drop">
-            <div class="vault-chains"></div>
-            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+          <!-- CARD 3: Winterfest Emoji Enigma (ACTIVO - DÍA 3) -->
+          <article class="game-card card-active has-snow-cap" id="card-minigame-3" onclick="window.ariPlayMinigame(3)">
+            <div class="card-candy-border"></div>
+            <span class="card-badge-status badge-open">⭐ DÍA 3 • DISPONIBLE</span>
 
             <div class="card-icon-wrapper">
-              <span>🦙</span>
+              <span class="card-hat">🎅</span>
+              <span>🔮</span>
             </div>
 
-            <span class="card-meta-num">Minijuego 03</span>
-            <h3 class="card-title">Winterfest Drop</h3>
+            <span class="card-meta-num">Minijuego 03 • Día 3</span>
+            <h3 class="card-title">Winterfest Emoji</h3>
             <p class="card-desc">
-              Localiza la llama navideña antes de que la tormenta helada cubra la isla de Fortnite.
+              Descifra los 25 enigmas de emojis navideños. ¡El más rápido y certero lidera y gana la tirada!
             </p>
 
             <div class="card-action">
-              <div class="lock-seal">
-                <span>🔒</span> PRÓXIMAMENTE
-              </div>
+              <button class="fn-btn fn-btn-gold" id="btn-play-minigame3" onclick="event.stopPropagation(); window.ariPlayMinigame(3);">
+                <span>🔮</span> ¡JUGAR AHORA!
+              </button>
             </div>
           </article>
 
-          <!-- CARD 4: El Atraco del Grinch (BLOQUEADO) -->
-          <article class="game-card card-locked" data-locked-name="El Gran Atraco del Grinch">
-            <div class="vault-chains"></div>
-            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+          <!-- CARD 4: El Gran Atraco del Grinch (ACTIVO - DÍA 4) -->
+          <article class="game-card card-active has-snow-cap" id="card-minigame-4" onclick="window.ariPlayMinigame(4)">
+            <div class="card-candy-border"></div>
+            <span class="card-badge-status badge-open">⭐ DÍA 4 • DISPONIBLE</span>
 
             <div class="card-icon-wrapper">
-              <span>🎄</span>
+              <span class="card-hat">🎅</span>
+              <span>🚨</span>
             </div>
 
-            <span class="card-meta-num">Minijuego 04</span>
+            <span class="card-meta-num">Minijuego 04 • Día 4</span>
             <h3 class="card-title">Atraco del Grinch</h3>
             <p class="card-desc">
-              Intercepta la furgoneta de escape del Grinch por Ocean Drive antes de Nochebuena.
+              Sintoniza la radio de Leonida y resuelve 25 casos contrarreloj. ¡Premio a los mejores reflejos y aciertos!
             </p>
 
             <div class="card-action">
-              <div class="lock-seal">
-                <span>🔒</span> PRÓXIMAMENTE
-              </div>
+              <button class="fn-btn fn-btn-pink" id="btn-play-minigame4" onclick="event.stopPropagation(); window.ariPlayMinigame(4);">
+                <span>🚨</span> ¡JUGAR AHORA!
+              </button>
             </div>
           </article>
 
-          <!-- CARD 5: Karaoke Navideño Twitch (BLOQUEADO) -->
-          <article class="game-card card-locked" data-locked-name="Karaoke Navideño de Twitch">
-            <div class="vault-chains"></div>
-            <span class="card-badge-status badge-locked">🔒 BLOQUEADO</span>
+          <!-- CARD 5: Twitch Showdown - Anagrama de Vice City (ACTIVO - DÍA 5) -->
+          <article class="game-card card-active has-snow-cap" id="card-minigame-5" onclick="window.ariPlayMinigame(5)">
+            <div class="card-candy-border"></div>
+            <span class="card-badge-status badge-open">⭐ DÍA 5 • DISPONIBLE</span>
 
             <div class="card-icon-wrapper">
-              <span>🎤</span>
+              <span class="card-hat">🎅</span>
+              <span>🔤</span>
             </div>
 
-            <span class="card-meta-num">Minijuego 05</span>
-            <h3 class="card-title">Twitch Karaoke</h3>
+            <span class="card-meta-num">Minijuego 05 • Día 5</span>
+            <h3 class="card-title">Twitch Anagrama</h3>
             <p class="card-desc">
-              Duelo musical en vivo con el chat para coronar al Rey o Reina del stream navideño.
+              Ordena las 25 palabras de neón desordenadas al ritmo del chat. ¡Gana el más veloz con más aciertos!
             </p>
 
             <div class="card-action">
-              <div class="lock-seal">
-                <span>🔒</span> PRÓXIMAMENTE
-              </div>
+              <button class="fn-btn fn-btn-cyan" id="btn-play-minigame5" onclick="event.stopPropagation(); window.ariPlayMinigame(5);">
+                <span>🔤</span> ¡JUGAR AHORA!
+              </button>
             </div>
           </article>
 
@@ -696,6 +699,496 @@
       </section>
 
       <!-- ====================================================================
+           VIEW 2C: MINIJUEGO 3 (DÍA 3: WINTERFEST EMOJI ENIGMA - 25 RONDAS)
+           ==================================================================== -->
+      <section class="spa-view" id="view-minigame3">
+        <div class="view-title-container">
+          <div class="title-badge-group">
+            <span class="season-tag">🔮 ENIGMA DE EMOJIS • DÍA 3</span>
+            <h2 class="main-view-title">
+              Winterfest <span class="highlight-cyan">Emoji</span> Enigma
+            </h2>
+          </div>
+          <div class="view-header-actions">
+            <button class="fn-btn fn-btn-gold" id="btn-toggle-instructions-m3">
+              <span>📜</span> Instrucciones
+            </button>
+            <button class="fn-btn fn-btn-purple btn-back-lobby" onclick="window.ariNavigate('lobby')">
+              <span>⬅</span> Volver al Lobby
+            </button>
+          </div>
+        </div>
+
+        <!-- Apartado de Instrucciones Minijuego 3 -->
+        <div class="game-instructions-card has-snow-cap" id="instructions-card-m3">
+          <div class="instructions-header" id="instructions-header-m3">
+            <div class="instructions-title-wrap">
+              <span class="instructions-icon">📜</span>
+              <h4 class="instructions-title">¿CÓMO FUNCIONA? • RETO DE EMOJIS (25 RONDAS)</h4>
+            </div>
+            <span class="instructions-toggle-pill" id="instructions-pill-m3">Ocultar ▲</span>
+          </div>
+          <div class="instructions-body" id="instructions-body-m3">
+            <div class="instruction-step">
+              <span class="step-badge">1</span>
+              <div>
+                <strong>Descifra los Emojis:</strong> En cada una de las <strong>25 rondas</strong> se muestra una combinación de emojis con pista temática y guiones de letras.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">2</span>
+              <div>
+                <strong>Botón de Inicio & 15s:</strong> Pulsa <em>"▶ ¡EMPEZAR RONDA!"</em> para activar los 15s contrarreloj y habilitar el chat de Twitch.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">3</span>
+              <div>
+                <strong>Clasificación:</strong> ¡Se premia <em>al que más acierte y al más rápido</em> en responder (tiempo en segundos y bonus de reflejos)!
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">4</span>
+              <div>
+                <strong>Tirada en la Ruleta:</strong> Al finalizar las 25 rondas, el líder del ranking gana <strong>1 tirada oficial</strong> en la Ruleta Navideña.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="karaoke-screen-layout">
+          <!-- Left: Emoji Stage -->
+          <div class="karaoke-stage-container">
+            <div class="karaoke-top-hud">
+              <div class="hud-left-meta">
+                <span class="karaoke-round-pill" id="m3-round-badge">RONDA 1 / 25</span>
+                <span class="karaoke-phase-tag phase-active" id="m3-phase-badge">⚡ TIEMPO PARA RESPONDER (15s)</span>
+              </div>
+              <div class="circular-timer-box" title="Cuenta atrás">
+                <svg class="timer-svg" viewBox="0 0 110 110">
+                  <circle class="timer-svg-bg" cx="55" cy="55" r="48"></circle>
+                  <circle class="timer-svg-progress" id="m3-timer-circle" cx="55" cy="55" r="48"></circle>
+                </svg>
+                <span class="timer-number-center" id="m3-timer-text">15s</span>
+              </div>
+            </div>
+
+            <!-- Emoji Deck -->
+            <div class="emoji-display-deck" id="m3-emoji-deck">
+              <div class="marquee-candy-border"></div>
+              <div style="margin-bottom: 8px;">
+                <span class="karaoke-round-pill" id="m3-category-pill" style="font-size: 0.9rem; padding: 3px 10px;">🎯 PELÍCULA CLÁSICA</span>
+              </div>
+              <div class="emoji-big-display" id="m3-emojis-display">🟢 🧌 🎄</div>
+              <div class="emoji-hint-box" id="m3-hint-text">💡 <em>Pista:</em> Criatura verde que roba la Navidad...</div>
+              <div class="emoji-blanks-display" id="m3-blanks-display">_ _   _ _ _ _ _ _</div>
+
+              <div class="karaoke-status-banner status-waiting" id="m3-status-banner" style="margin-top: 10px;">
+                <span>⏳</span> ¡15 segundos! Descifra los emojis.
+              </div>
+
+              <div class="karaoke-start-action-wrap" style="margin-top: 12px; display: flex; justify-content: center;">
+                <button class="fn-btn fn-btn-gold" id="m3-btn-start-round" style="font-size: 1.15rem; padding: 11px 26px; width: 100%;">
+                  <span>▶</span> ¡EMPEZAR RONDA 1 / 25 (15s)!
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom Dock -->
+            <div class="karaoke-dock-container">
+              <div class="karaoke-input-row">
+                <input type="text" class="karaoke-input-field input-user-tag" id="m3-input-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                <input type="text" class="karaoke-input-field input-answer-box" id="m3-input-answer" placeholder="Escribe tu respuesta y pulsa Enter..." autocomplete="off">
+                <button class="fn-btn fn-btn-pink" id="m3-btn-send">
+                  <span>📨</span> Enviar
+                </button>
+                <button class="fn-btn fn-btn-gold" id="m3-btn-sim-bots" title="Simula respuestas del chat">
+                  <span>🤖</span> Simular Chat
+                </button>
+              </div>
+              <div class="karaoke-chat-feed" id="m3-chat-feed">
+                <div class="chat-log-msg system">⭐ ¡Día 3 listo! Escribe en el chat o pulsa Simular Chat.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Leaderboard -->
+          <aside class="karaoke-leaderboard-panel">
+            <div class="lb-header">
+              <div class="lb-title">
+                <span>🏆</span> CLASIFICACIÓN DÍA 3
+              </div>
+              <span class="lb-sub-pill" id="m3-total-players">0 participantes</span>
+            </div>
+            <div class="leaderboard-list" id="m3-leaderboard-list">
+              <div class="leaderboard-empty">
+                <span>🔮</span>
+                <p>Aún no hay aciertos. ¡Escribe en el chat para entrar en el Top 5!</p>
+              </div>
+            </div>
+            <div class="lb-footer-note">
+              <span>⚡</span> Medición: Más aciertos + Menor tiempo de respuesta (segundos).
+            </div>
+            <button class="fn-btn fn-btn-cyan" id="m3-btn-reset" style="margin-top: 10px; width: 100%;">
+              <span>🔄</span> Reiniciar Partida (Ronda 1)
+            </button>
+          </aside>
+        </div>
+
+        <footer class="app-copyright-footer">
+          <div class="copyright-candy-line"></div>
+          <div class="copyright-content">
+            <div class="copyright-left">
+              <span class="xmas-emblem">🎄</span>
+              <span class="copyright-text">© 2024 - 2025 <strong>Ari Navidad</strong> • Todos los derechos reservados.</span>
+            </div>
+            <div class="copyright-credits">
+              <span>Diseñado y Creado con magia navideña por <strong class="author-highlight">Rubenillo</strong></span>
+              <span class="author-badge">🎮 CREADOR OFICIAL</span>
+            </div>
+          </div>
+        </footer>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 2D: MINIJUEGO 4 (DÍA 4: EL GRAN ATRACO DEL GRINCH - 25 RONDAS)
+           ==================================================================== -->
+      <section class="spa-view" id="view-minigame4">
+        <div class="view-title-container">
+          <div class="title-badge-group">
+            <span class="season-tag">🚨 RADIO DE LEONIDA • DÍA 4</span>
+            <h2 class="main-view-title">
+              El Gran Atraco del <span class="highlight-yellow">Grinch</span>
+            </h2>
+          </div>
+          <div class="view-header-actions">
+            <button class="fn-btn fn-btn-gold" id="btn-toggle-instructions-m4">
+              <span>📜</span> Instrucciones
+            </button>
+            <button class="fn-btn fn-btn-purple btn-back-lobby" onclick="window.ariNavigate('lobby')">
+              <span>⬅</span> Volver al Lobby
+            </button>
+          </div>
+        </div>
+
+        <!-- Apartado de Instrucciones Minijuego 4 -->
+        <div class="game-instructions-card has-snow-cap" id="instructions-card-m4">
+          <div class="instructions-header" id="instructions-header-m4">
+            <div class="instructions-title-wrap">
+              <span class="instructions-icon">📜</span>
+              <h4 class="instructions-title">¿CÓMO FUNCIONA? • RADIO POLICIAL (25 CASOS)</h4>
+            </div>
+            <span class="instructions-toggle-pill" id="instructions-pill-m4">Ocultar ▲</span>
+          </div>
+          <div class="instructions-body" id="instructions-body-m4">
+            <div class="instruction-step">
+              <span class="step-badge">1</span>
+              <div>
+                <strong>Pistas Progresivas:</strong> En cada caso la radio revela 3 pistas (a los 0s, 4s y 8s). ¡Identifica al sospechoso o botín robado!
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">2</span>
+              <div>
+                <strong>Pulsa o Escribe:</strong> Puedes hacer clic en cualquiera de los 4 botones cómic de sospechosos o escribir el nombre en el chat.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">3</span>
+              <div>
+                <strong>Premio a los Reflejos:</strong> Se mide <em>al más rápido y al que más acierte</em>. Cuanto antes pulses la opción correcta, ¡más puntos y mejor media de velocidad!
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">4</span>
+              <div>
+                <strong>1 Tirada VIP:</strong> El agente número 1 tras el Caso 25 gana su tirada garantizada en la Ruleta Navideña.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="karaoke-screen-layout">
+          <!-- Left: Police Deck -->
+          <div class="karaoke-stage-container">
+            <div class="karaoke-top-hud">
+              <div class="hud-left-meta">
+                <span class="karaoke-round-pill" id="m4-round-badge">RONDA 1 / 25</span>
+                <span class="karaoke-phase-tag phase-active" id="m4-phase-badge">⚡ TIEMPO PARA RESPONDER (15s)</span>
+              </div>
+              <div class="circular-timer-box" title="Cuenta atrás">
+                <svg class="timer-svg" viewBox="0 0 110 110">
+                  <circle class="timer-svg-bg" cx="55" cy="55" r="48"></circle>
+                  <circle class="timer-svg-progress" id="m4-timer-circle" cx="55" cy="55" r="48"></circle>
+                </svg>
+                <span class="timer-number-center" id="m4-timer-text">15s</span>
+              </div>
+            </div>
+
+            <!-- Police Deck -->
+            <div class="police-radio-deck" id="m4-police-deck">
+              <div class="police-siren-bar">
+                <span class="siren-red"></span>
+                <span class="siren-blue"></span>
+              </div>
+
+              <div class="karaoke-song-header">
+                <span class="karaoke-song-title" id="m4-case-title">🚨 CASO #1: <span style="color: var(--fn-yellow);">SOSPECHOSO DE ROJO</span></span>
+              </div>
+
+              <div class="police-clues-container">
+                <div class="police-clue-item clue-revealed" id="m4-clue-1"><strong>Pista 1:</strong> "Viste traje rojo aterciopelado..."</div>
+                <div class="police-clue-item clue-locked" id="m4-clue-2"><strong>Pista 2:</strong> <em>[Bloqueada hasta los 4s]</em></div>
+                <div class="police-clue-item clue-locked" id="m4-clue-3"><strong>Pista 3:</strong> <em>[Bloqueada hasta los 8s]</em></div>
+              </div>
+
+              <!-- 4 Options Grid -->
+              <div class="police-options-grid">
+                <button class="fn-btn answer-btn opt-style-0" id="m4-opt-0">
+                  <span class="btn-letter-tag">A</span>
+                  <span class="btn-answer-text">Papá Noel</span>
+                </button>
+                <button class="fn-btn answer-btn opt-style-1" id="m4-opt-1">
+                  <span class="btn-letter-tag">B</span>
+                  <span class="btn-answer-text">El Grinch</span>
+                </button>
+                <button class="fn-btn answer-btn opt-style-2" id="m4-opt-2">
+                  <span class="btn-letter-tag">C</span>
+                  <span class="btn-answer-text">Duende Verde</span>
+                </button>
+                <button class="fn-btn answer-btn opt-style-3" id="m4-opt-3">
+                  <span class="btn-letter-tag">D</span>
+                  <span class="btn-answer-text">Tommy Vercetti</span>
+                </button>
+              </div>
+
+              <div class="karaoke-status-banner status-waiting" id="m4-status-banner" style="margin-top: 10px;">
+                <span>⏳</span> ¡15 segundos! Pulsa la opción correcta o escríbela en el chat.
+              </div>
+
+              <div class="karaoke-start-action-wrap" style="margin-top: 12px; display: flex; justify-content: center;">
+                <button class="fn-btn fn-btn-gold" id="m4-btn-start-round" style="font-size: 1.15rem; padding: 11px 26px; width: 100%;">
+                  <span>▶</span> ¡EMPEZAR RONDA 1 / 25 (15s)!
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom Dock -->
+            <div class="karaoke-dock-container">
+              <div class="karaoke-input-row">
+                <input type="text" class="karaoke-input-field input-user-tag" id="m4-input-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                <input type="text" class="karaoke-input-field input-answer-box" id="m4-input-answer" placeholder="O escribe el sospechoso aquí..." autocomplete="off">
+                <button class="fn-btn fn-btn-pink" id="m4-btn-send">
+                  <span>📨</span> Enviar
+                </button>
+                <button class="fn-btn fn-btn-gold" id="m4-btn-sim-bots" title="Simula respuestas del chat">
+                  <span>🤖</span> Simular Chat
+                </button>
+              </div>
+              <div class="karaoke-chat-feed" id="m4-chat-feed">
+                <div class="chat-log-msg system">⭐ ¡Día 4 listo! Responde mediante botones o chat.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Leaderboard -->
+          <aside class="karaoke-leaderboard-panel">
+            <div class="lb-header">
+              <div class="lb-title">
+                <span>🏆</span> CLASIFICACIÓN DÍA 4
+              </div>
+              <span class="lb-sub-pill" id="m4-total-players">0 agentes</span>
+            </div>
+            <div class="leaderboard-list" id="m4-leaderboard-list">
+              <div class="leaderboard-empty">
+                <span>🚨</span>
+                <p>Aún no hay sospechosos capturados. ¡Responde rápido para entrar al Top 5!</p>
+              </div>
+            </div>
+            <div class="lb-footer-note">
+              <span>⚡</span> Medición: Más casos resueltos + Menor tiempo de respuesta.
+            </div>
+            <button class="fn-btn fn-btn-cyan" id="m4-btn-reset" style="margin-top: 10px; width: 100%;">
+              <span>🔄</span> Reiniciar Partida (Ronda 1)
+            </button>
+          </aside>
+        </div>
+
+        <footer class="app-copyright-footer">
+          <div class="copyright-candy-line"></div>
+          <div class="copyright-content">
+            <div class="copyright-left">
+              <span class="xmas-emblem">🎄</span>
+              <span class="copyright-text">© 2024 - 2025 <strong>Ari Navidad</strong> • Todos los derechos reservados.</span>
+            </div>
+            <div class="copyright-credits">
+              <span>Diseñado y Creado con magia navideña por <strong class="author-highlight">Rubenillo</strong></span>
+              <span class="author-badge">🎮 CREADOR OFICIAL</span>
+            </div>
+          </div>
+        </footer>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 2E: MINIJUEGO 5 (DÍA 5: TWITCH SHOWDOWN - ANAGRAMA DE VICE CITY)
+           ==================================================================== -->
+      <section class="spa-view" id="view-minigame5">
+        <div class="view-title-container">
+          <div class="title-badge-group">
+            <span class="season-tag">🔤 ANAGRAMA DE NEÓN • DÍA 5</span>
+            <h2 class="main-view-title">
+              Twitch Showdown <span class="highlight-pink">Anagrama</span>
+            </h2>
+          </div>
+          <div class="view-header-actions">
+            <button class="fn-btn fn-btn-gold" id="btn-toggle-instructions-m5">
+              <span>📜</span> Instrucciones
+            </button>
+            <button class="fn-btn fn-btn-purple btn-back-lobby" onclick="window.ariNavigate('lobby')">
+              <span>⬅</span> Volver al Lobby
+            </button>
+          </div>
+        </div>
+
+        <!-- Apartado de Instrucciones Minijuego 5 -->
+        <div class="game-instructions-card has-snow-cap" id="instructions-card-m5">
+          <div class="instructions-header" id="instructions-header-m5">
+            <div class="instructions-title-wrap">
+              <span class="instructions-icon">📜</span>
+              <h4 class="instructions-title">¿CÓMO FUNCIONA? • ANAGRAMAS DE VICE CITY (25 RONDAS)</h4>
+            </div>
+            <span class="instructions-toggle-pill" id="instructions-pill-m5">Ocultar ▲</span>
+          </div>
+          <div class="instructions-body" id="instructions-body-m5">
+            <div class="instruction-step">
+              <span class="step-badge">1</span>
+              <div>
+                <strong>Letras Desordenadas:</strong> En cada ronda las letras de una palabra navideña o festiva aparecen caóticamente desordenadas en mosaicos de neón.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">2</span>
+              <div>
+                <strong>Botón de Comienzo & 15s:</strong> Pulsa <em>"▶ ¡EMPEZAR RONDA!"</em> para activar la cuenta regresiva de 15 segundos.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">3</span>
+              <div>
+                <strong>El Más Rápido & Certero:</strong> ¡Gana quien más palabras descifre con el menor tiempo de respuesta! Los segundos cuentan para el desempate.
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">4</span>
+              <div>
+                <strong>Gran Final:</strong> El campeón absoluto de la Ronda 25 gana <strong>1 tirada garantizada</strong> en la Ruleta Navideña VIP.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="karaoke-screen-layout">
+          <!-- Left: Anagram Stage -->
+          <div class="karaoke-stage-container">
+            <div class="karaoke-top-hud">
+              <div class="hud-left-meta">
+                <span class="karaoke-round-pill" id="m5-round-badge">RONDA 1 / 25</span>
+                <span class="karaoke-phase-tag phase-active" id="m5-phase-badge">⚡ TIEMPO PARA RESPONDER (15s)</span>
+              </div>
+              <div class="circular-timer-box" title="Cuenta atrás">
+                <svg class="timer-svg" viewBox="0 0 110 110">
+                  <circle class="timer-svg-bg" cx="55" cy="55" r="48"></circle>
+                  <circle class="timer-svg-progress" id="m5-timer-circle" cx="55" cy="55" r="48"></circle>
+                </svg>
+                <span class="timer-number-center" id="m5-timer-text">15s</span>
+              </div>
+            </div>
+
+            <!-- Anagram Board -->
+            <div class="anagram-neon-board" id="m5-anagram-board">
+              <div class="marquee-candy-border"></div>
+              <div style="margin-bottom: 8px;">
+                <span class="karaoke-round-pill" id="m5-length-pill" style="font-size: 0.9rem; padding: 3px 10px;">🔤 4 LETRAS</span>
+              </div>
+
+              <!-- Animated Neon Tiles -->
+              <div class="anagram-tiles-wrap" id="m5-tiles-container">
+                <div class="anagram-neon-tile">R</div>
+                <div class="anagram-neon-tile">E</div>
+                <div class="anagram-neon-tile">O</div>
+                <div class="anagram-neon-tile">N</div>
+              </div>
+
+              <div class="emoji-hint-box" id="m5-hint-text">💡 <em>Pista:</em> Fiel cuadrúpedo volador con astas mágicas...</div>
+
+              <div class="karaoke-status-banner status-waiting" id="m5-status-banner" style="margin-top: 10px;">
+                <span>⏳</span> ¡15 segundos! Ordena las letras y escribe la palabra correcta.
+              </div>
+
+              <div class="karaoke-start-action-wrap" style="margin-top: 12px; display: flex; justify-content: center;">
+                <button class="fn-btn fn-btn-gold" id="m5-btn-start-round" style="font-size: 1.15rem; padding: 11px 26px; width: 100%;">
+                  <span>▶</span> ¡EMPEZAR RONDA 1 / 25 (15s)!
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom Dock -->
+            <div class="karaoke-dock-container">
+              <div class="karaoke-input-row">
+                <input type="text" class="karaoke-input-field input-user-tag" id="m5-input-user" placeholder="Tu Usuario" value="Tú (Streamer)">
+                <input type="text" class="karaoke-input-field input-answer-box" id="m5-input-answer" placeholder="Escribe la palabra ordenada y pulsa Enter..." autocomplete="off">
+                <button class="fn-btn fn-btn-pink" id="m5-btn-send">
+                  <span>📨</span> Enviar
+                </button>
+                <button class="fn-btn fn-btn-gold" id="m5-btn-sim-bots" title="Simula respuestas del chat">
+                  <span>🤖</span> Simular Chat
+                </button>
+              </div>
+              <div class="karaoke-chat-feed" id="m5-chat-feed">
+                <div class="chat-log-msg system">⭐ ¡Día 5 listo! Descifra el anagrama en el chat.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Leaderboard -->
+          <aside class="karaoke-leaderboard-panel">
+            <div class="lb-header">
+              <div class="lb-title">
+                <span>🏆</span> CLASIFICACIÓN DÍA 5
+              </div>
+              <span class="lb-sub-pill" id="m5-total-players">0 concursantes</span>
+            </div>
+            <div class="leaderboard-list" id="m5-leaderboard-list">
+              <div class="leaderboard-empty">
+                <span>🔤</span>
+                <p>Aún no hay anagramas resueltos. ¡Escribe la palabra para entrar al Top 5!</p>
+              </div>
+            </div>
+            <div class="lb-footer-note">
+              <span>⚡</span> Medición: Más palabras resueltas + Menor tiempo de respuesta.
+            </div>
+            <button class="fn-btn fn-btn-cyan" id="m5-btn-reset" style="margin-top: 10px; width: 100%;">
+              <span>🔄</span> Reiniciar Partida (Ronda 1)
+            </button>
+          </aside>
+        </div>
+
+        <footer class="app-copyright-footer">
+          <div class="copyright-candy-line"></div>
+          <div class="copyright-content">
+            <div class="copyright-left">
+              <span class="xmas-emblem">🎄</span>
+              <span class="copyright-text">© 2024 - 2025 <strong>Ari Navidad</strong> • Todos los derechos reservados.</span>
+            </div>
+            <div class="copyright-credits">
+              <span>Diseñado y Creado con magia navideña por <strong class="author-highlight">Rubenillo</strong></span>
+              <span class="author-badge">🎮 CREADOR OFICIAL</span>
+            </div>
+          </div>
+        </footer>
+      </section>
+
+      <!-- ====================================================================
            VIEW 3: RULETA NAVIDEÑA (WHEEL + EXACT DROP RATES PANEL)
            ==================================================================== -->
       <section class="spa-view" id="view-roulette">
@@ -850,6 +1343,33 @@
           <span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!
         </button>
         <button class="fn-btn fn-btn-purple" id="btn-karaoke-victory-lobby" onclick="window.ariNavigate('lobby')">
+          <span>🏠</span> Volver al Lobby
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1C: VICTORIA EN MINIJUEGOS 3, 4 Y 5 (DÍAS 3, 4 Y 5 - 25 RONDAS)
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-minigame-victory">
+    <div class="modal-card">
+      <h2 class="modal-slam-banner">¡VICTORIA ROYALE! 👑⚡</h2>
+      <div class="modal-sub-banner" id="minigame-victory-sub">FIN DE LAS 25 RONDAS • CLASIFICACIÓN FINAL</div>
+
+      <div class="modal-prize-box" style="border-color: var(--gta-cyan);">
+        <span class="modal-prize-icon" id="minigame-winner-icon">🏆</span>
+        <h3 class="modal-prize-name" id="minigame-winner-name">TÚ (STREAMER)</h3>
+        <p class="modal-prize-details" id="minigame-winner-details">
+          ¡Campeón indiscutible! Mayor número de aciertos y mejor velocidad media. Se desbloquea 1 tirada en la Ruleta Navideña.
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="fn-btn fn-btn-gold" id="btn-minigame-go-roulette" onclick="window.ariNavigate('roulette')" style="font-size: 1.25rem; padding: 14px;">
+          <span>🎰</span> ¡IR A LA RULETA NAVIDEÑA!
+        </button>
+        <button class="fn-btn fn-btn-purple" id="btn-minigame-victory-lobby" onclick="window.ariNavigate('lobby')">
           <span>🏠</span> Volver al Lobby
         </button>
       </div>

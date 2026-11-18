@@ -2357,3 +2357,207 @@
     gap: 8px;
   }
 }
+
+/* ==========================================================================
+   MINIJUEGOS 3, 4 Y 5: STYLES (DÍAS 3, 4 Y 5)
+   ========================================================================== */
+
+/* --- Minijuego 3: Winterfest Emoji Enigma --- */
+.emoji-display-deck {
+  position: relative;
+  background: linear-gradient(175deg, rgba(16, 26, 48, 0.95) 0%, rgba(8, 12, 24, 0.98) 100%);
+  border: 3px solid var(--gta-cyan);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 10px 0 #000, 0 0 25px rgba(0, 240, 255, 0.35);
+  text-align: center;
+}
+
+.emoji-big-display {
+  font-size: 3.2rem;
+  letter-spacing: 12px;
+  margin: 0.75rem 0;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 15px rgba(0, 240, 255, 0.5));
+  animation: floatGentle 3s ease-in-out infinite;
+}
+
+.emoji-hint-box {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  color: #e0e8ff;
+  margin-bottom: 0.75rem;
+}
+
+.emoji-blanks-display {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  letter-spacing: 4px;
+  color: var(--fn-yellow);
+  text-shadow: 0 2px 0 #000, 0 0 10px rgba(255, 230, 0, 0.6);
+  min-height: 2rem;
+}
+
+/* --- Minijuego 4: El Gran Atraco del Grinch (Radio Policial) --- */
+.police-radio-deck {
+  position: relative;
+  background: linear-gradient(175deg, rgba(20, 16, 35, 0.95) 0%, rgba(10, 8, 20, 0.98) 100%);
+  border: 3px solid rgba(255, 68, 68, 0.7);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 10px 0 #000, 0 0 25px rgba(255, 40, 40, 0.3);
+}
+
+.police-siren-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.siren-red {
+  flex: 1;
+  background: #ff2244;
+  box-shadow: 0 0 10px #ff2244;
+  animation: glowPulse 1s infinite alternate;
+}
+
+.siren-blue {
+  flex: 1;
+  background: #0088ff;
+  box-shadow: 0 0 10px #0088ff;
+  animation: glowPulse 1s infinite alternate-reverse;
+}
+
+.police-clues-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.police-clue-item {
+  background: rgba(0, 0, 0, 0.5);
+  border-left: 4px solid #555;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.92rem;
+  color: #ccc;
+  transition: all 0.3s ease;
+}
+
+.police-clue-item.clue-revealed {
+  border-left-color: var(--fn-yellow);
+  color: #fff;
+  background: rgba(255, 230, 0, 0.08);
+  box-shadow: 0 0 10px rgba(255, 230, 0, 0.15);
+}
+
+.police-clue-item.clue-locked {
+  opacity: 0.55;
+  font-style: italic;
+  color: #777;
+}
+
+.police-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.opt-style-0 {
+  background: linear-gradient(180deg, #ff007f 0%, #b80058 100%) !important;
+}
+.opt-style-1 {
+  background: linear-gradient(180deg, #00f0ff 0%, #0099cc 100%) !important;
+  color: #0b1528 !important;
+}
+.opt-style-2 {
+  background: linear-gradient(180deg, #9900ff 0%, #6600b3 100%) !important;
+}
+.opt-style-3 {
+  background: linear-gradient(180deg, #00ff66 0%, #009933 100%) !important;
+  color: #052605 !important;
+}
+
+.correct-choice-highlight {
+  box-shadow: 0 0 20px #00ff66, 0 4px 0 #000 !important;
+  transform: scale(1.02);
+}
+
+.wrong-choice-faded {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+}
+
+/* --- Minijuego 5: Twitch Showdown (Anagrama Caótico) --- */
+.anagram-neon-board {
+  position: relative;
+  background: linear-gradient(175deg, rgba(28, 12, 42, 0.95) 0%, rgba(14, 6, 24, 0.98) 100%);
+  border: 3px solid var(--gta-pink);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 10px 0 #000, 0 0 25px rgba(255, 0, 127, 0.35);
+  text-align: center;
+}
+
+.anagram-tiles-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin: 1.2rem 0;
+}
+
+.anagram-neon-tile {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(255, 0, 127, 0.3) 0%, rgba(0, 240, 255, 0.25) 100%);
+  border: 3px solid var(--fn-yellow);
+  border-radius: 12px;
+  width: 52px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 0 #000, 0 0 12px rgba(255, 230, 0, 0.4);
+  text-shadow: 0 2px 0 #000, 0 0 8px rgba(255, 255, 255, 0.8);
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.anagram-neon-tile:hover {
+  transform: translateY(-4px) scale(1.06);
+}
+
+.anagram-neon-tile.tile-solved {
+  border-color: #00ff66;
+  background: linear-gradient(180deg, rgba(0, 255, 102, 0.35) 0%, rgba(0, 153, 51, 0.35) 100%);
+  box-shadow: 0 5px 0 #000, 0 0 20px rgba(0, 255, 102, 0.8);
+  animation: fnPop 0.4s ease;
+}
+
+/* Common Leaderboard Extra Indicators */
+.lb-speed {
+  font-family: var(--font-hud);
+  font-size: 0.78rem;
+  color: var(--gta-cyan);
+  font-weight: 700;
+}
+
+.lb-badge {
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  background: rgba(255, 230, 0, 0.18);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--fn-yellow);
+  font-weight: 800;
+}
+

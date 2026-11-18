@@ -1,7 +1,7 @@
 /**
  * Ari-Navidad Application Entry Point
  * Coordinates global state, SPA views, Web Audio synthesizer, falling snow,
- * Minigames 1 & 2 validation and Christmas Roulette mechanics.
+ * Minigames 1, 2, 3, 4 & 5 validation and Christmas Roulette mechanics.
  */
 
 import { router } from './modules/router.js';
@@ -9,6 +9,9 @@ import { audio } from './modules/audio.js';
 import { SnowSystem } from './modules/snow.js';
 import { MinigameSongGuesser } from './modules/minigame1.js';
 import { MinigameKaraoke } from './modules/minigame2.js';
+import { MinigameEmojiEnigma } from './modules/minigame3.js';
+import { MinigameGrinchHeist } from './modules/minigame4.js';
+import { MinigameTwitchShowdown } from './modules/minigame5.js';
 import { ChristmasRoulette } from './modules/roulette.js';
 import { twitchChat } from './modules/twitch-chat.js';
 
@@ -17,6 +20,9 @@ const appState = {
   spinsAvailable: 0,
   hasWonMinigame: false,
   minigame2Winner: null,
+  minigame3Winner: null,
+  minigame4Winner: null,
+  minigame5Winner: null,
   prizesWon: []
 };
 
@@ -24,6 +30,7 @@ const appState = {
 let audioToggleBtn, audioIcon, audioText, toastNotice, toastMessage, toastIcon;
 let modalVictory, btnModalGoRoulette, btnModalVictoryLobby;
 let modalKaraokeVictory, karaokeWinnerName, karaokeWinnerDetails, karaokeVictorySub, btnKaraokeGoRoulette, btnKaraokeVictoryLobby;
+let modalMinigameVictory, minigameWinnerName, minigameWinnerDetails, minigameVictorySub, minigameWinnerIcon, btnMinigameGoRoulette, btnMinigameVictoryLobby;
 let modalPrizeWon, wonPrizeIcon, wonPrizeName, wonPrizeDesc, btnClaimChat, btnPrizeDone;
 let modalPassedSubtitle;
 let toastTimeout = null;
@@ -72,6 +79,15 @@ function initApp() {
   btnKaraokeGoRoulette = document.getElementById('btn-karaoke-go-roulette');
   btnKaraokeVictoryLobby = document.getElementById('btn-karaoke-victory-lobby');
 
+  // Minigames 3, 4 & 5 Victory Modal
+  modalMinigameVictory = document.getElementById('modal-minigame-victory');
+  minigameWinnerName = document.getElementById('minigame-winner-name');
+  minigameWinnerDetails = document.getElementById('minigame-winner-details');
+  minigameVictorySub = document.getElementById('minigame-victory-sub');
+  minigameWinnerIcon = document.getElementById('minigame-winner-icon');
+  btnMinigameGoRoulette = document.getElementById('btn-minigame-go-roulette');
+  btnMinigameVictoryLobby = document.getElementById('btn-minigame-victory-lobby');
+
   // Roulette Prize Modal
   modalPrizeWon = document.getElementById('modal-prize-won');
   wonPrizeIcon = document.getElementById('won-prize-icon');
@@ -97,6 +113,23 @@ function initApp() {
     }
     if (modalPrizeWon) modalPrizeWon.classList.add('modal-show');
   });
+
+  // Helper for Minigames 3, 4, 5 victory modal
+  const showMinigameVictoryModal = (winData) => {
+    roulette.updateControlsState();
+    if (minigameWinnerName) {
+      minigameWinnerName.textContent = winData.winner.toUpperCase();
+    }
+    if (minigameVictorySub) {
+      minigameVictorySub.textContent = `FIN DE LAS 25 RONDAS • ¡CAMPEÓN ${winData.gameName.toUpperCase()}!`;
+    }
+    if (minigameWinnerDetails) {
+      minigameWinnerDetails.textContent = `¡${winData.winner} fue el más rápido y certero con ${winData.score} aciertos en 25 rondas (velocidad media: ${winData.avgSpeed}s)! Se desbloquea 1 tirada oficial en la Ruleta Navideña VIP.`;
+    }
+    if (modalMinigameVictory) {
+      modalMinigameVictory.classList.add('modal-show');
+    }
+  };
 
   // 3. Initialize Minigame 1 (Adivina la Canción)
   const minigame1 = new MinigameSongGuesser(appState, () => {
@@ -125,11 +158,30 @@ function initApp() {
     }
   });
 
-  // Expose minigame2 instance and global bridges
+  // 5. Initialize Minigame 3 (Winterfest Emoji Enigma - 25 Rondas)
+  const minigame3 = new MinigameEmojiEnigma(appState, (winData) => {
+    showMinigameVictoryModal(winData);
+  });
+
+  // 6. Initialize Minigame 4 (El Gran Atraco del Grinch - 25 Rondas)
+  const minigame4 = new MinigameGrinchHeist(appState, (winData) => {
+    showMinigameVictoryModal(winData);
+  });
+
+  // 7. Initialize Minigame 5 (Twitch Showdown: Anagrama - 25 Rondas)
+  const minigame5 = new MinigameTwitchShowdown(appState, (winData) => {
+    showMinigameVictoryModal(winData);
+  });
+
+  // Expose minigame instances and global bridges
   window.ariKaraokeInstance = minigame2;
   window.ariRouter = router;
   window.ariMinigame1 = minigame1;
   window.ariMinigame2 = minigame2;
+  window.ariMinigame3 = minigame3;
+  window.ariMinigame4 = minigame4;
+  window.ariMinigame5 = minigame5;
+  window.ariRoulette = roulette;
 
   // Always redraw wheel when switching to roulette view
   router.onViewChange((viewKey) => {
@@ -139,7 +191,7 @@ function initApp() {
     }
   });
 
-  // 5. Audio Control Button Setup
+  // Audio Control Button Setup
   if (audioToggleBtn) {
     audioToggleBtn.onclick = (e) => {
       e.preventDefault();
@@ -158,7 +210,7 @@ function initApp() {
     };
   }
 
-  // 6. Lobby Card 1: Adivina la Canción Navideña (Play Now)
+  // Lobby Card 1: Adivina la Canción Navideña (Play Now)
   const card1 = document.getElementById('card-minigame-1');
   const btnPlayMinigame1 = document.getElementById('btn-play-minigame1');
   
@@ -177,7 +229,7 @@ function initApp() {
     };
   }
 
-  // 7. Lobby Card 2: Karaoke Navideño Vice City (Play Now)
+  // Lobby Card 2: Karaoke Navideño Vice City (Play Now)
   const card2 = document.getElementById('card-minigame-2');
   const btnPlayMinigame2 = document.getElementById('btn-play-minigame2');
 
@@ -196,15 +248,71 @@ function initApp() {
     };
   }
 
+  // Lobby Card 3: Winterfest Emoji Enigma (Día 3)
+  const card3 = document.getElementById('card-minigame-3');
+  const btnPlayMinigame3 = document.getElementById('btn-play-minigame3');
+
+  const startMinigame3Action = (e) => {
+    if (e) e.preventDefault();
+    audio.playClick();
+    router.navigateTo('minigame3');
+    minigame3.startNewGame();
+  };
+
+  if (card3) card3.onclick = startMinigame3Action;
+  if (btnPlayMinigame3) {
+    btnPlayMinigame3.onclick = (e) => {
+      e.stopPropagation();
+      startMinigame3Action(e);
+    };
+  }
+
+  // Lobby Card 4: El Gran Atraco del Grinch (Día 4)
+  const card4 = document.getElementById('card-minigame-4');
+  const btnPlayMinigame4 = document.getElementById('btn-play-minigame4');
+
+  const startMinigame4Action = (e) => {
+    if (e) e.preventDefault();
+    audio.playClick();
+    router.navigateTo('minigame4');
+    minigame4.startNewGame();
+  };
+
+  if (card4) card4.onclick = startMinigame4Action;
+  if (btnPlayMinigame4) {
+    btnPlayMinigame4.onclick = (e) => {
+      e.stopPropagation();
+      startMinigame4Action(e);
+    };
+  }
+
+  // Lobby Card 5: Twitch Showdown - Anagrama de Vice City (Día 5)
+  const card5 = document.getElementById('card-minigame-5');
+  const btnPlayMinigame5 = document.getElementById('btn-play-minigame5');
+
+  const startMinigame5Action = (e) => {
+    if (e) e.preventDefault();
+    audio.playClick();
+    router.navigateTo('minigame5');
+    minigame5.startNewGame();
+  };
+
+  if (card5) card5.onclick = startMinigame5Action;
+  if (btnPlayMinigame5) {
+    btnPlayMinigame5.onclick = (e) => {
+      e.stopPropagation();
+      startMinigame5Action(e);
+    };
+  }
+
   // Global direct access bridge
   window.ariPlayMinigame = (num) => {
     if (num === 1) startMinigameAction();
     else if (num === 2) startMinigame2Action();
+    else if (num === 3) startMinigame3Action();
+    else if (num === 4) startMinigame4Action();
+    else if (num === 5) startMinigame5Action();
   };
-
-  window.ariMinigame1 = minigame1;
-  window.ariMinigame2 = minigame2;
-  window.ariRoulette = roulette;
 
   // View change safety hook: cancel any active timers and music when leaving minigames
   router.onViewChange((newViewKey) => {
@@ -214,6 +322,15 @@ function initApp() {
     }
     if (newViewKey !== 'minigame2' && minigame2) {
       minigame2.stopTimer();
+    }
+    if (newViewKey !== 'minigame3' && minigame3) {
+      minigame3.stopTimer();
+    }
+    if (newViewKey !== 'minigame4' && minigame4) {
+      minigame4.stopTimer();
+    }
+    if (newViewKey !== 'minigame5' && minigame5) {
+      minigame5.stopTimer();
     }
   });
 
@@ -225,6 +342,15 @@ function initApp() {
     }
     if (viewKey !== 'minigame2' && window.ariMinigame2) {
       window.ariMinigame2.stopTimer();
+    }
+    if (viewKey !== 'minigame3' && window.ariMinigame3) {
+      window.ariMinigame3.stopTimer();
+    }
+    if (viewKey !== 'minigame4' && window.ariMinigame4) {
+      window.ariMinigame4.stopTimer();
+    }
+    if (viewKey !== 'minigame5' && window.ariMinigame5) {
+      window.ariMinigame5.stopTimer();
     }
     if (router) {
       router.navigateTo(viewKey);
@@ -253,7 +379,7 @@ function initApp() {
     }
   };
 
-  // 7b. Instructions Accordion Controls (Minigames 1 & 2)
+  // Instructions Accordion Controls (Minigames 1 to 5)
   const setupInstructionsToggle = (btnId, cardId, pillId) => {
     const btn = document.getElementById(btnId);
     const card = document.getElementById(cardId);
@@ -274,24 +400,11 @@ function initApp() {
 
   setupInstructionsToggle('btn-toggle-instructions-m1', 'instructions-card-m1', 'instructions-pill-m1');
   setupInstructionsToggle('btn-toggle-instructions-m2', 'instructions-card-m2', 'instructions-pill-m2');
+  setupInstructionsToggle('btn-toggle-instructions-m3', 'instructions-card-m3', 'instructions-pill-m3');
+  setupInstructionsToggle('btn-toggle-instructions-m4', 'instructions-card-m4', 'instructions-pill-m4');
+  setupInstructionsToggle('btn-toggle-instructions-m5', 'instructions-card-m5', 'instructions-pill-m5');
 
-  // 8. Lobby Cards 3 to 5: Locked Vault Interaction
-  const lockedCards = document.querySelectorAll('.game-card.card-locked');
-  lockedCards.forEach(card => {
-    card.onclick = (e) => {
-      e.preventDefault();
-      audio.playLockShake();
-      const vaultName = card.getAttribute('data-locked-name') || 'Esta bóveda';
-      
-      card.classList.remove('vault-shake-anim');
-      void card.offsetWidth; // Trigger reflow
-      card.classList.add('vault-shake-anim');
-
-      showToast(`🔒 ${vaultName} está sellada. ¡Próximamente en el stream!`, '🚫');
-    };
-  });
-
-  // 9. Lobby CTA: Ver Ruleta
+  // Lobby CTA: Ver Ruleta
   const lobbyCtaWheel = document.getElementById('lobby-cta-wheel');
   if (lobbyCtaWheel) {
     lobbyCtaWheel.onclick = (e) => {
@@ -303,7 +416,7 @@ function initApp() {
     };
   }
 
-  // 10. Victory Modal 1 Buttons (Adivina la Canción)
+  // Victory Modal 1 Buttons (Adivina la Canción)
   if (btnModalGoRoulette) {
     btnModalGoRoulette.onclick = (e) => {
       e.preventDefault();
@@ -325,7 +438,7 @@ function initApp() {
     };
   }
 
-  // 11. Victory Modal 2 Buttons (Karaoke Navideño)
+  // Victory Modal 2 Buttons (Karaoke Navideño)
   if (btnKaraokeGoRoulette) {
     btnKaraokeGoRoulette.onclick = (e) => {
       e.preventDefault();
@@ -347,7 +460,29 @@ function initApp() {
     };
   }
 
-  // 12. Prize Won Modal Buttons
+  // Victory Modal 3, 4, 5 Buttons
+  if (btnMinigameGoRoulette) {
+    btnMinigameGoRoulette.onclick = (e) => {
+      e.preventDefault();
+      audio.playClick();
+      if (modalMinigameVictory) modalMinigameVictory.classList.remove('modal-show');
+      router.navigateTo('roulette');
+      roulette.drawWheel(roulette.currentRotation);
+      roulette.updateControlsState();
+    };
+  }
+
+  if (btnMinigameVictoryLobby) {
+    btnMinigameVictoryLobby.onclick = (e) => {
+      e.preventDefault();
+      audio.playClick();
+      if (modalMinigameVictory) modalMinigameVictory.classList.remove('modal-show');
+      router.navigateTo('lobby');
+      roulette.updateControlsState();
+    };
+  }
+
+  // Prize Won Modal Buttons
   if (btnClaimChat) {
     btnClaimChat.onclick = (e) => {
       e.preventDefault();
@@ -356,8 +491,11 @@ function initApp() {
       const claimText = `!reclamar ${lastPrize ? lastPrize.prize.name : 'Premio'} - Ari Navidad Leonida`;
       
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(claimText);
-        showToast(`📋 Comando copiado: "${claimText}" ¡Pégalo en el chat de Twitch!`, '💬');
+        navigator.clipboard.writeText(claimText).then(() => {
+          showToast(`📋 Comando copiado: "${claimText}" ¡Pégalo en el chat de Twitch!`, '💬');
+        }).catch(() => {
+          showToast(`💬 Escribe en el chat: "${claimText}"`, '🎁');
+        });
       } else {
         showToast(`💬 Escribe en el chat: "${claimText}"`, '🎁');
       }
@@ -373,7 +511,7 @@ function initApp() {
     };
   }
 
-  console.log('✨ Ari Navidad: Ready with Minigames 1 & 2!');
+  console.log('✨ Ari Navidad: Ready with all 5 Minigames (Días 1, 2, 3, 4 y 5)!');
 }
 
 // Robust execution: handles both early and late script loading

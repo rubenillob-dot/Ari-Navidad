@@ -659,6 +659,7 @@ const audio = new SoundEngine();
  */
 
 
+
 class ViewRouter {
   constructor() {
     this.currentViewId = 'view-lobby';
@@ -671,6 +672,9 @@ class ViewRouter {
       'lobby': document.getElementById('view-lobby'),
       'minigame1': document.getElementById('view-minigame1'),
       'minigame2': document.getElementById('view-minigame2'),
+      'minigame3': document.getElementById('view-minigame3'),
+      'minigame4': document.getElementById('view-minigame4'),
+      'minigame5': document.getElementById('view-minigame5'),
       'roulette': document.getElementById('view-roulette')
     };
 
@@ -753,6 +757,7 @@ const router = new ViewRouter();
  */
 
 
+
 class TwitchChatBridge {
   constructor(options = {}) {
     this.channel = (options.channel || 'imarixu').toLowerCase().replace('#', '');
@@ -767,6 +772,8 @@ class TwitchChatBridge {
 
     // Round state
     this.activeAnswer = '';
+    this.activeAnswers = [];
+    this.roundStartTime = null;
     this.isRoundActive = false;
 
     // Callbacks
@@ -951,11 +958,17 @@ class TwitchChatBridge {
   }
 
   /**
-   * Starts a new round: clears participant map and sets the target answer
+   * Starts a new round: clears participant map and sets the target answer(s)
    */
   startRound(targetAnswer) {
     this.participantesRonda.clear();
-    this.activeAnswer = this.normalizeText(targetAnswer);
+    this.roundStartTime = Date.now();
+    if (Array.isArray(targetAnswer)) {
+      this.activeAnswers = targetAnswer.map(a => this.normalizeText(a));
+    } else {
+      this.activeAnswers = [this.normalizeText(targetAnswer)];
+    }
+    this.activeAnswer = this.activeAnswers[0] || '';
     this.isRoundActive = true;
 
     // Reset Live Feed list for the new round
@@ -972,19 +985,24 @@ class TwitchChatBridge {
    */
   endRound() {
     this.isRoundActive = false;
+    this.roundStartTime = null;
   }
 
   /**
-   * Validates chat response against active target answer
+   * Validates chat response against active target answer(s)
    */
   processChatAnswer(displayName, text, userColor) {
-    if (!this.isRoundActive || !this.activeAnswer) return;
+    if (!this.isRoundActive || (!this.activeAnswer && (!this.activeAnswers || this.activeAnswers.length === 0))) return;
 
     const normalizedGuess = this.normalizeText(text);
     if (!normalizedGuess) return;
 
-    // Exact word match
-    if (normalizedGuess === this.activeAnswer) {
+    // Check against array of valid answers or single target answer
+    const isMatch = this.activeAnswers && this.activeAnswers.length > 0
+      ? this.activeAnswers.includes(normalizedGuess)
+      : normalizedGuess === this.activeAnswer;
+
+    if (isMatch) {
       const userKey = displayName.toLowerCase();
 
       // Rule: Map control prevents duplicate answers in the same round
@@ -992,12 +1010,18 @@ class TwitchChatBridge {
         return; // Already registered in this round
       }
 
+      const now = Date.now();
+      const elapsedSec = this.roundStartTime
+        ? Math.max(0.1, parseFloat(((now - this.roundStartTime) / 1000).toFixed(2)))
+        : 1.0;
+
       // Register first valid response
       const entry = {
         displayName,
         userColor,
         text,
-        timestamp: Date.now()
+        timestamp: now,
+        elapsedSec
       };
       this.participantesRonda.set(userKey, entry);
 
@@ -1008,8 +1032,8 @@ class TwitchChatBridge {
       // Sound chime
       audio.playTone(880, 'triangle', 0.09, 0, 0.45);
 
-      // Notify Minigame / subscribers
-      this.onValidAnswerCallbacks.forEach(cb => cb(displayName, text, userColor));
+      // Notify Minigame / subscribers with elapsed seconds (speed)
+      this.onValidAnswerCallbacks.forEach(cb => cb(displayName, text, userColor, elapsedSec));
     }
   }
 
@@ -1089,6 +1113,7 @@ const twitchChat = new TwitchChatBridge({ channel: 'imarixu' });
  * Exact mathematical drop rates calculation, 24-slice canvas wheel with alternating prizes,
  * blinking fairy light bezel, pointer tick physics, demo mode, and victory celebration.
  */
+
 
 
 
@@ -1529,6 +1554,7 @@ class ChristmasRoulette {
  * Neon progress timer bar, 4 Fortnite comic response buttons, synth audio playback,
  * score validation, and unlocking the unique spin for the Christmas Roulette!
  */
+
 
 
 
@@ -2107,6 +2133,7 @@ class MinigameSongGuesser {
  * 15s answer window + 3s transition, live Top 5 Leaderboard, random tie-breaker,
  * and Roulette spin unlocking!
  */
+
 
 
 
@@ -2748,13 +2775,2413 @@ class MinigameKaraoke {
 
 
 // ==========================================
+// MODULE: js/modules/minigame3.js
+// ==========================================
+/**
+ * Ari-Navidad Minigame 3 (Día 3): Winterfest Emoji Enigma
+ * 25 rondas de acertijos de emojis navideños con botón de inicio de ronda
+ * y clasificación oficial por aciertos y velocidad de respuesta.
+ */
+
+
+
+
+
+const EMOJI_QUESTIONS = [
+  {
+    ronda: 1,
+    categoria: "Película Clásica",
+    emojis: "🟢 🧌 🎄",
+    pista: "Criatura verde y gruñona que roba los regalos en Villa Quién",
+    blanks: "_ _   _ _ _ _ _ _",
+    respuestas: ["el grinch", "grinch"]
+  },
+  {
+    ronda: 2,
+    categoria: "Película Navideña",
+    emojis: "👦 🏠 😱",
+    pista: "Niño olvidado por su familia que defiende su casa de dos ladrones",
+    blanks: "_ _ _ _   _ _   _ _ _ _",
+    respuestas: ["solo en casa", "mi pobre angelito", "home alone"]
+  },
+  {
+    ronda: 3,
+    categoria: "Personaje Mágico",
+    emojis: "🦌 🔴 ❄️",
+    pista: "Reno de brillante nariz roja que guía el trineo en la tormenta",
+    blanks: "_ _ _ _ _ _ _   _ _   _ _ _ _",
+    respuestas: ["rodolfo el reno", "rodolfo", "rudolph"]
+  },
+  {
+    ronda: 4,
+    categoria: "Película Animada",
+    emojis: "🚂 🎟️ ❄️",
+    pista: "Tren misterioso que viaja de noche rumbo al Polo Norte",
+    blanks: "_ _ _ _ _   _ _ _ _ _ _ _",
+    respuestas: ["polar express", "el expreso polar", "expreso polar"]
+  },
+  {
+    ronda: 5,
+    categoria: "Tradición del 6 de Enero",
+    emojis: "👑 👑 👑 🐪",
+    pista: "Melchor, Gaspar y Baltasar llegan montados en camellos",
+    blanks: "_ _ _   _ _ _ _ _   _ _ _ _ _",
+    respuestas: ["los reyes magos", "reyes magos", "reyes"]
+  },
+  {
+    ronda: 6,
+    categoria: "Película de Culto",
+    emojis: "🎃 💀 🎅",
+    pista: "Jack Skellington intenta celebrar la Navidad en Ciudad de Halloween",
+    blanks: "_ _ _ _ _ _ _ _ _   _ _ _ _ _   _ _   _ _ _ _ _ _ _",
+    respuestas: ["pesadilla antes de navidad", "the nightmare before christmas", "pesadilla antes de la navidad"]
+  },
+  {
+    ronda: 7,
+    categoria: "Símbolo Invernal",
+    emojis: "❄️ ⛄ 🥕",
+    pista: "Figura helada con tres bolas de nieve, chistera y nariz de zanahoria",
+    blanks: "_ _ _ _ _ _   _ _   _ _ _ _ _",
+    respuestas: ["muneco de nieve", "frosty", "snowman"]
+  },
+  {
+    ronda: 8,
+    categoria: "Costumbre Nocturna",
+    emojis: "🍪 🥛 🎅",
+    pista: "Aperitivo tradicional que se deja en la mesita para Papá Noel",
+    blanks: "_ _ _ _ _ _ _ _   _   _ _ _ _ _",
+    respuestas: ["galletas y leche", "galletas con leche", "leche y galletas", "galletas"]
+  },
+  {
+    ronda: 9,
+    categoria: "Villancico / Canción Pop",
+    emojis: "🔔 🎶 🪨",
+    pista: "Himno navideño bailable al ritmo del rock y los cascabeles",
+    blanks: "_ _ _ _ _ _   _ _ _ _   _ _ _ _",
+    respuestas: ["jingle bell rock", "jingle bells rock", "jingle bell"]
+  },
+  {
+    ronda: 10,
+    categoria: "Decoración Tradicional",
+    emojis: "🌟 👶 ⛺",
+    pista: "Maqueta con el establo, el niño Jesús, la Virgen y San José",
+    blanks: "_ _ _ _ _ _   _ _   _ _ _ _ _",
+    respuestas: ["el portal de belen", "portal de belen", "belen", "nacimiento", "pesebre"]
+  },
+  {
+    ronda: 11,
+    categoria: "Adorno de la Chimenea",
+    emojis: "🧦 🍬 🍫",
+    pista: "Prenda de lana colgada donde caen dulces y sorpresas",
+    blanks: "_ _ _ _ _ _ _ _   _ _ _ _ _ _ _ _",
+    respuestas: ["calcetin navideño", "calcetin de navidad", "calcetin", "bota navideña"]
+  },
+  {
+    ronda: 12,
+    categoria: "Gastronomía Festiva",
+    emojis: "🍯 🌰 🍫",
+    pista: "Dulce navideño de Jijona o Alicante hecho con almendras y miel",
+    blanks: "_ _ _ _ _ _",
+    respuestas: ["turron", "el turron"]
+  },
+  {
+    ronda: 13,
+    categoria: "Rito de Nochevieja",
+    emojis: "🍇 🔔 🕛",
+    pista: "Se comen doce al compás del reloj en la Puerta del Sol",
+    blanks: "_ _ _   _ _   _ _ _ _",
+    respuestas: ["las 12 uvas", "las doce uvas", "12 uvas", "uvas de la suerte", "uvas"]
+  },
+  {
+    ronda: 14,
+    categoria: "Planta Mágica",
+    emojis: "🌿 💋 👩‍❤️‍👨",
+    pista: "Costumbre romántica: darse un beso bajo sus ramitas y bayas",
+    blanks: "_ _ _ _ _ _ _ _",
+    respuestas: ["muerdago", "el muerdago"]
+  },
+  {
+    ronda: 15,
+    categoria: "Castigo Navideño",
+    emojis: "🪨 😈 🎅",
+    pista: "Mineral dulce y oscuro para quienes no se han portado bien",
+    blanks: "_ _ _ _ _ _   _ _ _ _ _",
+    respuestas: ["carbon dulce", "carbon", "trozo de carbon"]
+  },
+  {
+    ronda: 16,
+    categoria: "Personaje del Polo Norte",
+    emojis: "🤶 🍪 👗",
+    pista: "Amable señora que cuida del taller y hornea deliciosos pasteles",
+    blanks: "_ _ _ _   _ _ _ _",
+    respuestas: ["mama noel", "senora claus", "mrs claus"]
+  },
+  {
+    ronda: 17,
+    categoria: "Ayudantes del Taller",
+    emojis: "🧝 🛠️ 🎁",
+    pista: "Seres diminutos con gorros puntiagudos que montan los juguetes",
+    blanks: "_ _ _   _ _ _ _ _",
+    respuestas: ["los elfos", "elfos", "duendes", "los duendes"]
+  },
+  {
+    ronda: 18,
+    categoria: "Dulce Rayado",
+    emojis: "🍭 🔴 ⚪",
+    pista: "Caramelo curvo de menta con franjas espirales rojas y blancas",
+    blanks: "_ _ _ _ _ _   _ _   _ _ _ _ _ _ _ _",
+    respuestas: ["baston de caramelo", "baston caramelo", "bastoncillo"]
+  },
+  {
+    ronda: 19,
+    categoria: "Villancico Popular",
+    emojis: "🐟 💧 🌊",
+    pista: "Canto donde los animales acuáticos beben por ver a Dios nacer",
+    blanks: "_ _ _   _ _ _ _ _   _ _   _ _   _ _ _",
+    respuestas: ["los peces en el rio", "peces en el rio", "peces en el río"]
+  },
+  {
+    ronda: 20,
+    categoria: "Canción con Instrumento",
+    emojis: "🥁 👶 🎶",
+    pista: "El niño pobre que no tiene dones y ofrece su 'ropopompom'",
+    blanks: "_ _   _ _ _ _ _ _ _ _ _ _ _",
+    respuestas: ["el tamborilero", "tamborilero"]
+  },
+  {
+    ronda: 21,
+    categoria: "Paquete Sorpresa",
+    emojis: "🎁 🏷️ 🎀",
+    pista: "Caja envuelta con papel de colores y moño lista para abrir",
+    blanks: "_ _ _ _ _ _   _ _   _ _ _ _ _ _ _",
+    respuestas: ["regalo de navidad", "regalo", "los regalos"]
+  },
+  {
+    ronda: 22,
+    categoria: "Cúspide del Árbol",
+    emojis: "🌟 🎄 🔝",
+    pista: "Astro que guiaba a los pastores colocado en la copa del abeto",
+    blanks: "_ _ _ _ _ _ _ _   _ _   _ _ _ _ _ _ _",
+    respuestas: ["estrella de navidad", "la estrella", "estrella"]
+  },
+  {
+    ronda: 23,
+    categoria: "Prenda Abrigada",
+    emojis: "🧣 🥶 ❄️",
+    pista: "Tejido largo de lana para proteger el cuello de la ventisca",
+    blanks: "_ _ _ _ _ _ _",
+    respuestas: ["bufanda", "la bufanda", "bufanda navideña"]
+  },
+  {
+    ronda: 24,
+    categoria: "Postre de Reyes",
+    emojis: "🍩 👑 🪙",
+    pista: "Bollo circular adornado con frutas escarchadas, rey y haba oculta",
+    blanks: "_ _ _ _ _ _   _ _   _ _ _ _ _",
+    respuestas: ["roscon de reyes", "roscon", "rosca de reyes"]
+  },
+  {
+    ronda: 25,
+    categoria: "Celebración Final",
+    emojis: "🎆 🎉 🥂",
+    pista: "Fiesta y campanadas que despiden el año con alegría",
+    blanks: "_ _ _ _ _ _ _ _ _ _",
+    respuestas: ["nochevieja", "fin de ano", "ano nuevo", "año nuevo"]
+  }
+];
+
+class MinigameEmojiEnigma {
+  constructor(state, onVictoryCallback) {
+    this.state = state;
+    this.onVictoryCallback = onVictoryCallback;
+
+    this.questions = EMOJI_QUESTIONS;
+    this.totalRounds = this.questions.length; // Exactly 25
+    this.currentRoundIdx = 0;
+    this.phase = 'idle'; // 'idle' | 'answering' | 'summary' | 'finished'
+
+    // Scoring & speed metrics: username -> { score, times: [], totalTime, avgTime, fastestTime, speedBonusTotal, totalPoints }
+    this.playerStats = {};
+    this.roundAcertantes = new Set();
+
+    // Timing
+    this.roundTimer = null;
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.roundStartTime = 0;
+
+    // Simulated Bot Pool
+    this.botNames = [
+      'LeonidaPro', 'ViceCityElf', 'FortniteKing', 'NavidadGamer',
+      'RudolphSpeed', 'TwitchChallenger', 'SantaSniper', 'GrinchHacker'
+    ];
+
+    this.cacheDOM();
+  }
+
+  cacheDOM() {
+    this.roundBadge = document.getElementById('m3-round-badge');
+    this.phaseBadge = document.getElementById('m3-phase-badge');
+    this.categoryEl = document.getElementById('m3-category-pill');
+    this.emojisEl = document.getElementById('m3-emojis-display');
+    this.hintEl = document.getElementById('m3-hint-text');
+    this.blanksEl = document.getElementById('m3-blanks-display');
+    this.statusBannerEl = document.getElementById('m3-status-banner');
+    this.btnStartRound = document.getElementById('m3-btn-start-round');
+
+    // Circular Timer
+    this.circleProgress = document.getElementById('m3-timer-circle');
+    this.timerText = document.getElementById('m3-timer-text');
+    this.circleCircumference = 2 * Math.PI * 48; // ~301.6
+
+    // Leaderboard
+    this.leaderboardList = document.getElementById('m3-leaderboard-list');
+    this.totalPlayersPill = document.getElementById('m3-total-players');
+    this.btnResetGame = document.getElementById('m3-btn-reset');
+
+    // Chat / Input Dock
+    this.chatFeed = document.getElementById('m3-chat-feed');
+    this.inputUser = document.getElementById('m3-input-user');
+    this.inputAnswer = document.getElementById('m3-input-answer');
+    this.btnSend = document.getElementById('m3-btn-send');
+    this.btnSimBots = document.getElementById('m3-btn-sim-bots');
+
+    // Event Bindings
+    if (this.btnSend && this.inputAnswer) {
+      const submitAction = () => {
+        const username = (this.inputUser && this.inputUser.value.trim()) || 'Tú (Streamer)';
+        const text = this.inputAnswer.value.trim();
+        if (text) {
+          const elapsedSec = Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+          this.submitAnswer(username, text, elapsedSec);
+          this.inputAnswer.value = '';
+          this.inputAnswer.focus();
+        }
+      };
+
+      this.btnSend.onclick = (e) => {
+        e.preventDefault();
+        submitAction();
+      };
+
+      this.inputAnswer.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitAction();
+        }
+      };
+    }
+
+    if (this.btnResetGame) {
+      this.btnResetGame.onclick = (e) => {
+        e.preventDefault();
+        audio.playClick();
+        this.startNewGame();
+      };
+    }
+
+    if (this.btnSimBots) {
+      this.btnSimBots.onclick = (e) => {
+        e.preventDefault();
+        audio.playClick();
+        this.triggerSimulatedChatAnswers();
+      };
+    }
+
+    // Connect to global Twitch Chat Bridge
+    twitchChat.initDOM();
+    twitchChat.onValidAnswer((displayName, text, userColor, elapsedSec) => {
+      if (this.phase === 'answering') {
+        const speed = elapsedSec || Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+        this.submitAnswer(displayName, text, speed);
+      }
+    });
+  }
+
+  normalizeText(str) {
+    if (!str) return '';
+    return str
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  startNewGame() {
+    this.currentRoundIdx = 0;
+    this.playerStats = {};
+    this.roundAcertantes.clear();
+    this.clearTimers();
+
+    if (this.chatFeed) {
+      this.chatFeed.innerHTML = '<div class="chat-log-msg system">⭐ ¡Día 3 listo! 25 rondas de Emojis Navideños. Pulsa "▶ ¡EMPEZAR RONDA 1!" para iniciar.</div>';
+    }
+
+    this.renderLeaderboard();
+    this.prepareRound(0);
+  }
+
+  prepareRound(idx) {
+    this.currentRoundIdx = idx;
+    this.phase = 'waiting';
+    this.roundAcertantes.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.clearTimers();
+
+    const q = this.questions[idx];
+
+    if (this.roundBadge) {
+      this.roundBadge.textContent = `RONDA ${idx + 1} / ${this.totalRounds}`;
+    }
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⏸️ ESPERANDO INICIO (RONDA ${idx + 1})`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
+    }
+    if (this.categoryEl) {
+      this.categoryEl.textContent = `🎯 ${q.categoria.toUpperCase()}`;
+    }
+    if (this.emojisEl) {
+      this.emojisEl.textContent = q.emojis;
+      this.emojisEl.classList.remove('reveal-correct');
+    }
+    if (this.hintEl) {
+      this.hintEl.innerHTML = `💡 <em>Pista:</em> ${q.pista}`;
+    }
+    if (this.blanksEl) {
+      this.blanksEl.textContent = q.blanks;
+    }
+    if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>👉</span> Pulsa "<strong>▶ ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds}!</strong>" para iniciar la cuenta atrás de 15 segundos.`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    this.updateCircleProgress(15, 15);
+
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'inline-flex';
+      this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds} (15s)!`;
+      this.btnStartRound.onclick = (e) => {
+        if (e) e.preventDefault();
+        audio.playClick();
+        this.startCurrentRound();
+      };
+    }
+
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+  }
+
+  startCurrentRound() {
+    this.phase = 'answering';
+    this.roundAcertantes.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.roundStartTime = Date.now();
+
+    const q = this.questions[this.currentRoundIdx];
+
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'none';
+    }
+
+    if (this.inputAnswer) {
+      this.inputAnswer.disabled = false;
+      this.inputAnswer.value = '';
+      this.inputAnswer.focus();
+    }
+    if (this.btnSend) this.btnSend.disabled = false;
+    if (this.btnSimBots) this.btnSimBots.disabled = false;
+
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⚡ TIEMPO PARA RESPONDER (15s)`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-active';
+    }
+    if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>⏳</span> ¡15 segundos! Descifra los emojis. ¡El más rápido y con más aciertos lidera!`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    // Sync Twitch Chat WebSocket with accepted answers array
+    twitchChat.startRound(q.respuestas);
+
+    this.runAnswerTimer();
+  }
+
+  runAnswerTimer() {
+    this.clearTimers();
+    this.updateCircleProgress(this.timeLeft, this.totalWindow);
+
+    this.roundTimer = setInterval(() => {
+      this.timeLeft -= 0.1;
+      if (this.timeLeft <= 0) {
+        this.timeLeft = 0;
+        this.updateCircleProgress(0, this.totalWindow);
+        this.clearTimers();
+        this.finishAnswerWindow();
+      } else {
+        this.updateCircleProgress(this.timeLeft, this.totalWindow);
+      }
+    }, 100);
+  }
+
+  updateCircleProgress(current, total) {
+    const fraction = Math.max(0, current / total);
+    const offset = this.circleCircumference * (1 - fraction);
+
+    if (this.circleProgress) {
+      this.circleProgress.style.strokeDasharray = `${this.circleCircumference}`;
+      this.circleProgress.style.strokeDashoffset = `${offset}`;
+
+      if (fraction > 0.4) {
+        this.circleProgress.style.stroke = 'var(--gta-cyan)';
+      } else if (fraction > 0.2) {
+        this.circleProgress.style.stroke = 'var(--fn-yellow)';
+      } else {
+        this.circleProgress.style.stroke = 'var(--xmas-red)';
+      }
+    }
+
+    if (this.timerText) {
+      this.timerText.textContent = `${Math.ceil(current)}s`;
+    }
+  }
+
+  submitAnswer(username, text, elapsedSec = null) {
+    if (this.phase !== 'answering') return;
+    if (!username || !text) return;
+
+    const speed = elapsedSec !== null
+      ? elapsedSec
+      : Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+
+    const q = this.questions[this.currentRoundIdx];
+    const normText = this.normalizeText(text);
+    const isCorrect = q.respuestas.some(r => this.normalizeText(r) === normText);
+
+    if (isCorrect) {
+      if (this.roundAcertantes.has(username)) return; // First correct per round
+      this.roundAcertantes.add(username);
+
+      // Register or update player stats
+      if (!this.playerStats[username]) {
+        this.playerStats[username] = {
+          username,
+          score: 0,
+          times: [],
+          totalTime: 0,
+          avgTime: 0,
+          fastestTime: 99,
+          speedBonusTotal: 0,
+          totalPoints: 0
+        };
+      }
+
+      const p = this.playerStats[username];
+      p.score += 1;
+      p.times.push(speed);
+      p.totalTime += speed;
+      p.avgTime = parseFloat((p.totalTime / p.score).toFixed(2));
+      p.fastestTime = Math.min(p.fastestTime, speed);
+
+      // Speed bonus: up to 150 bonus points depending on remaining seconds
+      const bonus = Math.max(0, Math.round((15 - speed) * 10));
+      p.speedBonusTotal += bonus;
+      p.totalPoints = (p.score * 1000) + p.speedBonusTotal;
+
+      this.appendChatLog(username, text, true, speed);
+      this.renderLeaderboard();
+
+      if (this.statusBannerEl) {
+        const count = this.roundAcertantes.size;
+        this.statusBannerEl.innerHTML = `<span>🎯</span> <strong>${count}</strong> ${count === 1 ? 'acierto' : 'aciertos'} en vivo. ¡${username} acertó en <strong>${speed}s</strong>!`;
+      }
+    } else {
+      this.appendChatLog(username, text, false, speed);
+    }
+  }
+
+  appendChatLog(username, text, isCorrect, speed) {
+    if (!this.chatFeed) return;
+    const msg = document.createElement('div');
+    msg.className = `chat-log-msg ${isCorrect ? 'correct' : 'wrong'}`;
+    msg.innerHTML = `
+      <span class="user-badge">${username}:</span>
+      <span class="text-body">${text}</span>
+      ${isCorrect ? `<span class="score-tag">+1 pto ⚡ ${speed}s</span>` : ''}
+    `;
+    this.chatFeed.appendChild(msg);
+    this.chatFeed.scrollTop = this.chatFeed.scrollHeight;
+  }
+
+  finishAnswerWindow() {
+    this.phase = 'summary';
+    this.clearTimers();
+    twitchChat.endRound();
+
+    const q = this.questions[this.currentRoundIdx];
+
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+
+    // Reveal answer
+    if (this.blanksEl) {
+      this.blanksEl.innerHTML = `✨ <strong>${q.respuestas[0].toUpperCase()}</strong>`;
+      this.blanksEl.style.color = 'var(--fn-yellow)';
+    }
+
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `🛑 RONDA FINALIZADA • RECUENTO`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
+    }
+
+    const winnerCount = this.roundAcertantes.size;
+    if (winnerCount > 0) {
+      audio.playCorrect();
+      if (this.statusBannerEl) {
+        this.statusBannerEl.innerHTML = `<span>🎉</span> ¡${winnerCount} acertaron "<strong>${q.respuestas[0].toUpperCase()}</strong>"! Puntuación y velocidad actualizadas.`;
+        this.statusBannerEl.className = 'karaoke-status-banner status-won';
+      }
+    } else {
+      audio.playWrong();
+      if (this.statusBannerEl) {
+        this.statusBannerEl.innerHTML = `<span>❌</span> Tiempo agotado. La respuesta correcta era: "<strong>${q.respuestas[0].toUpperCase()}</strong>".`;
+        this.statusBannerEl.className = 'karaoke-status-banner status-none';
+      }
+    }
+
+    this.renderLeaderboard();
+
+    // Prepare next round or finish 25 rounds
+    if (this.currentRoundIdx + 1 < this.totalRounds) {
+      const nextIdx = this.currentRoundIdx + 1;
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${nextIdx + 1} / ${this.totalRounds} (15s)!`;
+        this.btnStartRound.onclick = (e) => {
+          if (e) e.preventDefault();
+          audio.playClick();
+          this.prepareRound(nextIdx);
+          this.startCurrentRound();
+        };
+      }
+    } else {
+      setTimeout(() => {
+        this.finishGame();
+      }, 1600);
+    }
+  }
+
+  renderLeaderboard() {
+    if (!this.leaderboardList) return;
+    this.leaderboardList.innerHTML = '';
+
+    const players = Object.values(this.playerStats);
+
+    // Official Sorting: 1st by score (hits), 2nd by speed (lowest avgTime)
+    players.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.avgTime !== b.avgTime) return a.avgTime - b.avgTime;
+      return a.fastestTime - b.fastestTime;
+    });
+
+    if (this.totalPlayersPill) {
+      this.totalPlayersPill.textContent = `${players.length} participantes`;
+    }
+
+    const top5 = players.slice(0, 5);
+
+    if (top5.length === 0) {
+      this.leaderboardList.innerHTML = `
+        <div class="leaderboard-empty">
+          <span>🔮</span>
+          <p>Aún no hay aciertos. ¡Escribe en el chat para entrar en el Top 5!</p>
+        </div>
+      `;
+      return;
+    }
+
+    const medals = ['👑', '🥈', '🥉', '4º', '5º'];
+    const rankClasses = ['rank-first', 'rank-second', 'rank-third', 'rank-other', 'rank-other'];
+
+    top5.forEach((p, idx) => {
+      const item = document.createElement('div');
+      item.className = `leaderboard-item ${rankClasses[idx]}`;
+      item.innerHTML = `
+        <div class="lb-left">
+          <span class="lb-medal">${medals[idx]}</span>
+          <span class="lb-username">${p.username}</span>
+        </div>
+        <div class="lb-right" style="display: flex; gap: 8px; align-items: center;">
+          <span class="lb-points" title="Aciertos">${p.score}/25</span>
+          <span class="lb-speed" style="font-size: 0.78rem; color: var(--gta-cyan); font-weight: 700;">⚡ ${p.avgTime}s</span>
+          <span class="lb-badge" style="font-size: 0.72rem; background: rgba(255,230,0,0.2); padding: 2px 6px; border-radius: 4px; color: var(--fn-yellow);">${p.totalPoints} pts</span>
+        </div>
+      `;
+      this.leaderboardList.appendChild(item);
+    });
+  }
+
+  finishGame() {
+    this.phase = 'finished';
+    this.clearTimers();
+    twitchChat.endRound();
+
+    const players = Object.values(this.playerStats).sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.avgTime - b.avgTime;
+    });
+
+    let winner = 'Tú (Streamer)';
+    let score = 0;
+    let avgSpeed = 0;
+
+    if (players.length > 0) {
+      winner = players[0].username;
+      score = players[0].score;
+      avgSpeed = players[0].avgTime;
+    }
+
+    this.state.hasWonMinigame = true;
+    this.state.spinsAvailable = 1;
+    this.state.minigame3Winner = winner;
+
+    confetti.blast(200);
+    audio.playWinFanfare();
+
+    if (this.onVictoryCallback) {
+      this.onVictoryCallback({
+        winner,
+        score,
+        avgSpeed,
+        gameName: 'Winterfest Emoji'
+      });
+    }
+  }
+
+  triggerSimulatedChatAnswers() {
+    if (this.phase !== 'answering') return;
+    const q = this.questions[this.currentRoundIdx];
+
+    const count = 2 + Math.floor(Math.random() * 3);
+    const chosenBots = [...this.botNames].sort(() => 0.5 - Math.random()).slice(0, count);
+
+    chosenBots.forEach((bot, index) => {
+      const delayMs = (index + 1) * (1100 + Math.random() * 2200);
+      setTimeout(() => {
+        if (this.phase === 'answering') {
+          const isCorrect = Math.random() > 0.15;
+          const answerText = isCorrect ? q.respuestas[0] : 'navidad';
+          const speed = parseFloat((delayMs / 1000).toFixed(2));
+          this.submitAnswer(bot, answerText, speed);
+        }
+      }, delayMs);
+    });
+  }
+
+  stopTimer() {
+    this.clearTimers();
+    twitchChat.endRound();
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+  }
+
+  clearTimers() {
+    if (this.roundTimer) {
+      clearInterval(this.roundTimer);
+      this.roundTimer = null;
+    }
+  }
+}
+
+
+// ==========================================
+// MODULE: js/modules/minigame4.js
+// ==========================================
+/**
+ * Ari-Navidad Minigame 4 (Día 4): El Gran Atraco del Grinch - Pistas de Ocean Drive
+ * 25 rondas de investigación policial contrarreloj con pistas progresivas,
+ * 4 botones cómic de sospechosos, soporte para chat de Twitch,
+ * botón para comenzar cada ronda y clasificación por aciertos y rapidez.
+ */
+
+
+
+
+
+const GRINCH_CASES = [
+  {
+    ronda: 1,
+    caso: "Sospechoso de Rojo",
+    pistas: [
+      "Viste traje rojo aterciopelado y gorro con pompón blanco.",
+      "Se cuela por chimeneas estrechas sin dejar huellas en la alfombra.",
+      "Se ríe fuertemente exclamando ¡JO, JO, JO! en Nochebuena."
+    ],
+    opciones: ["Papá Noel", "El Grinch", "Duende Verde", "Tommy Vercetti"],
+    correctIndex: 0,
+    respuestasValidas: ["papa noel", "santa claus", "santa", "san nicolas"]
+  },
+  {
+    ronda: 2,
+    caso: "Fugitivo Peludo Verde",
+    pistas: [
+      "Pelaje verde lima despeinado y sonrisa maliciosa.",
+      "Habita en una fría cueva en lo alto del Monte Crumpit con su perro Max.",
+      "Confesó odiar los villancicos y planea robar los regalos del pueblo."
+    ],
+    opciones: ["El Grinch", "Shrek", "Yeti de Leonida", "El Caco Jones"],
+    correctIndex: 0,
+    respuestasValidas: ["el grinch", "grinch"]
+  },
+  {
+    ronda: 3,
+    caso: "Vehículo Aéreo Sin Motor",
+    pistas: [
+      "No consume gasolina ni emite humo de escape.",
+      "Aterriza a gran velocidad sobre tejados nevados e inclinados.",
+      "Es propulsado por un equipo de 8 renos con arneses mágicos."
+    ],
+    opciones: ["El Trineo Mágico", "Furgoneta Lunar", "Helicóptero Vice", "Choppa Navideño"],
+    correctIndex: 0,
+    respuestasValidas: ["el trineo magico", "el trineo", "trineo magico", "trineo"]
+  },
+  {
+    ronda: 4,
+    caso: "Líder de la Manada",
+    pistas: [
+      "Sufrió burlas de joven por una peculiaridad en su rostro.",
+      "Su hocico desprende un resplandor escarlata que atraviesa la niebla.",
+      "Fue reclutado personalmente para liderar el vuelo en la peor ventisca."
+    ],
+    opciones: ["Rodolfo el Reno", "Bambi", "Cometa", "Trueno"],
+    correctIndex: 0,
+    respuestasValidas: ["rodolfo el reno", "rodolfo", "rudolph"]
+  },
+  {
+    ronda: 5,
+    caso: "Sospechoso Helado",
+    pistas: [
+      "Su cuerpo está formado por tres enormes esferas congeladas.",
+      "Lleva una chistera rota, bufanda de lana y dos ramas por brazos.",
+      "Su olfato proviene de una zanahoria fresca colocada como nariz."
+    ],
+    opciones: ["Muñeco de Nieve", "Olaf", "Espantapájaros", "Glaciar Andante"],
+    correctIndex: 0,
+    respuestasValidas: ["muneco de nieve", "frosty", "snowman", "el muneco de nieve"]
+  },
+  {
+    ronda: 6,
+    caso: "Adorno Circular en Fuga",
+    pistas: [
+      "Estructura tejida con ramas de pino, acebo y piñas silvestres.",
+      "Tiene forma de aro perfecto y suele llevar un gran lazo rojo.",
+      "Se cuelga en el exterior de las puertas principales de bienvenida."
+    ],
+    opciones: ["Corona Navideña", "Guirnalda Festiva", "Lazo Gigante", "Aro Hula Hula"],
+    correctIndex: 0,
+    respuestasValidas: ["corona navideña", "corona de navidad", "la corona", "corona"]
+  },
+  {
+    ronda: 7,
+    caso: "Fugitivo Galleta Veloz",
+    pistas: [
+      "Horneado con harina dulce, canela y una pizca picante de jengibre.",
+      "Lleva ojos de chocolate blanco y botones de caramelo de colores.",
+      "Grita a las patrullas: ¡Corred todo lo que queráis, no podéis alcanzarme!"
+    ],
+    opciones: ["Hombre de Jengibre", "Galleta María", "Muffin de Nieve", "Donut Glaseado"],
+    correctIndex: 0,
+    respuestasValidas: ["hombre de jengibre", "galleta de jengibre", "gingerbread man", "jengibre"]
+  },
+  {
+    ronda: 8,
+    caso: "Instrumento Metálico",
+    pistas: [
+      "Pieza de bronce o latón en forma de copa invertida.",
+      "Posee un badajo interno que golpea al balancearse rítmicamente.",
+      "En el villancico suena 'campana sobre campana, y sobre campana una'."
+    ],
+    opciones: ["Campana Navideña", "Triángulo Musical", "Pandereta", "Cencerro"],
+    correctIndex: 0,
+    respuestasValidas: ["campana navideña", "campana", "las campanas", "campanas"]
+  },
+  {
+    ronda: 9,
+    caso: "Árbol Decorado Desaparecido",
+    pistas: [
+      "Especie perenne de hojas aciculares y perfume a resina de montaña.",
+      "Soporta cientos de luces LED titilantes y bolas de cristal.",
+      "Bajo sus ramas bajas suelen amontonarse los paquetes de regalos."
+    ],
+    opciones: ["Árbol de Navidad", "Palmera de Vice City", "Roble Milenario", "Cactus Festivo"],
+    correctIndex: 0,
+    respuestasValidas: ["arbol de navidad", "el arbol", "pino navideño", "arbol"]
+  },
+  {
+    ronda: 10,
+    caso: "Mineral Falso Sospechoso",
+    pistas: [
+      "Tiene textura rugosa y apariencia de roca negra procedente de una mina.",
+      "En realidad está compuesto de azúcar endurecido y tinte comestible.",
+      "Se entrega en un saco a los niños traviesos para darles un escarmiento."
+    ],
+    opciones: ["Carbón Dulce", "Regaliz Negro", "Piedra Pómez", "Turrón Quemado"],
+    correctIndex: 0,
+    respuestasValidas: ["carbon dulce", "carbon", "el carbon"]
+  },
+  {
+    ronda: 11,
+    caso: "Operario de Taller Diminuto",
+    pistas: [
+      "Estatura baja, orejas puntiagudas y botines con cascabel en la punta.",
+      "Viste chaleco verde y delantal de cuero para trabajar la madera.",
+      "Pasa el año entero martilleando juguetes en la fábrica del Ártico."
+    ],
+    opciones: ["Elfo de Navidad", "Gnomo de Jardín", "Pitufo Festivo", "Duende Travieso"],
+    correctIndex: 0,
+    respuestasValidas: ["elfo de navidad", "elfo", "los elfos", "duende navideño"]
+  },
+  {
+    ronda: 12,
+    caso: "Esfera de Vidrio Mágica",
+    pistas: [
+      "Domo transparente sellado montado sobre una peana de madera noble.",
+      "En su interior alberga un pueblecito en miniatura sumido en calma.",
+      "Basta con agitarla boca abajo para provocar una tempestad de copos blancos."
+    ],
+    opciones: ["Bola de Nieve", "Globo de Fiesta", "Canica Gigante", "Reloj de Cristal"],
+    correctIndex: 0,
+    respuestasValidas: ["bola de nieve", "esfera de nieve", "la bola de nieve"]
+  },
+  {
+    ronda: 13,
+    caso: "Tronco Mágico Sospechoso",
+    pistas: [
+      "Tronco de leña con barretina roja catalana y dos patas de madera.",
+      "Los niños lo tapan con una manta y lo alimentan con cáscaras de naranja.",
+      "Se le golpea con un bastón mientras se canta para que defeque golosinas."
+    ],
+    opciones: ["Tió de Nadal", "Piñata Mexicana", "Tronco de Chimenea", "Muñeco de Madera"],
+    correctIndex: 0,
+    respuestasValidas: ["tio de nadal", "caga tio", "el tio de nadal", "tio nadal"]
+  },
+  {
+    ronda: 14,
+    caso: "Crimen del 28 de Diciembre",
+    pistas: [
+      "Fecha marcada por bromas telefónicas y noticias insólitas en prensa.",
+      "El arma del delito es un monigote de papel blanco recortado.",
+      "Se pega sigilosamente en la espalda de la víctima sin que se dé cuenta."
+    ],
+    opciones: ["Día de los Inocentes", "Noche de Brujas", "Carnaval de Leonida", "April Fools"],
+    correctIndex: 0,
+    respuestasValidas: ["dia de los inocentes", "los inocentes", "santos inocentes"]
+  },
+  {
+    ronda: 15,
+    caso: "Prenda Estrambótica Textil",
+    pistas: [
+      "Prenda de punto grueso tejida con lana excesivamente calurosa.",
+      "Estampados chillones con renos bordados, cascabeles o luces intermitentes.",
+      "En todo el mundo se celebran concursos para coronar al modelo más feo."
+    ],
+    opciones: ["Jersey Navideño Feo", "Chaleco de Lana", "Poncho de Neón", "Bufanda Gigante"],
+    correctIndex: 0,
+    respuestasValidas: ["jersey navideño feo", "jersey navideño", "ugly sweater", "sueter navideño"]
+  },
+  {
+    ronda: 16,
+    caso: "Dulce de Harina y Manteca",
+    pistas: [
+      "Especialidad andaluza nacida en Estepa a base de harina tostada y almendra.",
+      "Se presenta envuelto herméticamente en un fino papel de seda blanco.",
+      "Los veteranos recomiendan apretarlo con el puño antes de abrir para no romperlo."
+    ],
+    opciones: ["El Polvorón", "El Mazapán", "La Rosquilla", "El Mantecado"],
+    correctIndex: 0,
+    respuestasValidas: ["el polvoron", "polvoron", "mantecado"]
+  },
+  {
+    ronda: 17,
+    caso: "Contenedor de Botín Legendario",
+    pistas: [
+      "Animal andino de papel maché con tonos púrpuras, azules y celestes.",
+      "Cae en paracaídas sobre los tejados de la isla de Battle Royale.",
+      "Al abrirla estalla en botiquines, pociones de escudo y munición dorada."
+    ],
+    opciones: ["Llama de Fortnite", "Caja Fuerte Vice", "Cofre del Tesoro", "Drop Militar"],
+    correctIndex: 0,
+    respuestasValidas: ["llama de fortnite", "llama de suministro", "la llama", "llama"]
+  },
+  {
+    ronda: 18,
+    caso: "Demonio Alpino Cornudo",
+    pistas: [
+      "Criatura legendaria de los bosques alpinos con pelaje oscuro y pezuñas hendidas.",
+      "Hace sonar pesadas cadenas de hierro y porta un fajo de varas de abedul.",
+      "Persigue a los niños desobedientes en la noche del 5 de diciembre."
+    ],
+    opciones: ["Krampus", "El Grinch", "Hombre del Saco", "Gárgola Nocturna"],
+    correctIndex: 0,
+    respuestasValidas: ["krampus", "el krampus"]
+  },
+  {
+    ronda: 19,
+    caso: "Artificio Festivo Británico",
+    pistas: [
+      "Cilindro de cartón envuelto en papel de regalo con forma de caramelo gigante.",
+      "Dos personas agarran de cada extremo y tiran con fuerza hasta que parte.",
+      "Produce un chasquido detonante y libera una corona de papel, un chiste y un regalo."
+    ],
+    opciones: ["Christmas Cracker", "Bengala de Fiesta", "Petardo de Feria", "Tubo de Humo"],
+    correctIndex: 0,
+    respuestasValidas: ["christmas cracker", "cracker", "el cracker"]
+  },
+  {
+    ronda: 20,
+    caso: "Bebida Espesa con Nuez Moscada",
+    pistas: [
+      "Pócima láctea cremosa servida en tazas de cristal esmerilado.",
+      "Preparada con leche fresca, yemas batidas, canela y ralladura aromática.",
+      "Conocida popularmente en Norteamérica como 'Eggnog' durante las fiestas."
+    ],
+    opciones: ["Ponche de Huevo", "Chocolate Caliente", "Batido de Menta", "Café Irlandés"],
+    correctIndex: 0,
+    respuestasValidas: ["ponche de huevo", "eggnog", "el ponche de huevo"]
+  },
+  {
+    ronda: 21,
+    caso: "Instrumento Rústico de Barro",
+    pistas: [
+      "Cuerpo de cerámica esmaltada con una membrana de piel tirante.",
+      "Lleva una caña fina en el centro que se frota rítmicamente con la mano húmeda.",
+      "Genera un sonido ronco y vibrante imprescindible en villancicos flamencos."
+    ],
+    opciones: ["La Zambomba", "La Pandereta", "El Almirez", "El Triángulo"],
+    correctIndex: 0,
+    respuestasValidas: ["la zambomba", "zambomba", "zambombas"]
+  },
+  {
+    ronda: 22,
+    caso: "Figura Traviesa del Pesebre",
+    pistas: [
+      "Personaje tradicional del Belén con barretina catalana y faja roja.",
+      "Se oculta intencionadamente detrás de pajares o matas lejos del portal.",
+      "Aparece agachado realizando sus necesidades fisiológicas para abonar la tierra."
+    ],
+    opciones: ["El Caganer", "El Pastorcillo", "El Posadero", "El Paje Real"],
+    correctIndex: 0,
+    respuestasValidas: ["el caganer", "caganer"]
+  },
+  {
+    ronda: 23,
+    caso: "Sorteo Millonario de San Ildefonso",
+    pistas: [
+      "Acontecimiento multitudinario que paraliza España la mañana del 22 de diciembre.",
+      "Dos grandes bombos dorados extraen bolas de madera con números y premios.",
+      "Todo el país espera ansioso escuchar el cántico de 'Cuatrocientos mil euros'."
+    ],
+    opciones: ["Lotería de Navidad", "Sorteo del Niño", "Euromillones", "La Primitiva"],
+    correctIndex: 0,
+    respuestasValidas: ["loteria de navidad", "la loteria", "el gordo", "loteria"]
+  },
+  {
+    ronda: 24,
+    caso: "Cuartel General del Hielo",
+    pistas: [
+      "Punto más septentrional de la superficie terrestre en medio del océano helado.",
+      "Aquí la noche dura seis meses y las auroras boreales iluminan los cielos.",
+      "Alberga las pistas de aterrizaje y hangares secretos donde se carga el trineo."
+    ],
+    opciones: ["El Polo Norte", "La Antártida", "Groenlandia", "Siberia"],
+    correctIndex: 0,
+    respuestasValidas: ["el polo norte", "polo norte", "north pole"]
+  },
+  {
+    ronda: 25,
+    caso: "Monarca de Barba Blanca y Oro",
+    pistas: [
+      "El más veterano de los tres sabios de oriente que siguieron la estrella.",
+      "Viste capa con ribetes de armiño y corona de oro labrado.",
+      "Presentó al infante una urna de oro fino en homenaje a su linaje real."
+    ],
+    opciones: ["Rey Melchor", "Rey Gaspar", "Rey Baltasar", "Emperador César"],
+    correctIndex: 0,
+    respuestasValidas: ["rey melchor", "melchor", "el rey melchor"]
+  }
+];
+
+class MinigameGrinchHeist {
+  constructor(state, onVictoryCallback) {
+    this.state = state;
+    this.onVictoryCallback = onVictoryCallback;
+
+    this.cases = GRINCH_CASES;
+    this.totalRounds = this.cases.length; // 25
+    this.currentRoundIdx = 0;
+    this.phase = 'idle';
+
+    // Player stats: username -> { score, times: [], totalTime, avgTime, fastestTime, speedBonusTotal, totalPoints }
+    this.playerStats = {};
+    this.roundAcertantes = new Set();
+
+    // Timing
+    this.roundTimer = null;
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.roundStartTime = 0;
+
+    // Progressive Clue Timers
+    this.clueTimers = [];
+
+    // Bot Pool
+    this.botNames = [
+      'LeonidaPro', 'ViceCityElf', 'FortniteKing', 'NavidadGamer',
+      'RudolphSpeed', 'TwitchChallenger', 'SantaSniper', 'GrinchHacker'
+    ];
+
+    this.cacheDOM();
+  }
+
+  cacheDOM() {
+    this.roundBadge = document.getElementById('m4-round-badge');
+    this.phaseBadge = document.getElementById('m4-phase-badge');
+    this.caseTitleEl = document.getElementById('m4-case-title');
+    this.clue1El = document.getElementById('m4-clue-1');
+    this.clue2El = document.getElementById('m4-clue-2');
+    this.clue3El = document.getElementById('m4-clue-3');
+    this.statusBannerEl = document.getElementById('m4-status-banner');
+    this.btnStartRound = document.getElementById('m4-btn-start-round');
+
+    // Circular Timer
+    this.circleProgress = document.getElementById('m4-timer-circle');
+    this.timerText = document.getElementById('m4-timer-text');
+    this.circleCircumference = 2 * Math.PI * 48;
+
+    // 4 Comic Option Buttons
+    this.optionBtns = [
+      document.getElementById('m4-opt-0'),
+      document.getElementById('m4-opt-1'),
+      document.getElementById('m4-opt-2'),
+      document.getElementById('m4-opt-3')
+    ];
+
+    // Leaderboard
+    this.leaderboardList = document.getElementById('m4-leaderboard-list');
+    this.totalPlayersPill = document.getElementById('m4-total-players');
+    this.btnResetGame = document.getElementById('m4-btn-reset');
+
+    // Chat / Input Dock
+    this.chatFeed = document.getElementById('m4-chat-feed');
+    this.inputUser = document.getElementById('m4-input-user');
+    this.inputAnswer = document.getElementById('m4-input-answer');
+    this.btnSend = document.getElementById('m4-btn-send');
+    this.btnSimBots = document.getElementById('m4-btn-sim-bots');
+
+    // Bind Option Clicks
+    this.optionBtns.forEach((btn, idx) => {
+      if (btn) {
+        btn.onclick = (e) => {
+          e.preventDefault();
+          if (this.phase !== 'answering') return;
+          const currentCase = this.cases[this.currentRoundIdx];
+          const choiceText = currentCase.opciones[idx];
+          const username = (this.inputUser && this.inputUser.value.trim()) || 'Tú (Streamer)';
+          const speed = Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+          this.submitAnswer(username, choiceText, speed);
+        };
+      }
+    });
+
+    // Bind Chat Input
+    if (this.btnSend && this.inputAnswer) {
+      const submitAction = () => {
+        const username = (this.inputUser && this.inputUser.value.trim()) || 'Tú (Streamer)';
+        const text = this.inputAnswer.value.trim();
+        if (text) {
+          const speed = Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+          this.submitAnswer(username, text, speed);
+          this.inputAnswer.value = '';
+          this.inputAnswer.focus();
+        }
+      };
+
+      this.btnSend.onclick = (e) => {
+        e.preventDefault();
+        submitAction();
+      };
+
+      this.inputAnswer.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitAction();
+        }
+      };
+    }
+
+    if (this.btnResetGame) {
+      this.btnResetGame.onclick = (e) => {
+        e.preventDefault();
+        audio.playClick();
+        this.startNewGame();
+      };
+    }
+
+    if (this.btnSimBots) {
+      this.btnSimBots.onclick = (e) => {
+        e.preventDefault();
+        audio.playClick();
+        this.triggerSimulatedChatAnswers();
+      };
+    }
+
+    // Connect to global Twitch Chat Bridge
+    twitchChat.initDOM();
+    twitchChat.onValidAnswer((displayName, text, userColor, elapsedSec) => {
+      if (this.phase === 'answering') {
+        const speed = elapsedSec || Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+        this.submitAnswer(displayName, text, speed);
+      }
+    });
+  }
+
+  normalizeText(str) {
+    if (!str) return '';
+    return str
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  startNewGame() {
+    this.currentRoundIdx = 0;
+    this.playerStats = {};
+    this.roundAcertantes.clear();
+    this.clearTimers();
+
+    if (this.chatFeed) {
+      this.chatFeed.innerHTML = '<div class="chat-log-msg system">⭐ ¡Día 4 en marcha! 25 casos del Atraco del Grinch. Pulsa "▶ ¡EMPEZAR RONDA 1!" para iniciar la radio policial.</div>';
+    }
+
+    this.renderLeaderboard();
+    this.prepareRound(0);
+  }
+
+  prepareRound(idx) {
+    this.currentRoundIdx = idx;
+    this.phase = 'waiting';
+    this.roundAcertantes.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.clearTimers();
+
+    const c = this.cases[idx];
+
+    if (this.roundBadge) {
+      this.roundBadge.textContent = `RONDA ${idx + 1} / ${this.totalRounds}`;
+    }
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⏸️ ESPERANDO INICIO (CASO ${idx + 1})`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
+    }
+    if (this.caseTitleEl) {
+      this.caseTitleEl.innerHTML = `🚨 CASO #${idx + 1}: <span style="color: var(--fn-yellow);">${c.caso.toUpperCase()}</span>`;
+    }
+
+    // Reset Clue Boxes
+    if (this.clue1El) {
+      this.clue1El.innerHTML = `<strong>Pista 1:</strong> <em>"Transmisión lista. Esperando inicio de ronda..."</em>`;
+      this.clue1El.className = 'police-clue-item clue-pending';
+    }
+    if (this.clue2El) {
+      this.clue2El.innerHTML = `<strong>Pista 2:</strong> <em>[Bloqueada hasta los 4s]</em>`;
+      this.clue2El.className = 'police-clue-item clue-locked';
+    }
+    if (this.clue3El) {
+      this.clue3El.innerHTML = `<strong>Pista 3:</strong> <em>[Bloqueada hasta los 8s]</em>`;
+      this.clue3El.className = 'police-clue-item clue-locked';
+    }
+
+    // Render Option Buttons
+    this.optionBtns.forEach((btn, i) => {
+      if (btn) {
+        btn.disabled = true;
+        btn.className = `fn-btn answer-btn opt-style-${i}`;
+        const label = btn.querySelector('.btn-answer-text');
+        if (label) label.textContent = c.opciones[i];
+      }
+    });
+
+    if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>👉</span> Pulsa "<strong>▶ ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds}!</strong>" para activar el escáner de radio y los botones de sospechosos.`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    this.updateCircleProgress(15, 15);
+
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'inline-flex';
+      this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds} (15s)!`;
+      this.btnStartRound.onclick = (e) => {
+        if (e) e.preventDefault();
+        audio.playClick();
+        this.startCurrentRound();
+      };
+    }
+
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+  }
+
+  startCurrentRound() {
+    this.phase = 'answering';
+    this.roundAcertantes.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.roundStartTime = Date.now();
+
+    const c = this.cases[this.currentRoundIdx];
+
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'none';
+    }
+
+    // Enable option buttons
+    this.optionBtns.forEach(btn => {
+      if (btn) btn.disabled = false;
+    });
+
+    if (this.inputAnswer) {
+      this.inputAnswer.disabled = false;
+      this.inputAnswer.value = '';
+      this.inputAnswer.focus();
+    }
+    if (this.btnSend) this.btnSend.disabled = false;
+    if (this.btnSimBots) this.btnSimBots.disabled = false;
+
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⚡ TIEMPO PARA RESPONDER (15s)`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-active';
+    }
+    if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>📡</span> ¡Transmisión en directo! Escucha las pistas y pulsa la opción correcta o escríbela en el chat.`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    // Trigger Clue 1 immediately
+    if (this.clue1El) {
+      this.clue1El.innerHTML = `<strong>Pista 1:</strong> "${c.pistas[0]}"`;
+      this.clue1El.className = 'police-clue-item clue-revealed';
+      audio.playTone(440, 'triangle', 0.08, 0, 0.3);
+    }
+
+    // Schedule Progressive Clue 2 at 4 seconds
+    const t2 = setTimeout(() => {
+      if (this.phase === 'answering' && this.clue2El) {
+        this.clue2El.innerHTML = `<strong>Pista 2:</strong> "${c.pistas[1]}"`;
+        this.clue2El.className = 'police-clue-item clue-revealed';
+        audio.playTone(550, 'triangle', 0.08, 0, 0.35);
+      }
+    }, 4000);
+
+    // Schedule Progressive Clue 3 at 8 seconds
+    const t3 = setTimeout(() => {
+      if (this.phase === 'answering' && this.clue3El) {
+        this.clue3El.innerHTML = `<strong>Pista 3:</strong> "${c.pistas[2]}"`;
+        this.clue3El.className = 'police-clue-item clue-revealed';
+        audio.playTone(660, 'triangle', 0.1, 0, 0.4);
+      }
+    }, 8000);
+
+    this.clueTimers.push(t2, t3);
+
+    // Sync Twitch Chat WebSocket with both exact option name and valid aliases
+    const allValidAnswers = [
+      c.opciones[c.correctIndex],
+      ...c.respuestasValidas
+    ];
+    twitchChat.startRound(allValidAnswers);
+
+    this.runAnswerTimer();
+  }
+
+  runAnswerTimer() {
+    this.clearTimers();
+    this.updateCircleProgress(this.timeLeft, this.totalWindow);
+
+    this.roundTimer = setInterval(() => {
+      this.timeLeft -= 0.1;
+      if (this.timeLeft <= 0) {
+        this.timeLeft = 0;
+        this.updateCircleProgress(0, this.totalWindow);
+        this.clearTimers();
+        this.finishAnswerWindow();
+      } else {
+        this.updateCircleProgress(this.timeLeft, this.totalWindow);
+      }
+    }, 100);
+  }
+
+  updateCircleProgress(current, total) {
+    const fraction = Math.max(0, current / total);
+    const offset = this.circleCircumference * (1 - fraction);
+
+    if (this.circleProgress) {
+      this.circleProgress.style.strokeDasharray = `${this.circleCircumference}`;
+      this.circleProgress.style.strokeDashoffset = `${offset}`;
+
+      if (fraction > 0.4) {
+        this.circleProgress.style.stroke = 'var(--gta-cyan)';
+      } else if (fraction > 0.2) {
+        this.circleProgress.style.stroke = 'var(--fn-yellow)';
+      } else {
+        this.circleProgress.style.stroke = 'var(--xmas-red)';
+      }
+    }
+
+    if (this.timerText) {
+      this.timerText.textContent = `${Math.ceil(current)}s`;
+    }
+  }
+
+  submitAnswer(username, text, elapsedSec = null) {
+    if (this.phase !== 'answering') return;
+    if (!username || !text) return;
+
+    const speed = elapsedSec !== null
+      ? elapsedSec
+      : Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+
+    const c = this.cases[this.currentRoundIdx];
+    const normText = this.normalizeText(text);
+
+    const isCorrectOption = normText === this.normalizeText(c.opciones[c.correctIndex]);
+    const isCorrectAlias = c.respuestasValidas.some(r => this.normalizeText(r) === normText);
+    const isCorrect = isCorrectOption || isCorrectAlias;
+
+    if (isCorrect) {
+      if (this.roundAcertantes.has(username)) return;
+      this.roundAcertantes.add(username);
+
+      if (!this.playerStats[username]) {
+        this.playerStats[username] = {
+          username,
+          score: 0,
+          times: [],
+          totalTime: 0,
+          avgTime: 0,
+          fastestTime: 99,
+          speedBonusTotal: 0,
+          totalPoints: 0
+        };
+      }
+
+      const p = this.playerStats[username];
+      p.score += 1;
+      p.times.push(speed);
+      p.totalTime += speed;
+      p.avgTime = parseFloat((p.totalTime / p.score).toFixed(2));
+      p.fastestTime = Math.min(p.fastestTime, speed);
+
+      // Speed bonus: up to 150 points for lightning-fast reactions
+      const bonus = Math.max(0, Math.round((15 - speed) * 10));
+      p.speedBonusTotal += bonus;
+      p.totalPoints = (p.score * 1000) + p.speedBonusTotal;
+
+      this.appendChatLog(username, text, true, speed);
+      this.renderLeaderboard();
+
+      if (this.statusBannerEl) {
+        const count = this.roundAcertantes.size;
+        this.statusBannerEl.innerHTML = `<span>🎯</span> ¡${count} acertantes! <strong>${username}</strong> identificó al sospechoso en <strong>${speed}s</strong>.`;
+      }
+    } else {
+      this.appendChatLog(username, text, false, speed);
+    }
+  }
+
+  appendChatLog(username, text, isCorrect, speed) {
+    if (!this.chatFeed) return;
+    const msg = document.createElement('div');
+    msg.className = `chat-log-msg ${isCorrect ? 'correct' : 'wrong'}`;
+    msg.innerHTML = `
+      <span class="user-badge">${username}:</span>
+      <span class="text-body">${text}</span>
+      ${isCorrect ? `<span class="score-tag">+1 pto ⚡ ${speed}s</span>` : ''}
+    `;
+    this.chatFeed.appendChild(msg);
+    this.chatFeed.scrollTop = this.chatFeed.scrollHeight;
+  }
+
+  finishAnswerWindow() {
+    this.phase = 'summary';
+    this.clearTimers();
+    twitchChat.endRound();
+
+    const c = this.cases[this.currentRoundIdx];
+
+    // Disable buttons
+    this.optionBtns.forEach((btn, idx) => {
+      if (btn) {
+        btn.disabled = true;
+        if (idx === c.correctIndex) {
+          btn.classList.add('correct-choice-highlight');
+        } else {
+          btn.classList.add('wrong-choice-faded');
+        }
+      }
+    });
+
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+
+    // Reveal full clues
+    if (this.clue2El && !this.clue2El.classList.contains('clue-revealed')) {
+      this.clue2El.innerHTML = `<strong>Pista 2:</strong> "${c.pistas[1]}"`;
+      this.clue2El.className = 'police-clue-item clue-revealed';
+    }
+    if (this.clue3El && !this.clue3El.classList.contains('clue-revealed')) {
+      this.clue3El.innerHTML = `<strong>Pista 3:</strong> "${c.pistas[2]}"`;
+      this.clue3El.className = 'police-clue-item clue-revealed';
+    }
+
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `🛑 CASO CERRADO • RECUENTO`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
+    }
+
+    const winnerCount = this.roundAcertantes.size;
+    const answerName = c.opciones[c.correctIndex];
+
+    if (winnerCount > 0) {
+      audio.playCorrect();
+      if (this.statusBannerEl) {
+        this.statusBannerEl.innerHTML = `<span>🎉</span> ¡${winnerCount} descubrieron a "<strong>${answerName.toUpperCase()}</strong>"! Puntos y velocidad sumados.`;
+        this.statusBannerEl.className = 'karaoke-status-banner status-won';
+      }
+    } else {
+      audio.playWrong();
+      if (this.statusBannerEl) {
+        this.statusBannerEl.innerHTML = `<span>❌</span> El sospechoso huyó. Era: "<strong>${answerName.toUpperCase()}</strong>".`;
+        this.statusBannerEl.className = 'karaoke-status-banner status-none';
+      }
+    }
+
+    this.renderLeaderboard();
+
+    // Prepare next case or finish 25 rounds
+    if (this.currentRoundIdx + 1 < this.totalRounds) {
+      const nextIdx = this.currentRoundIdx + 1;
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${nextIdx + 1} / ${this.totalRounds} (15s)!`;
+        this.btnStartRound.onclick = (e) => {
+          if (e) e.preventDefault();
+          audio.playClick();
+          this.prepareRound(nextIdx);
+          this.startCurrentRound();
+        };
+      }
+    } else {
+      setTimeout(() => {
+        this.finishGame();
+      }, 1600);
+    }
+  }
+
+  renderLeaderboard() {
+    if (!this.leaderboardList) return;
+    this.leaderboardList.innerHTML = '';
+
+    const players = Object.values(this.playerStats);
+
+    // Official Sorting: 1st by hits, 2nd by speed (lowest avgTime)
+    players.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.avgTime !== b.avgTime) return a.avgTime - b.avgTime;
+      return a.fastestTime - b.fastestTime;
+    });
+
+    if (this.totalPlayersPill) {
+      this.totalPlayersPill.textContent = `${players.length} agentes`;
+    }
+
+    const top5 = players.slice(0, 5);
+
+    if (top5.length === 0) {
+      this.leaderboardList.innerHTML = `
+        <div class="leaderboard-empty">
+          <span>🚨</span>
+          <p>Aún no hay sospechosos capturados. ¡Responde rápido para liderar el Top 5!</p>
+        </div>
+      `;
+      return;
+    }
+
+    const medals = ['👑', '🥈', '🥉', '4º', '5º'];
+    const rankClasses = ['rank-first', 'rank-second', 'rank-third', 'rank-other', 'rank-other'];
+
+    top5.forEach((p, idx) => {
+      const item = document.createElement('div');
+      item.className = `leaderboard-item ${rankClasses[idx]}`;
+      item.innerHTML = `
+        <div class="lb-left">
+          <span class="lb-medal">${medals[idx]}</span>
+          <span class="lb-username">${p.username}</span>
+        </div>
+        <div class="lb-right" style="display: flex; gap: 8px; align-items: center;">
+          <span class="lb-points" title="Casos Resueltos">${p.score}/25</span>
+          <span class="lb-speed" style="font-size: 0.78rem; color: var(--gta-cyan); font-weight: 700;">⚡ ${p.avgTime}s</span>
+          <span class="lb-badge" style="font-size: 0.72rem; background: rgba(255,230,0,0.2); padding: 2px 6px; border-radius: 4px; color: var(--fn-yellow);">${p.totalPoints} pts</span>
+        </div>
+      `;
+      this.leaderboardList.appendChild(item);
+    });
+  }
+
+  finishGame() {
+    this.phase = 'finished';
+    this.clearTimers();
+    twitchChat.endRound();
+
+    const players = Object.values(this.playerStats).sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.avgTime - b.avgTime;
+    });
+
+    let winner = 'Tú (Streamer)';
+    let score = 0;
+    let avgSpeed = 0;
+
+    if (players.length > 0) {
+      winner = players[0].username;
+      score = players[0].score;
+      avgSpeed = players[0].avgTime;
+    }
+
+    this.state.hasWonMinigame = true;
+    this.state.spinsAvailable = 1;
+    this.state.minigame4Winner = winner;
+
+    confetti.blast(200);
+    audio.playWinFanfare();
+
+    if (this.onVictoryCallback) {
+      this.onVictoryCallback({
+        winner,
+        score,
+        avgSpeed,
+        gameName: 'Atraco del Grinch'
+      });
+    }
+  }
+
+  triggerSimulatedChatAnswers() {
+    if (this.phase !== 'answering') return;
+    const c = this.cases[this.currentRoundIdx];
+
+    const count = 2 + Math.floor(Math.random() * 3);
+    const chosenBots = [...this.botNames].sort(() => 0.5 - Math.random()).slice(0, count);
+
+    chosenBots.forEach((bot, index) => {
+      const delayMs = (index + 1) * (1100 + Math.random() * 2200);
+      setTimeout(() => {
+        if (this.phase === 'answering') {
+          const isCorrect = Math.random() > 0.18;
+          const answerText = isCorrect ? c.opciones[c.correctIndex] : 'Sospechoso X';
+          const speed = parseFloat((delayMs / 1000).toFixed(2));
+          this.submitAnswer(bot, answerText, speed);
+        }
+      }, delayMs);
+    });
+  }
+
+  stopTimer() {
+    this.clearTimers();
+    twitchChat.endRound();
+    this.clueTimers.forEach(t => clearTimeout(t));
+    this.clueTimers = [];
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+    this.optionBtns.forEach(btn => {
+      if (btn) btn.disabled = true;
+    });
+  }
+
+  clearTimers() {
+    if (this.roundTimer) {
+      clearInterval(this.roundTimer);
+      this.roundTimer = null;
+    }
+    this.clueTimers.forEach(t => clearTimeout(t));
+    this.clueTimers = [];
+  }
+}
+
+
+// ==========================================
+// MODULE: js/modules/minigame5.js
+// ==========================================
+/**
+ * Ari-Navidad Minigame 5 (Día 5): Twitch Showdown - Anagrama de Vice City
+ * 25 rondas de anagramas navideños en cubos de neón animados,
+ * botón para comenzar cada ronda, soporte para chat de Twitch con WebSockets,
+ * y clasificación oficial según el más rápido y el que más acierte.
+ */
+
+
+
+
+
+const ANAGRAM_WORDS = [
+  {
+    ronda: 1,
+    letrasDesordenadas: ["R", "E", "O", "N"],
+    solucion: "RENO",
+    longitud: "4 Letras",
+    pista: "Cuadrúpedo volador con astas mágicas del Polo Norte",
+    alias: ["el reno", "renos"]
+  },
+  {
+    ronda: 2,
+    letrasDesordenadas: ["N", "E", "I", "V", "E"],
+    solucion: "NIEVE",
+    longitud: "5 Letras",
+    pista: "Manto helado blanco que cae sobre los rascacielos",
+    alias: ["la nieve"]
+  },
+  {
+    ronda: 3,
+    letrasDesordenadas: ["T", "R", "N", "I", "O", "E"],
+    solucion: "TRINEO",
+    longitud: "6 Letras",
+    pista: "Vehículo rojo volador que surca las nubes en Nochebuena",
+    alias: ["el trineo"]
+  },
+  {
+    ronda: 4,
+    letrasDesordenadas: ["T", "U", "O", "R", "N", "R"],
+    solucion: "TURRON",
+    longitud: "6 Letras",
+    pista: "Dulce navideño de almendra, miel y clara de huevo",
+    alias: ["el turron", "turrón"]
+  },
+  {
+    ronda: 5,
+    letrasDesordenadas: ["R", "E", "G", "L", "A", "O"],
+    solucion: "REGALO",
+    longitud: "6 Letras",
+    pista: "Paquete envuelto con cinta y lazo bajo el árbol",
+    alias: ["el regalo", "regalos"]
+  },
+  {
+    ronda: 6,
+    letrasDesordenadas: ["C", "A", "N", "P", "M", "A", "A", "S"],
+    solucion: "CAMPANAS",
+    longitud: "8 Letras",
+    pista: "Instrumentos de bronce que repican con júbilo navideño",
+    alias: ["campana", "las campanas"]
+  },
+  {
+    ronda: 7,
+    letrasDesordenadas: ["E", "T", "L", "L", "R", "E", "S", "A"],
+    solucion: "ESTRELLA",
+    longitud: "8 Letras",
+    pista: "Guía brillante de Belén colocada en la copa del abeto",
+    alias: ["la estrella"]
+  },
+  {
+    ronda: 8,
+    letrasDesordenadas: ["M", "D", "A", "O", "G", "E", "R", "U"],
+    solucion: "MUERDAGO",
+    longitud: "8 Letras",
+    pista: "Planta con bayas bajo la que manda la tradición besarse",
+    alias: ["el muerdago", "muérdago"]
+  },
+  {
+    ronda: 9,
+    letrasDesordenadas: ["B", "A", "T", "O", "N", "S"],
+    solucion: "BASTON",
+    longitud: "6 Letras",
+    pista: "Caramelo de menta rayado con curva de bastoncillo",
+    alias: ["el baston", "bastón", "baston de caramelo"]
+  },
+  {
+    ronda: 10,
+    letrasDesordenadas: ["P", "O", "V", "O", "R", "O", "N", "L"],
+    solucion: "POLVORON",
+    longitud: "8 Letras",
+    pista: "Dulce tradicional de canela que se deshace en la boca",
+    alias: ["el polvoron", "polvorón"]
+  },
+  {
+    ronda: 11,
+    letrasDesordenadas: ["C", "I", "E", "A", "M", "N", "H", "E"],
+    solucion: "CHIMENEA",
+    longitud: "8 Letras",
+    pista: "Conducto por donde descienden los regalos al calor del hogar",
+    alias: ["la chimenea"]
+  },
+  {
+    ronda: 12,
+    letrasDesordenadas: ["B", "M", "Z", "A", "M", "O", "B", "A"],
+    solucion: "ZAMBOMBA",
+    longitud: "8 Letras",
+    pista: "Instrumento típico que se frota con caña en villancicos",
+    alias: ["la zambomba"]
+  },
+  {
+    ronda: 13,
+    letrasDesordenadas: ["B", "L", "E", "E", "N"],
+    solucion: "BELEN",
+    longitud: "5 Letras",
+    pista: "Maqueta con el establo, pastorcillos y el pesebre",
+    alias: ["el belen", "belén", "portal de belen"]
+  },
+  {
+    ronda: 14,
+    letrasDesordenadas: ["G", "I", "U", "N", "R", "A", "L", "D", "A"],
+    solucion: "GUIRNALDA",
+    longitud: "9 Letras",
+    pista: "Corona o cinta festiva llena de luces y hojas verdes",
+    alias: ["la guirnalda", "guirnaldas"]
+  },
+  {
+    ronda: 15,
+    letrasDesordenadas: ["A", "U", "I", "D", "A", "G", "L", "N", "O"],
+    solucion: "AGUINALDO",
+    longitud: "9 Letras",
+    pista: "Regalo monetario que se pide cantando de puerta en puerta",
+    alias: ["el aguinaldo"]
+  },
+  {
+    ronda: 16,
+    letrasDesordenadas: ["R", "S", "C", "O", "O", "N"],
+    solucion: "ROSCON",
+    longitud: "6 Letras",
+    pista: "Bollo redondo de Reyes relleno de nata con rey o haba",
+    alias: ["el roscon", "roscón", "roscon de reyes"]
+  },
+  {
+    ronda: 17,
+    letrasDesordenadas: ["P", "A", "P", "A", "N", "O", "E", "L"],
+    solucion: "PAPANOEL",
+    longitud: "8 Letras",
+    pista: "El señor bondadoso de barba blanca y traje rojo",
+    alias: ["papa noel", "santa claus", "santa"]
+  },
+  {
+    ronda: 18,
+    letrasDesordenadas: ["F", "O", "R", "T", "N", "I", "T", "E"],
+    solucion: "FORTNITE",
+    longitud: "8 Letras",
+    pista: "El famoso Battle Royale donde se celebra el Winterfest",
+    alias: ["juego fortnite"]
+  },
+  {
+    ronda: 19,
+    letrasDesordenadas: ["G", "A", "S", "P", "A", "R"],
+    solucion: "GASPAR",
+    longitud: "6 Letras",
+    pista: "Rey mago de cabellos castaños que ofrece incienso",
+    alias: ["rey gaspar", "el rey gaspar"]
+  },
+  {
+    ronda: 20,
+    letrasDesordenadas: ["B", "A", "L", "T", "A", "S", "A", "R"],
+    solucion: "BALTASAR",
+    longitud: "8 Letras",
+    pista: "Rey mago sabio que entrega la preciada mirra aromática",
+    alias: ["rey baltasar", "el rey baltasar"]
+  },
+  {
+    ronda: 21,
+    letrasDesordenadas: ["P", "A", "N", "D", "E", "R", "E", "T", "A"],
+    solucion: "PANDERETA",
+    longitud: "9 Letras",
+    pista: "Aro con sonajas metálicas que se golpea al ritmo de villancicos",
+    alias: ["la pandereta"]
+  },
+  {
+    ronda: 22,
+    letrasDesordenadas: ["N", "O", "C", "H", "E", "B", "U", "E", "N", "A"],
+    solucion: "NOCHEBUENA",
+    longitud: "10 Letras",
+    pista: "Mágica cena del 24 de diciembre en familia",
+    alias: ["la nochebuena"]
+  },
+  {
+    ronda: 23,
+    letrasDesordenadas: ["N", "O", "C", "H", "E", "V", "I", "E", "J", "A"],
+    solucion: "NOCHEVIEJA",
+    longitud: "10 Letras",
+    pista: "Cena y fiesta del 31 de diciembre con las 12 uvas",
+    alias: ["la nochevieja", "fin de año", "fin de ano"]
+  },
+  {
+    ronda: 24,
+    letrasDesordenadas: ["M", "A", "Z", "A", "P", "A", "N"],
+    solucion: "MAZAPAN",
+    longitud: "7 Letras",
+    pista: "Delicada figurita horneada de almendra molida y azúcar",
+    alias: ["el mazapan", "mazapán"]
+  },
+  {
+    ronda: 25,
+    letrasDesordenadas: ["V", "I", "C", "E", "C", "I", "T", "Y"],
+    solucion: "VICECITY",
+    longitud: "8 Letras",
+    pista: "La metrópolis iluminada por neones y palmeras de Leonida",
+    alias: ["vice city", "gta vice city", "leonida"]
+  }
+];
+
+class MinigameTwitchShowdown {
+  constructor(state, onVictoryCallback) {
+    this.state = state;
+    this.onVictoryCallback = onVictoryCallback;
+
+    this.words = ANAGRAM_WORDS;
+    this.totalRounds = this.words.length; // 25
+    this.currentRoundIdx = 0;
+    this.phase = 'idle';
+
+    // Player stats: username -> { score, times: [], totalTime, avgTime, fastestTime, speedBonusTotal, totalPoints }
+    this.playerStats = {};
+    this.roundAcertantes = new Set();
+
+    // Timing
+    this.roundTimer = null;
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.roundStartTime = 0;
+
+    // Simulated Chat Bots
+    this.botNames = [
+      'LeonidaPro', 'ViceCityElf', 'FortniteKing', 'NavidadGamer',
+      'RudolphSpeed', 'TwitchChallenger', 'SantaSniper', 'GrinchHacker'
+    ];
+
+    this.cacheDOM();
+  }
+
+  cacheDOM() {
+    this.roundBadge = document.getElementById('m5-round-badge');
+    this.phaseBadge = document.getElementById('m5-phase-badge');
+    this.lengthPill = document.getElementById('m5-length-pill');
+    this.tilesContainer = document.getElementById('m5-tiles-container');
+    this.hintEl = document.getElementById('m5-hint-text');
+    this.statusBannerEl = document.getElementById('m5-status-banner');
+    this.btnStartRound = document.getElementById('m5-btn-start-round');
+
+    // Circular Timer
+    this.circleProgress = document.getElementById('m5-timer-circle');
+    this.timerText = document.getElementById('m5-timer-text');
+    this.circleCircumference = 2 * Math.PI * 48;
+
+    // Leaderboard
+    this.leaderboardList = document.getElementById('m5-leaderboard-list');
+    this.totalPlayersPill = document.getElementById('m5-total-players');
+    this.btnResetGame = document.getElementById('m5-btn-reset');
+
+    // Chat / Input Dock
+    this.chatFeed = document.getElementById('m5-chat-feed');
+    this.inputUser = document.getElementById('m5-input-user');
+    this.inputAnswer = document.getElementById('m5-input-answer');
+    this.btnSend = document.getElementById('m5-btn-send');
+    this.btnSimBots = document.getElementById('m5-btn-sim-bots');
+
+    if (this.btnSend && this.inputAnswer) {
+      const submitAction = () => {
+        const username = (this.inputUser && this.inputUser.value.trim()) || 'Tú (Streamer)';
+        const text = this.inputAnswer.value.trim();
+        if (text) {
+          const speed = Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+          this.submitAnswer(username, text, speed);
+          this.inputAnswer.value = '';
+          this.inputAnswer.focus();
+        }
+      };
+
+      this.btnSend.onclick = (e) => {
+        e.preventDefault();
+        submitAction();
+      };
+
+      this.inputAnswer.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitAction();
+        }
+      };
+    }
+
+    if (this.btnResetGame) {
+      this.btnResetGame.onclick = (e) => {
+        e.preventDefault();
+        audio.playClick();
+        this.startNewGame();
+      };
+    }
+
+    if (this.btnSimBots) {
+      this.btnSimBots.onclick = (e) => {
+        e.preventDefault();
+        audio.playClick();
+        this.triggerSimulatedChatAnswers();
+      };
+    }
+
+    // Connect to global Twitch Chat Bridge
+    twitchChat.initDOM();
+    twitchChat.onValidAnswer((displayName, text, userColor, elapsedSec) => {
+      if (this.phase === 'answering') {
+        const speed = elapsedSec || Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+        this.submitAnswer(displayName, text, speed);
+      }
+    });
+  }
+
+  normalizeText(str) {
+    if (!str) return '';
+    return str
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  startNewGame() {
+    this.currentRoundIdx = 0;
+    this.playerStats = {};
+    this.roundAcertantes.clear();
+    this.clearTimers();
+
+    if (this.chatFeed) {
+      this.chatFeed.innerHTML = '<div class="chat-log-msg system">⭐ ¡Día 5 Showdown! 25 rondas de Anagramas de Neón. Pulsa "▶ ¡EMPEZAR RONDA 1!" para desordenar las letras.</div>';
+    }
+
+    this.renderLeaderboard();
+    this.prepareRound(0);
+  }
+
+  prepareRound(idx) {
+    this.currentRoundIdx = idx;
+    this.phase = 'waiting';
+    this.roundAcertantes.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.clearTimers();
+
+    const item = this.words[idx];
+
+    if (this.roundBadge) {
+      this.roundBadge.textContent = `RONDA ${idx + 1} / ${this.totalRounds}`;
+    }
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⏸️ ESPERANDO INICIO (ANAGRAMA ${idx + 1})`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
+    }
+    if (this.lengthPill) {
+      this.lengthPill.textContent = `🔤 ${item.longitud.toUpperCase()}`;
+    }
+
+    // Render scrambled tiles
+    if (this.tilesContainer) {
+      this.tilesContainer.innerHTML = '';
+      item.letrasDesordenadas.forEach((letra) => {
+        const tile = document.createElement('div');
+        tile.className = 'anagram-neon-tile';
+        tile.textContent = letra;
+        this.tilesContainer.appendChild(tile);
+      });
+    }
+
+    if (this.hintEl) {
+      this.hintEl.innerHTML = `💡 <em>Pista:</em> ${item.pista}`;
+    }
+
+    if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>👉</span> Pulsa "<strong>▶ ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds}!</strong>" para iniciar los 15s del Anagrama de Neón.`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    this.updateCircleProgress(15, 15);
+
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'inline-flex';
+      this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${idx + 1} / ${this.totalRounds} (15s)!`;
+      this.btnStartRound.onclick = (e) => {
+        if (e) e.preventDefault();
+        audio.playClick();
+        this.startCurrentRound();
+      };
+    }
+
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+  }
+
+  startCurrentRound() {
+    this.phase = 'answering';
+    this.roundAcertantes.clear();
+    this.timeLeft = 15;
+    this.totalWindow = 15;
+    this.roundStartTime = Date.now();
+
+    const item = this.words[this.currentRoundIdx];
+
+    if (this.btnStartRound) {
+      this.btnStartRound.style.display = 'none';
+    }
+
+    if (this.inputAnswer) {
+      this.inputAnswer.disabled = false;
+      this.inputAnswer.value = '';
+      this.inputAnswer.focus();
+    }
+    if (this.btnSend) this.btnSend.disabled = false;
+    if (this.btnSimBots) this.btnSimBots.disabled = false;
+
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `⚡ TIEMPO PARA RESPONDER (15s)`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-active';
+    }
+    if (this.statusBannerEl) {
+      this.statusBannerEl.innerHTML = `<span>⏳</span> ¡15 segundos! Ordena mentalmente las letras y escribe la palabra en el chat.`;
+      this.statusBannerEl.className = 'karaoke-status-banner status-waiting';
+    }
+
+    // Sync Twitch Chat WebSocket with solution and aliases
+    const validTargets = [item.solucion, ...(item.alias || [])];
+    twitchChat.startRound(validTargets);
+
+    this.runAnswerTimer();
+  }
+
+  runAnswerTimer() {
+    this.clearTimers();
+    this.updateCircleProgress(this.timeLeft, this.totalWindow);
+
+    this.roundTimer = setInterval(() => {
+      this.timeLeft -= 0.1;
+      if (this.timeLeft <= 0) {
+        this.timeLeft = 0;
+        this.updateCircleProgress(0, this.totalWindow);
+        this.clearTimers();
+        this.finishAnswerWindow();
+      } else {
+        this.updateCircleProgress(this.timeLeft, this.totalWindow);
+      }
+    }, 100);
+  }
+
+  updateCircleProgress(current, total) {
+    const fraction = Math.max(0, current / total);
+    const offset = this.circleCircumference * (1 - fraction);
+
+    if (this.circleProgress) {
+      this.circleProgress.style.strokeDasharray = `${this.circleCircumference}`;
+      this.circleProgress.style.strokeDashoffset = `${offset}`;
+
+      if (fraction > 0.4) {
+        this.circleProgress.style.stroke = 'var(--gta-cyan)';
+      } else if (fraction > 0.2) {
+        this.circleProgress.style.stroke = 'var(--fn-yellow)';
+      } else {
+        this.circleProgress.style.stroke = 'var(--xmas-red)';
+      }
+    }
+
+    if (this.timerText) {
+      this.timerText.textContent = `${Math.ceil(current)}s`;
+    }
+  }
+
+  submitAnswer(username, text, elapsedSec = null) {
+    if (this.phase !== 'answering') return;
+    if (!username || !text) return;
+
+    const speed = elapsedSec !== null
+      ? elapsedSec
+      : Math.max(0.1, parseFloat(((Date.now() - this.roundStartTime) / 1000).toFixed(2)));
+
+    const item = this.words[this.currentRoundIdx];
+    const normText = this.normalizeText(text);
+
+    const isMatch = normText === this.normalizeText(item.solucion) ||
+      (item.alias && item.alias.some(a => this.normalizeText(a) === normText));
+
+    if (isMatch) {
+      if (this.roundAcertantes.has(username)) return;
+      this.roundAcertantes.add(username);
+
+      if (!this.playerStats[username]) {
+        this.playerStats[username] = {
+          username,
+          score: 0,
+          times: [],
+          totalTime: 0,
+          avgTime: 0,
+          fastestTime: 99,
+          speedBonusTotal: 0,
+          totalPoints: 0
+        };
+      }
+
+      const p = this.playerStats[username];
+      p.score += 1;
+      p.times.push(speed);
+      p.totalTime += speed;
+      p.avgTime = parseFloat((p.totalTime / p.score).toFixed(2));
+      p.fastestTime = Math.min(p.fastestTime, speed);
+
+      // Speed bonus: up to 150 points for fastest responses
+      const bonus = Math.max(0, Math.round((15 - speed) * 10));
+      p.speedBonusTotal += bonus;
+      p.totalPoints = (p.score * 1000) + p.speedBonusTotal;
+
+      this.appendChatLog(username, text, true, speed);
+      this.renderLeaderboard();
+
+      if (this.statusBannerEl) {
+        const count = this.roundAcertantes.size;
+        this.statusBannerEl.innerHTML = `<span>🎯</span> ¡${count} acertantes! <strong>${username}</strong> descifró el anagrama en <strong>${speed}s</strong>.`;
+      }
+    } else {
+      this.appendChatLog(username, text, false, speed);
+    }
+  }
+
+  appendChatLog(username, text, isCorrect, speed) {
+    if (!this.chatFeed) return;
+    const msg = document.createElement('div');
+    msg.className = `chat-log-msg ${isCorrect ? 'correct' : 'wrong'}`;
+    msg.innerHTML = `
+      <span class="user-badge">${username}:</span>
+      <span class="text-body">${text}</span>
+      ${isCorrect ? `<span class="score-tag">+1 pto ⚡ ${speed}s</span>` : ''}
+    `;
+    this.chatFeed.appendChild(msg);
+    this.chatFeed.scrollTop = this.chatFeed.scrollHeight;
+  }
+
+  finishAnswerWindow() {
+    this.phase = 'summary';
+    this.clearTimers();
+    twitchChat.endRound();
+
+    const item = this.words[this.currentRoundIdx];
+
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+
+    // Rearrange tiles in correct order with victory glow
+    if (this.tilesContainer) {
+      this.tilesContainer.innerHTML = '';
+      const letters = item.solucion.split('');
+      letters.forEach(l => {
+        const tile = document.createElement('div');
+        tile.className = 'anagram-neon-tile tile-solved';
+        tile.textContent = l;
+        this.tilesContainer.appendChild(tile);
+      });
+    }
+
+    if (this.phaseBadge) {
+      this.phaseBadge.textContent = `🛑 RONDA FINALIZADA • RECUENTO`;
+      this.phaseBadge.className = 'karaoke-phase-tag phase-break';
+    }
+
+    const winnerCount = this.roundAcertantes.size;
+    if (winnerCount > 0) {
+      audio.playCorrect();
+      if (this.statusBannerEl) {
+        this.statusBannerEl.innerHTML = `<span>🎉</span> ¡${winnerCount} descubrieron "<strong>${item.solucion}</strong>"! Puntuación y velocidad actualizadas.`;
+        this.statusBannerEl.className = 'karaoke-status-banner status-won';
+      }
+    } else {
+      audio.playWrong();
+      if (this.statusBannerEl) {
+        this.statusBannerEl.innerHTML = `<span>❌</span> Se acabó el tiempo. La palabra oculta era: "<strong>${item.solucion}</strong>".`;
+        this.statusBannerEl.className = 'karaoke-status-banner status-none';
+      }
+    }
+
+    this.renderLeaderboard();
+
+    // Prepare next round or finish 25 rounds
+    if (this.currentRoundIdx + 1 < this.totalRounds) {
+      const nextIdx = this.currentRoundIdx + 1;
+      if (this.btnStartRound) {
+        this.btnStartRound.style.display = 'inline-flex';
+        this.btnStartRound.innerHTML = `<span>▶</span> ¡EMPEZAR RONDA ${nextIdx + 1} / ${this.totalRounds} (15s)!`;
+        this.btnStartRound.onclick = (e) => {
+          if (e) e.preventDefault();
+          audio.playClick();
+          this.prepareRound(nextIdx);
+          this.startCurrentRound();
+        };
+      }
+    } else {
+      setTimeout(() => {
+        this.finishGame();
+      }, 1600);
+    }
+  }
+
+  renderLeaderboard() {
+    if (!this.leaderboardList) return;
+    this.leaderboardList.innerHTML = '';
+
+    const players = Object.values(this.playerStats);
+
+    // Official Sorting: 1st by hits, 2nd by speed (lowest avgTime)
+    players.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (a.avgTime !== b.avgTime) return a.avgTime - b.avgTime;
+      return a.fastestTime - b.fastestTime;
+    });
+
+    if (this.totalPlayersPill) {
+      this.totalPlayersPill.textContent = `${players.length} concursantes`;
+    }
+
+    const top5 = players.slice(0, 5);
+
+    if (top5.length === 0) {
+      this.leaderboardList.innerHTML = `
+        <div class="leaderboard-empty">
+          <span>🔤</span>
+          <p>Aún no hay anagramas resueltos. ¡Escribe la palabra para entrar en el Top 5!</p>
+        </div>
+      `;
+      return;
+    }
+
+    const medals = ['👑', '🥈', '🥉', '4º', '5º'];
+    const rankClasses = ['rank-first', 'rank-second', 'rank-third', 'rank-other', 'rank-other'];
+
+    top5.forEach((p, idx) => {
+      const item = document.createElement('div');
+      item.className = `leaderboard-item ${rankClasses[idx]}`;
+      item.innerHTML = `
+        <div class="lb-left">
+          <span class="lb-medal">${medals[idx]}</span>
+          <span class="lb-username">${p.username}</span>
+        </div>
+        <div class="lb-right" style="display: flex; gap: 8px; align-items: center;">
+          <span class="lb-points" title="Palabras Descifradas">${p.score}/25</span>
+          <span class="lb-speed" style="font-size: 0.78rem; color: var(--gta-cyan); font-weight: 700;">⚡ ${p.avgTime}s</span>
+          <span class="lb-badge" style="font-size: 0.72rem; background: rgba(255,230,0,0.2); padding: 2px 6px; border-radius: 4px; color: var(--fn-yellow);">${p.totalPoints} pts</span>
+        </div>
+      `;
+      this.leaderboardList.appendChild(item);
+    });
+  }
+
+  finishGame() {
+    this.phase = 'finished';
+    this.clearTimers();
+    twitchChat.endRound();
+
+    const players = Object.values(this.playerStats).sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.avgTime - b.avgTime;
+    });
+
+    let winner = 'Tú (Streamer)';
+    let score = 0;
+    let avgSpeed = 0;
+
+    if (players.length > 0) {
+      winner = players[0].username;
+      score = players[0].score;
+      avgSpeed = players[0].avgTime;
+    }
+
+    this.state.hasWonMinigame = true;
+    this.state.spinsAvailable = 1;
+    this.state.minigame5Winner = winner;
+
+    confetti.blast(200);
+    audio.playWinFanfare();
+
+    if (this.onVictoryCallback) {
+      this.onVictoryCallback({
+        winner,
+        score,
+        avgSpeed,
+        gameName: 'Twitch Anagrama'
+      });
+    }
+  }
+
+  triggerSimulatedChatAnswers() {
+    if (this.phase !== 'answering') return;
+    const item = this.words[this.currentRoundIdx];
+
+    const count = 2 + Math.floor(Math.random() * 3);
+    const chosenBots = [...this.botNames].sort(() => 0.5 - Math.random()).slice(0, count);
+
+    chosenBots.forEach((bot, index) => {
+      const delayMs = (index + 1) * (1100 + Math.random() * 2200);
+      setTimeout(() => {
+        if (this.phase === 'answering') {
+          const isCorrect = Math.random() > 0.15;
+          const answerText = isCorrect ? item.solucion : 'PalabraErronea';
+          const speed = parseFloat((delayMs / 1000).toFixed(2));
+          this.submitAnswer(bot, answerText, speed);
+        }
+      }, delayMs);
+    });
+  }
+
+  stopTimer() {
+    this.clearTimers();
+    twitchChat.endRound();
+    if (this.inputAnswer) this.inputAnswer.disabled = true;
+    if (this.btnSend) this.btnSend.disabled = true;
+    if (this.btnSimBots) this.btnSimBots.disabled = true;
+  }
+
+  clearTimers() {
+    if (this.roundTimer) {
+      clearInterval(this.roundTimer);
+      this.roundTimer = null;
+    }
+  }
+}
+
+
+// ==========================================
 // MODULE: js/main.js
 // ==========================================
 /**
  * Ari-Navidad Application Entry Point
  * Coordinates global state, SPA views, Web Audio synthesizer, falling snow,
- * Minigames 1 & 2 validation and Christmas Roulette mechanics.
+ * Minigames 1, 2, 3, 4 & 5 validation and Christmas Roulette mechanics.
  */
+
+
+
+
 
 
 
@@ -2768,6 +5195,9 @@ const appState = {
   spinsAvailable: 0,
   hasWonMinigame: false,
   minigame2Winner: null,
+  minigame3Winner: null,
+  minigame4Winner: null,
+  minigame5Winner: null,
   prizesWon: []
 };
 
@@ -2775,6 +5205,7 @@ const appState = {
 let audioToggleBtn, audioIcon, audioText, toastNotice, toastMessage, toastIcon;
 let modalVictory, btnModalGoRoulette, btnModalVictoryLobby;
 let modalKaraokeVictory, karaokeWinnerName, karaokeWinnerDetails, karaokeVictorySub, btnKaraokeGoRoulette, btnKaraokeVictoryLobby;
+let modalMinigameVictory, minigameWinnerName, minigameWinnerDetails, minigameVictorySub, minigameWinnerIcon, btnMinigameGoRoulette, btnMinigameVictoryLobby;
 let modalPrizeWon, wonPrizeIcon, wonPrizeName, wonPrizeDesc, btnClaimChat, btnPrizeDone;
 let modalPassedSubtitle;
 let toastTimeout = null;
@@ -2823,6 +5254,15 @@ function initApp() {
   btnKaraokeGoRoulette = document.getElementById('btn-karaoke-go-roulette');
   btnKaraokeVictoryLobby = document.getElementById('btn-karaoke-victory-lobby');
 
+  // Minigames 3, 4 & 5 Victory Modal
+  modalMinigameVictory = document.getElementById('modal-minigame-victory');
+  minigameWinnerName = document.getElementById('minigame-winner-name');
+  minigameWinnerDetails = document.getElementById('minigame-winner-details');
+  minigameVictorySub = document.getElementById('minigame-victory-sub');
+  minigameWinnerIcon = document.getElementById('minigame-winner-icon');
+  btnMinigameGoRoulette = document.getElementById('btn-minigame-go-roulette');
+  btnMinigameVictoryLobby = document.getElementById('btn-minigame-victory-lobby');
+
   // Roulette Prize Modal
   modalPrizeWon = document.getElementById('modal-prize-won');
   wonPrizeIcon = document.getElementById('won-prize-icon');
@@ -2848,6 +5288,23 @@ function initApp() {
     }
     if (modalPrizeWon) modalPrizeWon.classList.add('modal-show');
   });
+
+  // Helper for Minigames 3, 4, 5 victory modal
+  const showMinigameVictoryModal = (winData) => {
+    roulette.updateControlsState();
+    if (minigameWinnerName) {
+      minigameWinnerName.textContent = winData.winner.toUpperCase();
+    }
+    if (minigameVictorySub) {
+      minigameVictorySub.textContent = `FIN DE LAS 25 RONDAS • ¡CAMPEÓN ${winData.gameName.toUpperCase()}!`;
+    }
+    if (minigameWinnerDetails) {
+      minigameWinnerDetails.textContent = `¡${winData.winner} fue el más rápido y certero con ${winData.score} aciertos en 25 rondas (velocidad media: ${winData.avgSpeed}s)! Se desbloquea 1 tirada oficial en la Ruleta Navideña VIP.`;
+    }
+    if (modalMinigameVictory) {
+      modalMinigameVictory.classList.add('modal-show');
+    }
+  };
 
   // 3. Initialize Minigame 1 (Adivina la Canción)
   const minigame1 = new MinigameSongGuesser(appState, () => {
@@ -2876,11 +5333,30 @@ function initApp() {
     }
   });
 
-  // Expose minigame2 instance and global bridges
+  // 5. Initialize Minigame 3 (Winterfest Emoji Enigma - 25 Rondas)
+  const minigame3 = new MinigameEmojiEnigma(appState, (winData) => {
+    showMinigameVictoryModal(winData);
+  });
+
+  // 6. Initialize Minigame 4 (El Gran Atraco del Grinch - 25 Rondas)
+  const minigame4 = new MinigameGrinchHeist(appState, (winData) => {
+    showMinigameVictoryModal(winData);
+  });
+
+  // 7. Initialize Minigame 5 (Twitch Showdown: Anagrama - 25 Rondas)
+  const minigame5 = new MinigameTwitchShowdown(appState, (winData) => {
+    showMinigameVictoryModal(winData);
+  });
+
+  // Expose minigame instances and global bridges
   window.ariKaraokeInstance = minigame2;
   window.ariRouter = router;
   window.ariMinigame1 = minigame1;
   window.ariMinigame2 = minigame2;
+  window.ariMinigame3 = minigame3;
+  window.ariMinigame4 = minigame4;
+  window.ariMinigame5 = minigame5;
+  window.ariRoulette = roulette;
 
   // Always redraw wheel when switching to roulette view
   router.onViewChange((viewKey) => {
@@ -2890,7 +5366,7 @@ function initApp() {
     }
   });
 
-  // 5. Audio Control Button Setup
+  // Audio Control Button Setup
   if (audioToggleBtn) {
     audioToggleBtn.onclick = (e) => {
       e.preventDefault();
@@ -2909,7 +5385,7 @@ function initApp() {
     };
   }
 
-  // 6. Lobby Card 1: Adivina la Canción Navideña (Play Now)
+  // Lobby Card 1: Adivina la Canción Navideña (Play Now)
   const card1 = document.getElementById('card-minigame-1');
   const btnPlayMinigame1 = document.getElementById('btn-play-minigame1');
   
@@ -2928,7 +5404,7 @@ function initApp() {
     };
   }
 
-  // 7. Lobby Card 2: Karaoke Navideño Vice City (Play Now)
+  // Lobby Card 2: Karaoke Navideño Vice City (Play Now)
   const card2 = document.getElementById('card-minigame-2');
   const btnPlayMinigame2 = document.getElementById('btn-play-minigame2');
 
@@ -2947,15 +5423,71 @@ function initApp() {
     };
   }
 
+  // Lobby Card 3: Winterfest Emoji Enigma (Día 3)
+  const card3 = document.getElementById('card-minigame-3');
+  const btnPlayMinigame3 = document.getElementById('btn-play-minigame3');
+
+  const startMinigame3Action = (e) => {
+    if (e) e.preventDefault();
+    audio.playClick();
+    router.navigateTo('minigame3');
+    minigame3.startNewGame();
+  };
+
+  if (card3) card3.onclick = startMinigame3Action;
+  if (btnPlayMinigame3) {
+    btnPlayMinigame3.onclick = (e) => {
+      e.stopPropagation();
+      startMinigame3Action(e);
+    };
+  }
+
+  // Lobby Card 4: El Gran Atraco del Grinch (Día 4)
+  const card4 = document.getElementById('card-minigame-4');
+  const btnPlayMinigame4 = document.getElementById('btn-play-minigame4');
+
+  const startMinigame4Action = (e) => {
+    if (e) e.preventDefault();
+    audio.playClick();
+    router.navigateTo('minigame4');
+    minigame4.startNewGame();
+  };
+
+  if (card4) card4.onclick = startMinigame4Action;
+  if (btnPlayMinigame4) {
+    btnPlayMinigame4.onclick = (e) => {
+      e.stopPropagation();
+      startMinigame4Action(e);
+    };
+  }
+
+  // Lobby Card 5: Twitch Showdown - Anagrama de Vice City (Día 5)
+  const card5 = document.getElementById('card-minigame-5');
+  const btnPlayMinigame5 = document.getElementById('btn-play-minigame5');
+
+  const startMinigame5Action = (e) => {
+    if (e) e.preventDefault();
+    audio.playClick();
+    router.navigateTo('minigame5');
+    minigame5.startNewGame();
+  };
+
+  if (card5) card5.onclick = startMinigame5Action;
+  if (btnPlayMinigame5) {
+    btnPlayMinigame5.onclick = (e) => {
+      e.stopPropagation();
+      startMinigame5Action(e);
+    };
+  }
+
   // Global direct access bridge
   window.ariPlayMinigame = (num) => {
     if (num === 1) startMinigameAction();
     else if (num === 2) startMinigame2Action();
+    else if (num === 3) startMinigame3Action();
+    else if (num === 4) startMinigame4Action();
+    else if (num === 5) startMinigame5Action();
   };
-
-  window.ariMinigame1 = minigame1;
-  window.ariMinigame2 = minigame2;
-  window.ariRoulette = roulette;
 
   // View change safety hook: cancel any active timers and music when leaving minigames
   router.onViewChange((newViewKey) => {
@@ -2965,6 +5497,15 @@ function initApp() {
     }
     if (newViewKey !== 'minigame2' && minigame2) {
       minigame2.stopTimer();
+    }
+    if (newViewKey !== 'minigame3' && minigame3) {
+      minigame3.stopTimer();
+    }
+    if (newViewKey !== 'minigame4' && minigame4) {
+      minigame4.stopTimer();
+    }
+    if (newViewKey !== 'minigame5' && minigame5) {
+      minigame5.stopTimer();
     }
   });
 
@@ -2976,6 +5517,15 @@ function initApp() {
     }
     if (viewKey !== 'minigame2' && window.ariMinigame2) {
       window.ariMinigame2.stopTimer();
+    }
+    if (viewKey !== 'minigame3' && window.ariMinigame3) {
+      window.ariMinigame3.stopTimer();
+    }
+    if (viewKey !== 'minigame4' && window.ariMinigame4) {
+      window.ariMinigame4.stopTimer();
+    }
+    if (viewKey !== 'minigame5' && window.ariMinigame5) {
+      window.ariMinigame5.stopTimer();
     }
     if (router) {
       router.navigateTo(viewKey);
@@ -3004,7 +5554,7 @@ function initApp() {
     }
   };
 
-  // 7b. Instructions Accordion Controls (Minigames 1 & 2)
+  // Instructions Accordion Controls (Minigames 1 to 5)
   const setupInstructionsToggle = (btnId, cardId, pillId) => {
     const btn = document.getElementById(btnId);
     const card = document.getElementById(cardId);
@@ -3025,24 +5575,11 @@ function initApp() {
 
   setupInstructionsToggle('btn-toggle-instructions-m1', 'instructions-card-m1', 'instructions-pill-m1');
   setupInstructionsToggle('btn-toggle-instructions-m2', 'instructions-card-m2', 'instructions-pill-m2');
+  setupInstructionsToggle('btn-toggle-instructions-m3', 'instructions-card-m3', 'instructions-pill-m3');
+  setupInstructionsToggle('btn-toggle-instructions-m4', 'instructions-card-m4', 'instructions-pill-m4');
+  setupInstructionsToggle('btn-toggle-instructions-m5', 'instructions-card-m5', 'instructions-pill-m5');
 
-  // 8. Lobby Cards 3 to 5: Locked Vault Interaction
-  const lockedCards = document.querySelectorAll('.game-card.card-locked');
-  lockedCards.forEach(card => {
-    card.onclick = (e) => {
-      e.preventDefault();
-      audio.playLockShake();
-      const vaultName = card.getAttribute('data-locked-name') || 'Esta bóveda';
-      
-      card.classList.remove('vault-shake-anim');
-      void card.offsetWidth; // Trigger reflow
-      card.classList.add('vault-shake-anim');
-
-      showToast(`🔒 ${vaultName} está sellada. ¡Próximamente en el stream!`, '🚫');
-    };
-  });
-
-  // 9. Lobby CTA: Ver Ruleta
+  // Lobby CTA: Ver Ruleta
   const lobbyCtaWheel = document.getElementById('lobby-cta-wheel');
   if (lobbyCtaWheel) {
     lobbyCtaWheel.onclick = (e) => {
@@ -3054,7 +5591,7 @@ function initApp() {
     };
   }
 
-  // 10. Victory Modal 1 Buttons (Adivina la Canción)
+  // Victory Modal 1 Buttons (Adivina la Canción)
   if (btnModalGoRoulette) {
     btnModalGoRoulette.onclick = (e) => {
       e.preventDefault();
@@ -3076,7 +5613,7 @@ function initApp() {
     };
   }
 
-  // 11. Victory Modal 2 Buttons (Karaoke Navideño)
+  // Victory Modal 2 Buttons (Karaoke Navideño)
   if (btnKaraokeGoRoulette) {
     btnKaraokeGoRoulette.onclick = (e) => {
       e.preventDefault();
@@ -3098,7 +5635,29 @@ function initApp() {
     };
   }
 
-  // 12. Prize Won Modal Buttons
+  // Victory Modal 3, 4, 5 Buttons
+  if (btnMinigameGoRoulette) {
+    btnMinigameGoRoulette.onclick = (e) => {
+      e.preventDefault();
+      audio.playClick();
+      if (modalMinigameVictory) modalMinigameVictory.classList.remove('modal-show');
+      router.navigateTo('roulette');
+      roulette.drawWheel(roulette.currentRotation);
+      roulette.updateControlsState();
+    };
+  }
+
+  if (btnMinigameVictoryLobby) {
+    btnMinigameVictoryLobby.onclick = (e) => {
+      e.preventDefault();
+      audio.playClick();
+      if (modalMinigameVictory) modalMinigameVictory.classList.remove('modal-show');
+      router.navigateTo('lobby');
+      roulette.updateControlsState();
+    };
+  }
+
+  // Prize Won Modal Buttons
   if (btnClaimChat) {
     btnClaimChat.onclick = (e) => {
       e.preventDefault();
@@ -3107,8 +5666,11 @@ function initApp() {
       const claimText = `!reclamar ${lastPrize ? lastPrize.prize.name : 'Premio'} - Ari Navidad Leonida`;
       
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(claimText);
-        showToast(`📋 Comando copiado: "${claimText}" ¡Pégalo en el chat de Twitch!`, '💬');
+        navigator.clipboard.writeText(claimText).then(() => {
+          showToast(`📋 Comando copiado: "${claimText}" ¡Pégalo en el chat de Twitch!`, '💬');
+        }).catch(() => {
+          showToast(`💬 Escribe en el chat: "${claimText}"`, '🎁');
+        });
       } else {
         showToast(`💬 Escribe en el chat: "${claimText}"`, '🎁');
       }
@@ -3124,7 +5686,7 @@ function initApp() {
     };
   }
 
-  console.log('✨ Ari Navidad: Ready with Minigames 1 & 2!');
+  console.log('✨ Ari Navidad: Ready with all 5 Minigames (Días 1, 2, 3, 4 y 5)!');
 }
 
 // Robust execution: handles both early and late script loading

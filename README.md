@@ -11,23 +11,29 @@ Una aplicación web interactiva de alto impacto visual orientada a transmisiones
    - Transiciones animadas tipo fade-in / slide entre pantallas.
    - HUD superior integrado estilo stream con contador de tiradas, estado "EN DIRECTO" e indicador de ecualizador de audio.
 
-2. **Lobby Principal con 5 Minijuegos**:
-   - **Minijuego 1 (Adivina la Canción Navideña)**: Totalmente funcional, interactivo, con reproductor sintetizado, barra de progreso con cuenta regresiva y 4 botones cómic de respuesta.
-   - **Minijuego 2 (Karaoke Navideño de Leonida - 20 Rondas Anti-Delay)**:
-     - Panel estilo letrero de neón de karaoke con letras y palabra censurada parpadeante.
-     - Temporizador circular SVG de **15 segundos** para responder + **3 segundos** de descanso y revelación.
-     - **Sistema Anti-Delay / Cero Latencia**: No premia al más rápido por ping; otorga +1 punto a **todos los usuarios del chat** que escriban la palabra correcta dentro de la ventana de 15 segundos.
-     - **Clasificación (Leaderboard Top 5)** en tiempo real con medallas (👑, 🥈, 🥉).
-     - **Desempate aleatorio automático** en la ronda 20 en caso de empate en la primera posición.
-     - Simulador integrado de chat (`🤖 Simular Chat`) para pruebas locales o en directo.
-   - **Minijuegos 3 al 5 (Placeholders de Bóveda)**:
-     - *Fortnite Winterfest Drop* (Estilo suministro Llama).
-     - *Atraco del Grinch*.
-     - *Twitch Showdown*.
-     - Con animación de sacudida metálica al hacer clic, aviso en toast interactivo y sonido de bloqueo.
+2. **Lobby Principal con 5 Minijuegos Completos**:
+   - **Minijuego 1 (Día 1: Adivina la Canción Navideña - 20 Rondas)**: Totalmente funcional, interactivo, con reproductor sintetizado, barra de progreso con cuenta regresiva, botón para iniciar cada ronda y 4 botones cómic de respuesta.
+   - **Minijuego 2 (Día 2: Karaoke Navideño de Leonida - 20 Rondas)**: Panel estilo letrero de neón de karaoke con letras y palabra censurada parpadeante, temporizador circular de 15s, botón de inicio de ronda, Anti-Delay y leaderboard.
+   - **Minijuego 3 (Día 3: Winterfest Emoji Enigma - 25 Rondas)**:
+     - 25 enigmas visuales con emojis navideños de películas, villancicos y tradiciones.
+     - Pista temática y guiones dinámicos de longitud de palabra.
+     - Botón manual para **comenzar cada ronda** (15 segundos).
+     - **Métrica de victoria oficial**: Se mide al **más rápido y al que más acierte** (aciertos + velocidad media en segundos y bonus por reflejos).
+     - Integración total con chat de Twitch WebSocket (#imarixu), Caja Destacada y simulador de bots.
+   - **Minijuego 4 (Día 4: El Gran Atraco del Grinch - 25 Rondas)**:
+     - 25 casos policíacos en vivo por la radio de Vice City / Leonida con sirenas de neón.
+     - **3 pistas progresivas** dinámicas transmitidas a los 0s, 4s y 8s de la ronda.
+     - 4 botones cómic de respuesta rápida para sospechosos + campo libre de chat.
+     - Botón manual para **comenzar cada ronda** (15 segundos).
+     - **Métrica de victoria oficial**: Registro de tiempo al instante del clic o mensaje; gana el participante que más casos resuelva con el menor tiempo de respuesta.
+   - **Minijuego 5 (Día 5: Twitch Showdown - Anagrama de Vice City - 25 Rondas)**:
+     - 25 palabras y conceptos festivos con letras desordenadas en mosaicos de neón flotantes.
+     - Indicador de número de letras y pista temática.
+     - Botón manual para **comenzar cada ronda** (15 segundos).
+     - **Métrica de victoria oficial**: Medición al milisegundo de quién descifra la palabra; clasificación en vivo según el más rápido y certero.
 
 3. **Condición de Victoria & Control de Tirada Única**:
-   - Tanto el ganador del Minijuego 1 como el ganador del Minijuego 2 desbloquean **exactamente 1 tirada única** en la Ruleta Navideña.
+   - Ganar cualquiera de los 5 minijuegos desbloquea **exactamente 1 tirada única** en la Ruleta Navideña VIP.
    - El botón para reclamar la tirada y acceder a la ruleta solo se habilita tras alcanzar la victoria.
    - La ruleta bloquea cualquier intento de giro no autorizado o doble tirada. Incluye además un **Modo Prueba (Giro de Demostración)** para testing.
 
@@ -57,20 +63,24 @@ Una aplicación web interactiva de alto impacto visual orientada a transmisiones
 
 ```text
 Ari-Navidad/
-├── index.html                   # Documento principal SPA con las 3 vistas y modales
+├── index.html                   # Documento principal SPA con vistas completas y modales
 ├── css/
 │   ├── main.css                 # Variables temáticas, reset, layout SPA sin scroll
 │   ├── animations.css           # Luces de navidad, sacudida de bóvedas, neón, confeti
 │   └── components.css           # Tarjetas Fortnite, ruleta decorada, HUD y panel de drop rates
 ├── js/
 │   ├── main.js                  # Orquestador principal de estado y eventos
+│   ├── bundle.js                # Bundle unificado para compatibilidad file:// y web
 │   └── modules/
 │       ├── audio.js             # Motor de sonido Web Audio API (música + SFX + villancicos)
 │       ├── snow.js              # Sistema de partículas de nieve en canvas
 │       ├── confetti.js          # Cañón de confeti para celebraciones
 │       ├── router.js            # Router de vistas SPA sin recarga
-│       ├── minigame1.js         # Lógica del Quiz musical, temporizador y victoria
-│       ├── minigame2.js         # Karaoke 20 rondas con Anti-Delay para Twitch y Leaderboard
+│       ├── minigame1.js         # Minijuego 1 (Día 1): Adivina la Canción (20 rondas)
+│       ├── minigame2.js         # Minijuego 2 (Día 2): Karaoke Navideño (20 rondas)
+│       ├── minigame3.js         # Minijuego 3 (Día 3): Winterfest Emoji Enigma (25 rondas)
+│       ├── minigame4.js         # Minijuego 4 (Día 4): El Gran Atraco del Grinch (25 rondas)
+│       ├── minigame5.js         # Minijuego 5 (Día 5): Twitch Showdown Anagrama (25 rondas)
 │       ├── roulette.js          # Ruleta canvas 24 gajos y cálculo matemático exacto
 │       └── twitch-chat.js       # Conexión WebSocket pura con Twitch Chat (#imarixu), Caja Destacada y Live Feed
 └── README.md
